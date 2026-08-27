@@ -63,7 +63,7 @@
         </div>
 
         <!-- Nomor Telepon Pengirim -->
-        <div class="sm:col-span-2">
+        <div>
           <label for="phone" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
             Nomor WhatsApp Anda
           </label>
@@ -72,6 +72,21 @@
                  name="phone"
                  value="{{ phone }}"
                  placeholder="Misal: 081234567890"
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 font-mono focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+        </div>
+
+        <!-- Website Resmi Agensi -->
+        <div>
+          <label for="website_url" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            Website Resmi Agensi / Profil Utama <span class="text-rose-500">*</span>
+          </label>
+          <input type="url"
+                 id="website_url"
+                 name="website_url"
+                 value="{{ website_url|default('https://juangdev.my.id') }}"
+                 required
+                 placeholder="Misal: https://juangdev.my.id"
+                 oninput="updatePreview()"
                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 font-mono focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
         </div>
 
@@ -95,6 +110,7 @@
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{business_name}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{portfolio_name}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{portfolio_url}</span>
+            <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{website_url}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{pitch_snippet}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{company_name}</span>
             <span class="px-2 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] text-slate-800 font-bold">{contact_person}</span>
@@ -286,6 +302,7 @@
     const template = document.getElementById('default_wa_template').value;
     const company = document.getElementById('company_name').value || "JuangDev";
     const person = document.getElementById('contact_person').value || "Tim Konsultan Web";
+    const website = (document.getElementById('website_url') ? document.getElementById('website_url').value : "") || "https://juangdev.my.id";
     const sampleName = "Klinik Gigi Sehat Sejahtera";
     const samplePortName = "Klinik Medis & Praktek Dental";
     const samplePortUrl = "https://juangdev.my.id/demo/klinik-dental";
@@ -295,6 +312,7 @@
     preview = preview.replace(/{business_name}/g, sampleName);
     preview = preview.replace(/{portfolio_name}/g, samplePortName);
     preview = preview.replace(/{portfolio_url}/g, samplePortUrl);
+    preview = preview.replace(/{website_url}/g, website);
     preview = preview.replace(/{pitch_snippet}/g, sampleSnippet);
     preview = preview.replace(/{company_name}/g, company);
     preview = preview.replace(/{contact_person}/g, person);

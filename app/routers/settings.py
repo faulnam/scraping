@@ -28,9 +28,10 @@ async def profile_view(
     profile = db.query(models.BusinessProfile).first()
     portfolios = db.query(models.PortfolioItem).order_by(models.PortfolioItem.id.asc()).all()
 
-    company_name = profile.company_name if profile else "JuangDev Agency"
-    contact_person = profile.contact_person if profile else "Tim Sales & Konsultan Web"
+    company_name = profile.company_name if profile else "JuangDev Solutions"
+    contact_person = profile.contact_person if profile else "Tim Konsultan Web"
     phone = profile.phone if profile else "081234567890"
+    website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else "https://juangdev.my.id"
     wa_template = profile.default_wa_template if profile and profile.default_wa_template else DEFAULT_WA_TEMPLATE
 
     return templates.TemplateResponse(
@@ -43,6 +44,7 @@ async def profile_view(
             "company_name": company_name,
             "contact_person": contact_person,
             "phone": phone,
+            "website_url": website_url,
             "wa_template": wa_template,
         }
     )
@@ -54,6 +56,7 @@ async def update_profile(
     company_name: str = Form(...),
     contact_person: Optional[str] = Form(""),
     phone: Optional[str] = Form(""),
+    website_url: Optional[str] = Form("https://juangdev.my.id"),
     default_wa_template: Optional[str] = Form(DEFAULT_WA_TEMPLATE),
     db: Session = Depends(get_db)
 ):
@@ -63,11 +66,14 @@ async def update_profile(
     profile = db.query(models.BusinessProfile).first()
     now = datetime.utcnow()
 
+    clean_website_url = website_url.strip() if website_url and website_url.strip() else "https://juangdev.my.id"
+
     if not profile:
         profile = models.BusinessProfile(
             company_name=company_name.strip(),
             contact_person=contact_person.strip() if contact_person else None,
             phone=phone.strip() if phone else None,
+            website_url=clean_website_url,
             default_wa_template=default_wa_template.strip() if default_wa_template else DEFAULT_WA_TEMPLATE,
             updated_at=now
         )
@@ -76,6 +82,7 @@ async def update_profile(
         profile.company_name = company_name.strip()
         profile.contact_person = contact_person.strip() if contact_person else None
         profile.phone = phone.strip() if phone else None
+        profile.website_url = clean_website_url
         profile.default_wa_template = default_wa_template.strip() if default_wa_template else DEFAULT_WA_TEMPLATE
         profile.updated_at = now
 
@@ -94,8 +101,9 @@ async def update_profile(
             "company_name": profile.company_name,
             "contact_person": profile.contact_person or "",
             "phone": profile.phone or "",
+            "website_url": getattr(profile, "website_url", None) or "https://juangdev.my.id",
             "wa_template": profile.default_wa_template,
-            "success_message": "Profil bisnis dan template pesan WhatsApp berhasil disimpan!"
+            "success_message": "Profil bisnis, website resmi, dan template WhatsApp berhasil disimpan!"
         }
     )
 

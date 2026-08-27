@@ -7,7 +7,7 @@
 {% block header_actions %}
 <a href="/leads" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
   <span>&larr;</span>
-  <span>Kembali ke Daftar Leads</span>
+  <span class="hidden sm:inline">Kembali ke Daftar </span><span>Leads</span>
 </a>
 {% endblock %}
 
@@ -15,7 +15,7 @@
 <div class="space-y-6 max-w-7xl mx-auto">
 
   <!-- Header Lead Summary Card -->
-  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 {% if not business.has_website %}border-l-4 border-l-emerald-500 bg-emerald-50/10{% endif %}">
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-6 {% if not business.has_website %}border-l-4 border-l-emerald-500 bg-emerald-50/10{% endif %}">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       
       <div>
@@ -50,7 +50,7 @@
           {% endif %}
         </div>
 
-        <h1 class="text-xl sm:text-2xl font-bold text-slate-900">{{ business.business_name }}</h1>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">{{ business.business_name }}</h1>
         <p class="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
           <span>{{ business.address|default('Alamat tidak tersedia') }}</span>
           <span>&bull;</span>
@@ -59,12 +59,12 @@
       </div>
 
       <!-- Quick Action Buttons -->
-      <div class="flex items-center space-x-2">
+      <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
         {% if target_phone_wa %}
         <button type="button" 
                 onclick="document.getElementById('whatsapp-studio-card').scrollIntoView({behavior: 'smooth'})"
-                class="inline-flex items-center space-x-2 py-2.5 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
-          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                class="flex-1 sm:flex-none inline-flex items-center justify-center space-x-2 py-2.5 px-4 sm:px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+          <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
           </svg>
           <span>Studio WhatsApp</span>
@@ -75,8 +75,8 @@
         <a href="{{ business.gmaps_url }}" 
            target="_blank" 
            rel="noopener noreferrer" 
-           class="inline-flex items-center space-x-1.5 py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
-          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+           class="flex-1 sm:flex-none inline-flex items-center justify-center space-x-1.5 py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+          <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
           <span>Google Maps</span>
         </a>
         {% endif %}
@@ -340,6 +340,7 @@
             <span class="text-[10px] font-medium text-slate-400 mr-1">Sisipkan:</span>
             <button type="button" onclick="insertPlaceholder('{{ business.business_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Usaha</button>
             <button type="button" onclick="insertPlaceholder(document.getElementById('selected-portfolio-url').textContent)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Link Demo Web</button>
+            <button type="button" onclick="insertPlaceholder(WEBSITE_URL)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Web Resmi JuangDev</button>
             <button type="button" onclick="insertPlaceholder('{{ company_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Agensi</button>
             <button type="button" onclick="resetToTemplate()" class="ml-auto text-blue-600 hover:underline text-[10px] font-semibold">Reset ke Awal</button>
           </div>
@@ -425,6 +426,7 @@
   const TARGET_PHONE_WA = {{ target_phone_wa|tojson }};
   const COMPANY_NAME = {{ company_name|tojson }};
   const CONTACT_PERSON = {{ contact_person|tojson }};
+  const WEBSITE_URL = {{ website_url|tojson }};
 
   const PITCH_TEMPLATES_DATA = {
     "direct_demo": {{ pitch_templates.direct_demo.template|tojson }},
@@ -457,6 +459,7 @@
     msg = msg.replace(/{business_name}/g, BIZ_NAME);
     msg = msg.replace(/{portfolio_name}/g, port.title);
     msg = msg.replace(/{portfolio_url}/g, port.url);
+    msg = msg.replace(/{website_url}/g, WEBSITE_URL);
     msg = msg.replace(/{pitch_snippet}/g, port.snippet);
     msg = msg.replace(/{company_name}/g, COMPANY_NAME);
     msg = msg.replace(/{contact_person}/g, CONTACT_PERSON);

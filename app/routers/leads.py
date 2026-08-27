@@ -23,7 +23,8 @@ DEFAULT_WA_TEMPLATE = (
     "Kami melihat profil bisnis Anda di Google Maps dengan reputasi yang sangat baik. "
     "{pitch_snippet}\n\n"
     "Anda bisa langsung melihat contoh portfolio/demo web kami di sini:\n"
-    "👉 {portfolio_url}\n\n"
+    "👉 Demo Portofolio: {portfolio_url}\n"
+    "🌐 Web Resmi Kami: {website_url}\n\n"
     "Apakah ada waktu luang untuk kami buatkan preview website khusus bagi {business_name}?"
 )
 
@@ -36,7 +37,8 @@ PITCH_TEMPLATES = {
             "Kami melihat profil bisnis Anda di Google Maps memiliki reputasi yang sangat baik. "
             "{pitch_snippet}\n\n"
             "Berikut contoh referensi website yang kami rancang khusus untuk industri Anda:\n"
-            "👉 {portfolio_url}\n\n"
+            "👉 Demo Portofolio: {portfolio_url}\n"
+            "🌐 Web Resmi: {website_url}\n\n"
             "Apakah boleh kami presentasikan preview singkat untuk {business_name}?"
         )
     },
@@ -47,7 +49,8 @@ PITCH_TEMPLATES = {
             "Halo {business_name}, salam sukses dari tim {company_name}.\n\n"
             "Banyak calon pelanggan mencari layanan di Google. Untuk meningkatkan kredibilitas & omset {business_name}, kami sudah siapkan sistem website siap pakai.\n\n"
             "Lihat contoh sistem demonya di:\n"
-            "👉 {portfolio_url}\n\n"
+            "👉 Demo Portofolio: {portfolio_url}\n"
+            "🌐 Layanan & Web Resmi: {website_url}\n\n"
             "Boleh kami diskusikan penawaran singkatnya via WhatsApp?"
         )
     },
@@ -57,7 +60,8 @@ PITCH_TEMPLATES = {
         "template": (
             "Halo kak di {business_name}, salam dari tim {company_name} 😊\n\n"
             "Izin share referensi desain website modern yang pas banget untuk {business_name}:\n"
-            "👉 {portfolio_url}\n\n"
+            "👉 Demo Portofolio: {portfolio_url}\n"
+            "🌐 Web Resmi Kami: {website_url}\n\n"
             "Barangkali sedang ada rencana pembuatan website resmi, boleh kami bantu ya kak!"
         )
     }
@@ -65,17 +69,18 @@ PITCH_TEMPLATES = {
 
 
 def get_profile_data(db: Session):
-    """Retrieve company name, contact person, and custom template from BusinessProfile."""
+    """Retrieve company name, contact person, website URL, and custom template from BusinessProfile."""
     profile = db.query(models.BusinessProfile).first()
     company_name = profile.company_name if profile and profile.company_name else "JuangDev Solutions"
     contact_person = profile.contact_person if profile and profile.contact_person else "Tim Konsultan Web"
+    website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else "https://juangdev.my.id"
     wa_template = profile.default_wa_template if profile and profile.default_wa_template and profile.default_wa_template.strip() else DEFAULT_WA_TEMPLATE
-    return company_name, contact_person, wa_template
+    return company_name, contact_person, website_url, wa_template
 
 
 def get_default_wa_template(db: Session) -> str:
     """Retrieve template from BusinessProfile or fallback to default."""
-    _, _, wa_template = get_profile_data(db)
+    _, _, _, wa_template = get_profile_data(db)
     return wa_template
 
 
@@ -120,9 +125,10 @@ def build_personalized_wa_link(
     template: str, 
     portfolio: Optional[models.PortfolioItem] = None,
     company_name: str = "JuangDev Solutions",
-    contact_person: str = "Tim Konsultan Web"
+    contact_person: str = "Tim Konsultan Web",
+    website_url: str = "https://juangdev.my.id"
 ) -> Optional[str]:
-    """Generate wa.me link with URL-encoded personalized message & targeted portfolio demo URL."""
+    """Generate wa.me link with URL-encoded personalized message & targeted portfolio demo URL and official website."""
     if not phone:
         return None
     
@@ -153,6 +159,7 @@ def build_personalized_wa_link(
     message = message.replace("{pitch_snippet}", pitch_snippet)
     message = message.replace("{company_name}", company_name)
     message = message.replace("{contact_person}", contact_person)
+    message = message.replace("{website_url}", website_url)
 
     encoded_text = urllib.parse.quote(message)
     return f"https://wa.me/{phone_digits}?text={encoded_text}"
@@ -262,7 +269,7 @@ async def leads_list_view(
     offset = (page - 1) * page_size
 
     businesses = query.offset(offset).limit(page_size).all()
-    company_name, contact_person, wa_template = get_profile_data(db)
+    company_name, contact_person, website_url, wa_template = get_profile_data(db)
 
     # Attach dynamic personalized WA link and matched portfolio to each business record
     for b in businesses:
@@ -274,7 +281,8 @@ async def leads_list_view(
             wa_template, 
             portfolio=matched_p,
             company_name=company_name,
-            contact_person=contact_person
+            contact_person=contact_person,
+            website_url=website_url
         )
 
     # Prepare map markers for businesses with coordinates
@@ -385,7 +393,7 @@ async def lead_detail_view(
     if not business:
         raise HTTPException(status_code=404, detail="Lead tidak ditemukan")
 
-    company_name, contact_person, wa_template = get_profile_data(db)
+    company_name, contact_person, website_url, wa_template = get_profile_data(db)
     portfolios = db.query(models.PortfolioItem).all()
     matched_portfolio = match_portfolio_for_business(business, db)
 
@@ -396,7 +404,8 @@ async def lead_detail_view(
         wa_template,
         portfolio=matched_portfolio,
         company_name=company_name,
-        contact_person=contact_person
+        contact_person=contact_person,
+        website_url=website_url
     )
     
     # Calculate initial customized message text
@@ -407,6 +416,7 @@ async def lead_detail_view(
     initial_pitch_text = initial_pitch_text.replace("{pitch_snippet}", matched_portfolio.pitch_snippet if matched_portfolio and matched_portfolio.pitch_snippet else "")
     initial_pitch_text = initial_pitch_text.replace("{company_name}", company_name)
     initial_pitch_text = initial_pitch_text.replace("{contact_person}", contact_person)
+    initial_pitch_text = initial_pitch_text.replace("{website_url}", website_url)
 
     # Parse opening hours list if formatted as string
     opening_hours_list = []
@@ -437,6 +447,7 @@ async def lead_detail_view(
             "pitch_templates": PITCH_TEMPLATES,
             "company_name": company_name,
             "contact_person": contact_person,
+            "website_url": website_url,
             "initial_pitch_text": initial_pitch_text,
             "personalized_wa_link": personalized_wa_link,
             "target_phone_wa": target_phone_wa,
@@ -557,19 +568,19 @@ async def quick_update_status(
         status_options += f'<option value="{st.value}" {sel}>{label}</option>'
 
     cell_html = f"""
-    <div class="space-y-1">
+    <div class="space-y-1.5 quick-status-wrapper" data-status-container="true">
       <select name="contact_status"
               hx-post="/leads/{business_id}/quick-status"
-              hx-target="closest td"
-              hx-swap="innerHTML"
-              class="w-full text-[11px] font-medium py-1 px-2 rounded border border-slate-200 bg-white text-slate-800 focus:ring-1 focus:ring-slate-900 focus:outline-none cursor-pointer">
+              hx-target="closest [data-status-container]"
+              hx-swap="outerHTML"
+              class="w-full text-xs sm:text-[11px] font-semibold py-1.5 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
         {status_options}
       </select>
-      <div class="flex items-center justify-between text-[10px] text-slate-500">
-        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold border {badge_class}">
+      <div class="flex items-center justify-between text-[11px] sm:text-[10px] text-slate-500">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] sm:text-[9px] font-semibold border {badge_class}">
           {contact_status.value.replace('_', ' ').title()}
         </span>
-        {f'<span>{formatted_date}</span>' if formatted_date else ''}
+        {f'<span class="text-slate-400 font-mono text-[10px]">{formatted_date}</span>' if formatted_date else ''}
       </div>
     </div>
     """

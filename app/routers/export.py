@@ -39,7 +39,7 @@ def _build_leads_export_dataframe(
     )
 
     businesses = query.all()
-    company_name, contact_person, wa_template = get_profile_data(db)
+    company_name, contact_person, website_url, wa_template = get_profile_data(db)
 
     rows: List[Dict[str, Any]] = []
     for b in businesses:
@@ -51,7 +51,8 @@ def _build_leads_export_dataframe(
             wa_template,
             portfolio=matched_p,
             company_name=company_name,
-            contact_person=contact_person
+            contact_person=contact_person,
+            website_url=website_url
         )
         
         status_val = ls.contact_status.value.replace("_", " ").title() if ls else "Belum Dihubungi"

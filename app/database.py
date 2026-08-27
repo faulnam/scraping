@@ -18,8 +18,17 @@ Base = declarative_base()
 
 def init_db():
     """Create all database tables defined in models and seed defaults."""
+    from sqlalchemy import text
     from app import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+    # Safe migration: Add website_url column to business_profile if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE business_profile ADD COLUMN website_url VARCHAR(255) NULL DEFAULT 'https://juangdev.my.id'"))
+            conn.commit()
+    except Exception:
+        pass
 
     # Seed default portfolio presets if table is empty
     db = SessionLocal()

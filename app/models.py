@@ -117,6 +117,7 @@ class BusinessProfile(Base):
     company_name = Column(String(255), nullable=False)
     contact_person = Column(String(255), nullable=True)
     phone = Column(String(50), nullable=True)
+    website_url = Column(String(255), nullable=True, default="https://juangdev.my.id")
     default_wa_template = Column(Text, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 

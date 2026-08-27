@@ -68,13 +68,15 @@ def test_portfolio_feature():
         template=DEFAULT_WA_TEMPLATE,
         portfolio=matched_clinic,
         company_name="JuangDev Solutions",
-        contact_person="Ahmad Sales"
+        contact_person="Ahmad Sales",
+        website_url="https://juangdev.my.id"
     )
     print(f" Generated WA Link:\n {wa_link}")
     assert wa_link is not None
     assert "wa.me/6281234567890" in wa_link
     assert "klinik-dental" in wa_link or "Klinik" in wa_link
-    print(" [OK] Dynamic WA link with attached demo URL verified.")
+    assert "juangdev.my.id" in wa_link
+    print(" [OK] Dynamic WA link with demo URL & official website URL verified.")
 
     print("\n=======================================================")
     print(" 4. TESTING LEAD DETAIL ROUTE WITH OUTREACH STUDIO")

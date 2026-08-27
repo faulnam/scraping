@@ -1,4 +1,147 @@
-<div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+<!-- ========================================================== -->
+<!-- 1. MOBILE CARDS VIEW (Visible on mobile screens: md:hidden) -->
+<!-- ========================================================== -->
+<div class="md:hidden space-y-4">
+  {% for b in businesses %}
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 space-y-3.5 {% if not b.has_website %}border-l-4 border-l-emerald-500 bg-emerald-50/10{% endif %}">
+    
+    <!-- Top Row: Business Name, Priority & Website Status Badge -->
+    <div class="flex items-start justify-between gap-2">
+      <div class="space-y-1 min-w-0">
+        <a href="/leads/{{ b.id }}" class="font-bold text-sm text-slate-900 hover:text-blue-600 hover:underline block leading-snug break-words">
+          {{ b.business_name }}
+        </a>
+        <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+          <span class="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-medium">
+            {{ b.category|default('Usaha Lokal') }}
+          </span>
+
+          {% if not b.has_website %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 mr-1"></span>
+            Belum Ada Website (Target)
+          </span>
+          {% else %}
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 border border-blue-200">
+            Ada Web
+          </span>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Priority Badge -->
+      {% set prio = b.lead_status.priority.value if b.lead_status else 'low' %}
+      {% if prio == 'high' %}
+      <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-50 text-rose-700 border border-rose-200 shrink-0">High</span>
+      {% elif prio == 'medium' %}
+      <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-50 text-amber-700 border border-amber-200 shrink-0">Med</span>
+      {% else %}
+      <span class="px-2 py-0.5 rounded text-[10px] font-medium uppercase bg-slate-100 text-slate-600 border border-slate-200 shrink-0">Low</span>
+      {% endif %}
+    </div>
+
+    <!-- Meta Details Row: Rating, Location & Phone -->
+    <div class="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 rounded-lg bg-slate-50 border border-slate-100">
+      <!-- Rating -->
+      <div class="space-y-0.5">
+        <span class="text-[10px] text-slate-400 font-medium block">Rating & Review</span>
+        <div class="flex items-center space-x-1 font-semibold text-slate-800 text-xs">
+          <span class="text-amber-500">★</span>
+          <span>{{ b.rating_avg|default('0.0') }}</span>
+          <span class="text-slate-400 font-normal text-[10px]">({{ b.total_review }} ulasan)</span>
+        </div>
+      </div>
+
+      <!-- Phone / WA -->
+      <div class="space-y-0.5">
+        <span class="text-[10px] text-slate-400 font-medium block">Nomor Telepon</span>
+        {% if b.phone %}
+        <span class="font-mono text-slate-900 font-semibold text-xs block truncate">{{ b.phone }}</span>
+        {% else %}
+        <span class="text-slate-400 italic text-[11px] block">Tidak ada telp</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Address snippet -->
+    {% if b.address %}
+    <p class="text-xs text-slate-600 flex items-start space-x-1.5">
+      <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      <span class="line-clamp-2 text-[11px] leading-relaxed">{{ b.address }}</span>
+    </p>
+    {% endif %}
+
+    <!-- Funnel Status Quick Updater -->
+    <div class="pt-1">
+      <div class="space-y-1.5 quick-status-wrapper" data-status-container="true">
+        <div class="flex items-center justify-between text-[11px] text-slate-500">
+          <span class="font-semibold text-slate-700">Status Kontak Lead:</span>
+          {% if b.lead_status and b.lead_status.last_contacted_at %}
+          <span class="text-[10px] text-slate-400 font-mono">Update: {{ b.lead_status.last_contacted_at.strftime('%d/%m %H:%M') }}</span>
+          {% endif %}
+        </div>
+        {% set cur_status = b.lead_status.contact_status if b.lead_status else contact_status_enum.BELUM_DIHUBUNGI %}
+        <select name="contact_status"
+                hx-post="/leads/{{ b.id }}/quick-status"
+                hx-target="closest [data-status-container]"
+                hx-swap="outerHTML"
+                class="w-full text-xs font-semibold py-2 px-3 rounded-lg border border-slate-300 bg-white text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+          {% for st in contact_status_enum %}
+          <option value="{{ st.value }}" {% if cur_status == st %}selected{% endif %}>
+            {{ st.value.replace('_', ' ').title() }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <!-- Action Buttons Row (Mobile touch-friendly) -->
+    <div class="pt-2.5 border-t border-slate-100 flex items-center gap-2">
+      <!-- WA Direct Button -->
+      {% if b.dynamic_wa_link %}
+      <a href="{{ b.dynamic_wa_link }}" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="flex-1 inline-flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+        <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        <span>Chat WA</span>
+      </a>
+      {% endif %}
+
+      <!-- Google Maps Button -->
+      {% if b.gmaps_url %}
+      <a href="{{ b.gmaps_url }}" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         title="Buka Google Maps" 
+         class="inline-flex items-center justify-center p-2.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition shrink-0">
+        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </a>
+      {% endif %}
+
+      <!-- Detail Button -->
+      <a href="/leads/{{ b.id }}" 
+         class="inline-flex items-center justify-center py-2.5 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs shadow-sm transition shrink-0">
+        <span>Detail &rarr;</span>
+      </a>
+    </div>
+
+  </div>
+  {% else %}
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-6 text-center text-slate-500">
+    <p class="text-sm font-semibold text-slate-700">Belum ada leads yang cocok dengan filter</p>
+    <p class="text-xs text-slate-400 mt-1">Coba ubah filter atau lakukan crawling leads baru di Dashboard.</p>
+  </div>
+  {% endfor %}
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 2. DESKTOP TABLE VIEW (Visible on tablet/desktop: hidden md:block) -->
+<!-- ============================================================ -->
+<div class="hidden md:block overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
   <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
     <thead class="bg-slate-50 text-slate-600 uppercase font-semibold text-[11px] tracking-wider select-none">
       <tr>
@@ -36,7 +179,7 @@
              hx-target="#leads-table-container"
              hx-push-url="true"
              class="flex items-center space-x-1 hover:text-slate-900">
-            <span>Status Kontak (Update Instan)</span>
+            <span>Status Kontak</span>
             {% if sort_by == 'status' %}
               <span>{% if sort_order == 'asc' %}▲{% else %}▼{% endif %}</span>
             {% endif %}
@@ -47,7 +190,6 @@
     </thead>
     <tbody class="divide-y divide-slate-200 bg-white text-slate-700 font-normal">
       {% for b in businesses %}
-      <!-- Row highlight: lead-highlight class for businesses without website (#ECFDF5) -->
       <tr class="{% if not b.has_website %}lead-highlight hover:bg-emerald-100/60 border-l-4 border-l-emerald-500{% else %}hover:bg-slate-50 border-l-4 border-l-transparent{% endif %} transition-colors">
         
         <!-- Nama Usaha & Priority -->
@@ -139,11 +281,11 @@
         <!-- Status Funnel Kontak (Inline Instant Changer via HTMX) -->
         <td class="py-3 px-3 whitespace-nowrap">
           {% set cur_status = b.lead_status.contact_status if b.lead_status else contact_status_enum.BELUM_DIHUBUNGI %}
-          <div class="space-y-1">
+          <div class="space-y-1.5 quick-status-wrapper" data-status-container="true">
             <select name="contact_status"
                     hx-post="/leads/{{ b.id }}/quick-status"
-                    hx-target="closest td"
-                    hx-swap="innerHTML"
+                    hx-target="closest [data-status-container]"
+                    hx-swap="outerHTML"
                     class="w-full text-[11px] font-medium py-1 px-2 rounded border border-slate-200 bg-white text-slate-800 focus:ring-1 focus:ring-slate-900 focus:outline-none cursor-pointer">
               {% for st in contact_status_enum %}
               <option value="{{ st.value }}" {% if cur_status == st %}selected{% endif %}>
@@ -226,24 +368,27 @@
   </table>
 </div>
 
-<!-- Pagination Controls -->
+<!-- ============================================================ -->
+<!-- 3. PAGINATION CONTROLS (Fully responsive on mobile & desktop) -->
+<!-- ============================================================ -->
 {% if total_pages > 1 %}
-<div class="flex items-center justify-between mt-4 px-1 text-xs text-slate-600">
-  <div>
-    Menampilkan <strong>{{ businesses|length }}</strong> dari <strong>{{ total_leads }}</strong> leads
+<div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-5 px-1 text-xs text-slate-600">
+  <div class="text-center sm:text-left">
+    Menampilkan <strong>{{ businesses|length }}</strong> dari <strong>{{ total_leads }}</strong> leads terdata
   </div>
-  <div class="flex items-center space-x-1">
+  
+  <div class="flex items-center space-x-1.5">
     {% if current_page > 1 %}
     <a href="#" 
        hx-get="/leads?page={{ current_page - 1 }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
        hx-target="#leads-table-container"
        hx-push-url="true"
-       class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700">
+       class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold transition shadow-sm">
       &larr; Prev
     </a>
     {% endif %}
 
-    <span class="px-3 py-1.5 rounded bg-slate-900 text-white font-bold">
+    <span class="inline-flex items-center justify-center px-3.5 py-2 rounded-lg bg-slate-900 text-white font-bold shadow-sm">
       {{ current_page }} / {{ total_pages }}
     </span>
 
@@ -252,7 +397,7 @@
        hx-get="/leads?page={{ current_page + 1 }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
        hx-target="#leads-table-container"
        hx-push-url="true"
-       class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700">
+       class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold transition shadow-sm">
       Next &rarr;
     </a>
     {% endif %}
