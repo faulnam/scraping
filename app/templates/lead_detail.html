@@ -1,0 +1,552 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ business.business_name }} — Detail Leads | LeadMaps BI{% endblock %}
+{% block page_title %}Detail Leads: {{ business.business_name }}{% endblock %}
+{% block page_subtitle %}Profil Usaha, Demo Web yang Ditawarkan & Studio Pesan WhatsApp{% endblock %}
+
+{% block header_actions %}
+<a href="/leads" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+  <span>&larr;</span>
+  <span>Kembali ke Daftar Leads</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- Header Lead Summary Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 {% if not business.has_website %}border-l-4 border-l-emerald-500 bg-emerald-50/10{% endif %}">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      
+      <div>
+        <div class="flex flex-wrap items-center gap-2 mb-1.5">
+          <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+            {{ business.category|default('Usaha Lokal') }}
+          </span>
+          
+          {% set prio = lead_status.priority.value if lead_status else 'low' %}
+          {% if prio == 'high' %}
+          <span class="text-xs font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+            Prioritas HIGH (Target Utama)
+          </span>
+          {% elif prio == 'medium' %}
+          <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+            Prioritas MEDIUM
+          </span>
+          {% else %}
+          <span class="text-xs font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+            Prioritas LOW
+          </span>
+          {% endif %}
+
+          {% if not business.has_website %}
+          <span class="text-xs font-bold px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-300">
+            Belum Memiliki Website
+          </span>
+          {% else %}
+          <span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+            Sudah Memiliki Website
+          </span>
+          {% endif %}
+        </div>
+
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900">{{ business.business_name }}</h1>
+        <p class="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-2">
+          <span>{{ business.address|default('Alamat tidak tersedia') }}</span>
+          <span>&bull;</span>
+          <span>Kota: {{ business.city|default(business.province|default('-')) }}</span>
+        </p>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center space-x-2">
+        {% if target_phone_wa %}
+        <button type="button" 
+                onclick="document.getElementById('whatsapp-studio-card').scrollIntoView({behavior: 'smooth'})"
+                class="inline-flex items-center space-x-2 py-2.5 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+          <span>Studio WhatsApp</span>
+        </button>
+        {% endif %}
+
+        {% if business.gmaps_url %}
+        <a href="{{ business.gmaps_url }}" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="inline-flex items-center space-x-1.5 py-2.5 px-4 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition">
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Google Maps</span>
+        </a>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- Main 2-Column Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- Left Column: Business Detail Information (5 cols) -->
+    <div class="lg:col-span-5 space-y-6">
+      
+      <!-- Card: Informasi Usaha Lengkap -->
+      <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
+          INFORMASI DATA TEMPAT USAHA
+        </h2>
+
+        <div class="space-y-3.5 text-xs">
+          
+          <!-- Nomor Telepon -->
+          <div>
+            <span class="text-[11px] text-slate-500 font-medium uppercase">Nomor Telepon</span>
+            <p class="font-bold text-slate-900 font-mono text-sm mt-0.5">{{ business.phone|default('-') }}</p>
+          </div>
+
+          <!-- Website -->
+          <div>
+            <span class="text-[11px] text-slate-500 font-medium uppercase">Website Resmi</span>
+            {% if business.has_website and business.website %}
+            <p class="mt-0.5 truncate">
+              <a href="{{ business.website }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline font-semibold">
+                {{ business.website }} ↗
+              </a>
+            </p>
+            {% else %}
+            <p class="mt-0.5 text-rose-600 font-bold">Belum memiliki website</p>
+            {% endif %}
+          </div>
+
+          <!-- Rating & Ulasan -->
+          <div>
+            <span class="text-[11px] text-slate-500 font-medium uppercase">Rating & Review Publik</span>
+            <div class="flex items-center space-x-2 mt-0.5">
+              <span class="text-amber-500 font-bold text-sm">★ {{ business.rating_avg|default('0.0') }}</span>
+              <span class="text-slate-500 font-medium">({{ business.total_review }} ulasan Google)</span>
+            </div>
+          </div>
+
+          <!-- Status Bisnis -->
+          <div>
+            <span class="text-[11px] text-slate-500 font-medium uppercase">Status Operasional</span>
+            <p class="font-semibold text-emerald-700 mt-0.5">{{ business.business_status|default('OPERATIONAL') }}</p>
+          </div>
+
+          <!-- Google Place ID -->
+          <div>
+            <span class="text-[11px] text-slate-500 font-medium uppercase">Google Place ID</span>
+            <p class="font-mono text-[10px] text-slate-600 bg-slate-50 p-2 rounded border border-slate-200 mt-0.5 break-all">
+              {{ business.google_place_id }}
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Jam Operasional -->
+        {% if opening_hours_list %}
+        <div class="pt-3 border-t border-slate-100">
+          <span class="text-[11px] text-slate-500 font-semibold uppercase block mb-2">Jam Buka & Operasional</span>
+          <div class="space-y-1 bg-slate-50 p-2.5 rounded-lg border border-slate-200 text-[11px]">
+            {% for item in opening_hours_list %}
+            <div class="flex items-center space-x-2 text-slate-700">
+              <span class="text-slate-400">&bull;</span>
+              <span>{{ item }}</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Mini Map Koordinat -->
+        {% if business.latitude and business.longitude %}
+        <div class="pt-3 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] text-slate-500 font-semibold uppercase">Peta Lokasi</span>
+            <span class="text-[10px] font-mono text-slate-400">Lat: {{ business.latitude }}, Lng: {{ business.longitude }}</span>
+          </div>
+          <div id="detail-mini-map" class="h-48 w-full rounded-lg border border-slate-200 z-0"></div>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- Card: Form Update Status Funnel & Catatan Sales -->
+      <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
+        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
+          STATUS FOLLOW-UP SALES
+        </h2>
+
+        <!-- Alert Container for HTMX Response -->
+        <div id="status-feedback"></div>
+
+        <form hx-post="/leads/{{ business.id }}/status"
+              hx-target="#status-feedback"
+              hx-swap="innerHTML"
+              class="space-y-4 text-xs">
+          
+          <!-- Funnel Status Dropdown -->
+          <div>
+            <label for="contact_status" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Status Funnel Prospek <span class="text-rose-500">*</span>
+            </label>
+            {% set cur_st = lead_status.contact_status.value if lead_status else 'belum_dihubungi' %}
+            <select id="contact_status" 
+                    name="contact_status" 
+                    required
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 font-semibold focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+              <option value="belum_dihubungi" {% if cur_st == 'belum_dihubungi' %}selected{% endif %}>Belum Kontak</option>
+              <option value="sudah_dihubungi" {% if cur_st == 'sudah_dihubungi' %}selected{% endif %}>Sudah Dihubungi (WA/Email)</option>
+              <option value="follow_up" {% if cur_st == 'follow_up' %}selected{% endif %}>Follow Up (Diskusi Proposal)</option>
+              <option value="deal" {% if cur_st == 'deal' %}selected{% endif %}>Deal Client (Closing)</option>
+              <option value="tidak_tertarik" {% if cur_st == 'tidak_tertarik' %}selected{% endif %}>Tidak Tertarik</option>
+              <option value="tidak_relevan" {% if cur_st == 'tidak_relevan' %}selected{% endif %}>Tidak Relevan</option>
+            </select>
+          </div>
+
+          <!-- PIC Sales -->
+          <div>
+            <label for="assigned_to" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              PIC Sales / Konsultan
+            </label>
+            <input type="text" 
+                   id="assigned_to" 
+                   name="assigned_to" 
+                   value="{{ lead_status.assigned_to|default('') if lead_status else '' }}"
+                   placeholder="Misal: Ahmad / Tim Sales"
+                   class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+          </div>
+
+          <!-- Catatan Follow-up -->
+          <div>
+            <label for="notes" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Catatan Negosiasi / Follow-up
+            </label>
+            <textarea id="notes" 
+                      name="notes" 
+                      rows="3" 
+                      placeholder="Tuliskan ringkasan respon calon klien..."
+                      class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">{{ lead_status.notes|default('') if lead_status else '' }}</textarea>
+          </div>
+
+          <!-- Timestamp Terakhir Dihubungi -->
+          {% if lead_status and lead_status.last_contacted_at %}
+          <div class="p-2 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[10px] flex justify-between">
+            <span class="font-medium">Terakhir Dihubungi:</span>
+            <span class="font-mono text-slate-900">{{ lead_status.last_contacted_at.strftime('%d %B %Y, %H:%M') }} WIB</span>
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn-primary w-full py-2.5 text-xs font-semibold shadow-sm">
+            Simpan Perubahan Status
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+
+    <!-- Right Column: Dedicated WhatsApp Outreach Studio (7 cols) -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- Card: WhatsApp Outreach Studio -->
+      <div id="whatsapp-studio-card" class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <span>WhatsApp Outreach Studio & Demo Matcher</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Lampirkan portofolio/demo yang relevan dengan jenis usaha dan sesuaikan pesan secara instan.
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+            Live Preview
+          </span>
+        </div>
+
+        <!-- 1. Portfolio Demo Selector -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="portfolio_select" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+              1. Pilih Portofolio / Demo Web yang Ditawarkan <span class="text-rose-500">*</span>
+            </label>
+            <a href="/settings/profile" class="text-[10px] text-blue-600 hover:underline font-semibold">
+              + Kelola Katalog Portofolio
+            </a>
+          </div>
+
+          <select id="portfolio_select" 
+                  onchange="onPortfolioChange()"
+                  class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+            {% for p in portfolios %}
+            <option value="{{ p.id }}" 
+                    data-title="{{ p.title }}" 
+                    data-url="{{ p.demo_url }}" 
+                    data-snippet="{{ p.pitch_snippet|default('') }}"
+                    {% if matched_portfolio and matched_portfolio.id == p.id %}selected{% endif %}>
+              {% if matched_portfolio and matched_portfolio.id == p.id %}★ [Rekomendasi Cocok] {% endif %}{{ p.title }} — {{ p.demo_url }}
+            </option>
+            {% endfor %}
+          </select>
+
+          <!-- Highlight Box of Selected Portfolio -->
+          <div id="portfolio-info-badge" class="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200 text-xs flex items-start space-x-2">
+            <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+            <div class="text-[11px] text-emerald-900 overflow-hidden">
+              <span class="font-bold block" id="selected-portfolio-name">{{ matched_portfolio.title if matched_portfolio else 'Website Profesional' }}</span>
+              <span class="text-emerald-700 block truncate font-mono text-[10px]" id="selected-portfolio-url">{{ matched_portfolio.demo_url if matched_portfolio else 'https://juangdev.my.id' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Template Preset Variation -->
+        <div class="space-y-1.5 pt-1">
+          <label for="template_variant" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+            2. Gaya Template Pesan
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {% for key, t in pitch_templates.items() %}
+            <button type="button" 
+                    id="btn-template-{{ key }}"
+                    onclick="selectTemplateVariant('{{ key }}')" 
+                    class="template-btn text-left p-2.5 rounded-lg border {% if key == 'direct_demo' %}border-slate-900 bg-slate-900 text-white{% else %}border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100{% endif %} transition text-[11px]">
+              <span class="font-bold block">{{ t.name }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 3. Interactive Pitch Editor -->
+        <div class="space-y-1.5 pt-2">
+          <div class="flex items-center justify-between">
+            <label for="live_pitch_textarea" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+              3. Edit Teks Pesan WhatsApp (Bisa Dikustomisasi Bebas)
+            </label>
+            <span class="text-[10px] text-slate-400 font-mono" id="char-counter">0 karakter</span>
+          </div>
+
+          <textarea id="live_pitch_textarea" 
+                    rows="8" 
+                    oninput="onPitchTextChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-3 text-slate-900 font-sans focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition leading-relaxed">{{ initial_pitch_text }}</textarea>
+          
+          <!-- Quick Insert Helpers -->
+          <div class="flex flex-wrap items-center gap-1 text-[11px] text-slate-500 pt-1">
+            <span class="text-[10px] font-medium text-slate-400 mr-1">Sisipkan:</span>
+            <button type="button" onclick="insertPlaceholder('{{ business.business_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Usaha</button>
+            <button type="button" onclick="insertPlaceholder(document.getElementById('selected-portfolio-url').textContent)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Link Demo Web</button>
+            <button type="button" onclick="insertPlaceholder('{{ company_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Agensi</button>
+            <button type="button" onclick="resetToTemplate()" class="ml-auto text-blue-600 hover:underline text-[10px] font-semibold">Reset ke Awal</button>
+          </div>
+        </div>
+
+        <!-- 4. Action Buttons -->
+        <div class="pt-3 border-t border-slate-100 space-y-2">
+          {% if target_phone_wa %}
+          <div class="flex flex-col sm:flex-row gap-2">
+            <a id="btn-send-wa" 
+               href="{{ personalized_wa_link }}" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
+              <span>Kirim WhatsApp Sekarang (Langsung Buka Chat)</span>
+            </a>
+
+            <button type="button" 
+                    id="btn-copy-text"
+                    onclick="copyPitchToClipboard()" 
+                    class="px-4 py-3 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition flex items-center justify-center space-x-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+              <span>Copy Teks</span>
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 text-center">Nomor Tujuan: <span class="font-mono text-slate-700 font-bold">+{{ target_phone_wa }}</span> (Otomatis diformat 62)</p>
+          {% else %}
+          <div class="text-xs text-amber-800 bg-amber-50 p-3 rounded-lg border border-amber-200">
+            Nomor telepon pada profil Google tempat ini tidak tersedia atau bukan nomor seluler WhatsApp.
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Mini Map Script -->
+{% if business.latitude and business.longitude %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const lat = {{ business.latitude }};
+    const lng = {{ business.longitude }};
+    const isNoWeb = {{ 'true' if not business.has_website else 'false' }};
+    const markerColor = isNoWeb ? '#10B981' : '#64748B';
+
+    const miniMap = L.map('detail-mini-map', {
+      zoomControl: true,
+      attributionControl: false
+    }).setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(miniMap);
+
+    const customIcon = L.divIcon({
+      className: 'custom-div-icon',
+      html: `<div style="background-color: ${markerColor}; border: 2px solid white; width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 2px 5px rgba(0,0,0,0.4);"></div>`,
+      iconSize: [16, 16],
+      iconAnchor: [8, 8]
+    });
+
+    L.marker([lat, lng], { icon: customIcon })
+      .addTo(miniMap)
+      .bindPopup("<strong>{{ business.business_name }}</strong><br>{{ business.address }}")
+      .openPopup();
+  });
+</script>
+{% endif %}
+
+<!-- Interactive Outreach Studio Script -->
+<script>
+  const BIZ_NAME = {{ business.business_name|tojson }};
+  const TARGET_PHONE_WA = {{ target_phone_wa|tojson }};
+  const COMPANY_NAME = {{ company_name|tojson }};
+  const CONTACT_PERSON = {{ contact_person|tojson }};
+
+  const PITCH_TEMPLATES_DATA = {
+    "direct_demo": {{ pitch_templates.direct_demo.template|tojson }},
+    "sales_growth": {{ pitch_templates.sales_growth.template|tojson }},
+    "casual": {{ pitch_templates.casual.template|tojson }}
+  };
+
+  let currentVariant = "direct_demo";
+
+  function getSelectedPortfolio() {
+    const sel = document.getElementById('portfolio_select');
+    if (!sel || !sel.options[sel.selectedIndex]) {
+      return {
+        title: "Website Profesional",
+        url: "https://juangdev.my.id",
+        snippet: "Kami memiliki portfolio website profesional."
+      };
+    }
+    const opt = sel.options[sel.selectedIndex];
+    return {
+      title: opt.getAttribute('data-title') || "Website Profesional",
+      url: opt.getAttribute('data-url') || "https://juangdev.my.id",
+      snippet: opt.getAttribute('data-snippet') || ""
+    };
+  }
+
+  function renderTemplateMessage(templateStr) {
+    const port = getSelectedPortfolio();
+    let msg = templateStr;
+    msg = msg.replace(/{business_name}/g, BIZ_NAME);
+    msg = msg.replace(/{portfolio_name}/g, port.title);
+    msg = msg.replace(/{portfolio_url}/g, port.url);
+    msg = msg.replace(/{pitch_snippet}/g, port.snippet);
+    msg = msg.replace(/{company_name}/g, COMPANY_NAME);
+    msg = msg.replace(/{contact_person}/g, CONTACT_PERSON);
+    return msg;
+  }
+
+  function updateWaButtonHref(text) {
+    const btn = document.getElementById('btn-send-wa');
+    if (btn && TARGET_PHONE_WA) {
+      const encoded = encodeURIComponent(text);
+      btn.href = `https://wa.me/${TARGET_PHONE_WA}?text=${encoded}`;
+    }
+    const charCounter = document.getElementById('char-counter');
+    if (charCounter) {
+      charCounter.textContent = `${text.length} karakter`;
+    }
+  }
+
+  function onPortfolioChange() {
+    const port = getSelectedPortfolio();
+    document.getElementById('selected-portfolio-name').textContent = port.title;
+    document.getElementById('selected-portfolio-url').textContent = port.url;
+
+    // Re-render template into textarea
+    const rawTemplate = PITCH_TEMPLATES_DATA[currentVariant] || PITCH_TEMPLATES_DATA['direct_demo'];
+    const newText = renderTemplateMessage(rawTemplate);
+    document.getElementById('live_pitch_textarea').value = newText;
+    updateWaButtonHref(newText);
+  }
+
+  function selectTemplateVariant(variantKey) {
+    currentVariant = variantKey;
+    
+    // Update button visual styles
+    document.querySelectorAll('.template-btn').forEach(btn => {
+      btn.classList.remove('border-slate-900', 'bg-slate-900', 'text-white');
+      btn.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-700');
+    });
+
+    const activeBtn = document.getElementById(`btn-template-${variantKey}`);
+    if (activeBtn) {
+      activeBtn.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-700');
+      activeBtn.classList.add('border-slate-900', 'bg-slate-900', 'text-white');
+    }
+
+    const rawTemplate = PITCH_TEMPLATES_DATA[variantKey] || PITCH_TEMPLATES_DATA['direct_demo'];
+    const newText = renderTemplateMessage(rawTemplate);
+    document.getElementById('live_pitch_textarea').value = newText;
+    updateWaButtonHref(newText);
+  }
+
+  function onPitchTextChange() {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (textarea) {
+      updateWaButtonHref(textarea.value);
+    }
+  }
+
+  function insertPlaceholder(str) {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    textarea.value = val.substring(0, start) + str + val.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + str.length;
+    textarea.focus();
+    onPitchTextChange();
+  }
+
+  function resetToTemplate() {
+    onPortfolioChange();
+  }
+
+  function copyPitchToClipboard() {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (!textarea) return;
+    navigator.clipboard.writeText(textarea.value).then(() => {
+      const copyBtn = document.getElementById('btn-copy-text');
+      const origText = copyBtn.innerHTML;
+      copyBtn.innerHTML = `<span class="text-emerald-600 font-bold">✓ Tersalin!</span>`;
+      setTimeout(() => {
+        copyBtn.innerHTML = origText;
+      }, 2000);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const initialText = document.getElementById('live_pitch_textarea').value;
+    updateWaButtonHref(initialText);
+  });
+</script>
+{% endblock %}

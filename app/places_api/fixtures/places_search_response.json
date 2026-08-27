@@ -1,0 +1,135 @@
+{
+  "places": [
+    {
+      "id": "ChIJ_bengkel_juang_001",
+      "displayName": {
+        "text": "Bengkel Motor Juang Speed",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. LLRE Martadinata No. 128, Cihapit, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40114",
+      "location": {
+        "latitude": -6.908412,
+        "longitude": 107.625345
+      },
+      "primaryType": "auto_repair_shop"
+    },
+    {
+      "id": "ChIJ_dental_permata_002",
+      "displayName": {
+        "text": "Klinik Gigi Permata Dental Care",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Buah Batu No. 245, Turangga, Kec. Lengkong, Kota Bandung, Jawa Barat 40264",
+      "location": {
+        "latitude": -6.94215,
+        "longitude": 107.62887
+      },
+      "primaryType": "dental_clinic"
+    },
+    {
+      "id": "ChIJ_kopi_nusantara_003",
+      "displayName": {
+        "text": "Kedai Kopi & Resto Aroma Nusantara",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Progo No. 14, Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115",
+      "location": {
+        "latitude": -6.90422,
+        "longitude": 107.61895
+      },
+      "primaryType": "restaurant"
+    },
+    {
+      "id": "ChIJ_salon_barber_004",
+      "displayName": {
+        "text": "Studio 9 Barbershop & Hair Treatment",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Dipati Ukur No. 88, Lebakgede, Coblong, Kota Bandung, Jawa Barat 40132",
+      "location": {
+        "latitude": -6.89244,
+        "longitude": 107.61782
+      },
+      "primaryType": "barber_shop"
+    },
+    {
+      "id": "ChIJ_apotek_sehat_005",
+      "displayName": {
+        "text": "Apotek Medika Sehat Prima",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Surya Sumantri No. 56, Sukawarna, Sukajadi, Kota Bandung, Jawa Barat 40164",
+      "location": {
+        "latitude": -6.88721,
+        "longitude": 107.57945
+      },
+      "primaryType": "pharmacy"
+    },
+    {
+      "id": "ChIJ_catering_berkah_006",
+      "displayName": {
+        "text": "Catering Berkah Rasa Ibu Hj. Eni",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Terusan Jakarta No. 102, Antapani Kulon, Antapani, Kota Bandung, Jawa Barat 40291",
+      "location": {
+        "latitude": -6.91455,
+        "longitude": 107.65432
+      },
+      "primaryType": "catering_service"
+    },
+    {
+      "id": "ChIJ_laundry_kilat_007",
+      "displayName": {
+        "text": "Laundry Kilat Bersih Express",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Tubagus Ismail No. 34, Sekeloa, Coblong, Kota Bandung, Jawa Barat 40134",
+      "location": {
+        "latitude": -6.88392,
+        "longitude": 107.62145
+      },
+      "primaryType": "laundry"
+    },
+    {
+      "id": "ChIJ_gym_fitness_008",
+      "displayName": {
+        "text": "Titan Gym & Fitness Club Bandung",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Soekarno Hatta No. 590, Sekejati, Buahbatu, Kota Bandung, Jawa Barat 40286",
+      "location": {
+        "latitude": -6.95311,
+        "longitude": 107.64899
+      },
+      "primaryType": "gym"
+    },
+    {
+      "id": "ChIJ_petshop_sahabat_009",
+      "displayName": {
+        "text": "Sahabat Satwa Pet Shop & Care",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Cihampelas No. 160, Cipaganti, Coblong, Kota Bandung, Jawa Barat 40131",
+      "location": {
+        "latitude": -6.89912,
+        "longitude": 107.60384
+      },
+      "primaryType": "pet_store"
+    },
+    {
+      "id": "ChIJ_printing_agung_010",
+      "displayName": {
+        "text": "Percetakan & Digital Printing Grafika Mandiri",
+        "languageCode": "id"
+      },
+      "formattedAddress": "Jl. Pagarsih No. 77, Cibadak, Astanaanyar, Kota Bandung, Jawa Barat 40241",
+      "location": {
+        "latitude": -6.92488,
+        "longitude": 107.59632
+      },
+      "primaryType": "print_shop"
+    }
+  ],
+  "nextPageToken": null
+}

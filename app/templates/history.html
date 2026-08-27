@@ -1,0 +1,241 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Riwayat Crawling & Kontrol Biaya API — LeadMaps BI{% endblock %}
+{% block page_title %}Riwayat Crawling & Biaya API{% endblock %}
+{% block page_subtitle %}Log Lengkap Sesi Fetching & Monitoring Penggunaan API{% endblock %}
+
+{% block header_actions %}
+<a href="/" class="btn-primary flex items-center space-x-1.5 py-1.5 px-3.5 text-xs font-semibold">
+  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+  <span>Mulai Crawl Baru</span>
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- 1. Top Summary Metric Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    
+    <!-- Total Sesi -->
+    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-5">
+      <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Sesi Crawling</span>
+      <div class="text-2xl font-bold text-slate-900 mt-2">{{ total_runs }}</div>
+      <div class="text-[11px] text-slate-500 mt-2 flex items-center border-t border-slate-100 pt-2">
+        <span class="font-semibold text-emerald-600 mr-1">{{ success_rate }}%</span> tingkat keberhasilan
+      </div>
+    </div>
+
+    <!-- Total API Requests (Cost Control Focus) -->
+    <div class="card bg-white border border-blue-200 shadow-sm rounded-xl p-4 sm:p-5">
+      <div class="flex items-center justify-between">
+        <span class="text-[11px] font-semibold text-blue-900 uppercase tracking-wider">Total API Request</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
+          Kontrol Biaya
+        </span>
+      </div>
+      <div class="text-2xl font-bold text-blue-950 mt-2">{{ total_api_requests }}</div>
+      <div class="text-[11px] text-blue-700 mt-2 flex items-center border-t border-blue-100 pt-2">
+        <span>Request Terpakai</span>
+      </div>
+    </div>
+
+    <!-- Total Usaha Terdata -->
+    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-5">
+      <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Leads Diperoleh</span>
+      <div class="text-2xl font-bold text-slate-900 mt-2">{{ total_scraped_leads }}</div>
+      <div class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">
+        <span class="font-medium text-emerald-600">Usaha Lokal</span> terdata di database
+      </div>
+    </div>
+
+    <!-- Rata-rata per sesi -->
+    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-5">
+      <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Rata-rata per Sesi</span>
+      <div class="text-2xl font-bold text-slate-900 mt-2">{{ avg_leads_per_run }}</div>
+      <div class="text-[11px] text-slate-500 mt-2 border-t border-slate-100 pt-2">
+        <span>Leads usaha / sesi crawl</span>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- 2. Cost Control & Cache Advice Card -->
+  <div class="card bg-slate-900 text-white border-0 shadow-md rounded-xl p-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="space-y-1">
+        <div class="flex items-center space-x-2">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          <h3 class="text-xs font-bold text-white tracking-wide uppercase">
+            SISTEM PROTEKSI KUOTA & DEDUP CACHE OTOMATIS (30 HARI)
+          </h3>
+        </div>
+        <p class="text-xs text-slate-300 max-w-3xl leading-relaxed">
+          Sistem secara otomatis memeriksa <code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-[11px]">google_place_id</code> di MySQL. 
+          Jika usaha sudah pernah diambil dalam kurun waktu <strong>&lt; 30 hari</strong>, pemanggilan detail dihemat menggunakan cache lokal.
+        </p>
+      </div>
+      <a href="/guide" class="inline-flex items-center space-x-1 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition shrink-0 border border-slate-700">
+        <span>Panduan Lengkap &rarr;</span>
+      </a>
+    </div>
+  </div>
+
+
+  <!-- 3. History Log Table Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-0 overflow-hidden">
+    
+    <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900">Audit Log Sesi Crawling</h3>
+        <p class="text-xs text-slate-500 mt-0.5">Daftar rekaman eksekusi scraper dan kuota request yang dihabiskan</p>
+      </div>
+      <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
+        Total {{ total_runs }} Sesi
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200 text-left text-xs">
+        <thead class="bg-slate-50 text-slate-600 uppercase font-semibold text-[11px] tracking-wider select-none">
+          <tr>
+            <th scope="col" class="py-3 px-4">ID</th>
+            <th scope="col" class="py-3 px-4">Waktu Mulai</th>
+            <th scope="col" class="py-3 px-4">Kategori Usaha</th>
+            <th scope="col" class="py-3 px-4">Wilayah / Lokasi</th>
+            <th scope="col" class="py-3 px-4 text-center">Total Hasil</th>
+            <th scope="col" class="py-3 px-4 text-center">API Requests</th>
+            <th scope="col" class="py-3 px-4 text-center">Status</th>
+            <th scope="col" class="py-3 px-4 text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 bg-white text-slate-700">
+          {% for r in runs %}
+          <tr class="hover:bg-slate-50 transition-colors">
+            
+            <!-- ID Sesi -->
+            <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+              #{{ r.id }}
+            </td>
+
+            <!-- Waktu Mulai & Durasi -->
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              <div class="font-semibold text-slate-900">
+                {{ r.started_at.strftime('%d %b %Y, %H:%M') }}
+              </div>
+              <div class="text-[10px] text-slate-400">
+                {% if r.finished_at %}
+                  Selesai {{ r.finished_at.strftime('%H:%M:%S') }}
+                {% else %}
+                  Masih berjalan
+                {% endif %}
+              </div>
+            </td>
+
+            <!-- Kategori -->
+            <td class="py-3.5 px-4 font-semibold text-slate-900">
+              <span class="inline-block px-2.5 py-1 rounded bg-slate-100 text-slate-800 text-[11px]">
+                {{ r.category_query }}
+              </span>
+            </td>
+
+            <!-- Wilayah -->
+            <td class="py-3.5 px-4">
+              <div class="font-medium text-slate-800">{{ r.location_query }}</div>
+              {% if r.city or r.province %}
+              <div class="text-[10px] text-slate-400 font-medium">
+                {{ r.city|default('') }}{% if r.city and r.province %}, {% endif %}{{ r.province|default('') }}
+              </div>
+              {% endif %}
+            </td>
+
+            <!-- Total Hasil -->
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                {{ r.total_businesses }} leads
+              </span>
+            </td>
+
+            <!-- API Requests Terpakai -->
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-bold {% if r.api_requests_used <= 1 %}bg-emerald-50 text-emerald-900 border border-emerald-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                {{ r.api_requests_used }} req
+                {% if r.api_requests_used <= 1 and r.total_businesses > 0 %}
+                <span class="ml-1 text-[10px] font-sans font-normal" title="100% data di-cache dari database!">(Cache)</span>
+                {% endif %}
+              </span>
+            </td>
+
+            <!-- Status -->
+            <td class="py-3.5 px-4 text-center whitespace-nowrap">
+              {% if r.status == 'success' %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                Sukses
+              </span>
+              {% elif r.status == 'running' %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-50 text-blue-800 border border-blue-200 animate-pulse">
+                Berjalan
+              </span>
+              {% elif r.status == 'partial' %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                Parsial
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">
+                Gagal
+              </span>
+              {% endif %}
+            </td>
+
+            <!-- Aksi -->
+            <td class="py-3.5 px-4 text-right whitespace-nowrap">
+              <a href="/leads?category={{ r.category_query }}" 
+                 class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition">
+                <span>Lihat Leads &rarr;</span>
+              </a>
+            </td>
+
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="py-8 text-center text-slate-500">
+              <p class="font-semibold text-slate-700">Belum ada riwayat sesi crawling</p>
+              <p class="text-xs text-slate-400 mt-1">Lakukan crawling pertama kali di halaman Dashboard Ringkasan.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if total_pages > 1 %}
+    <div class="p-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+      <div>
+        Menampilkan <strong>{{ runs|length }}</strong> dari <strong>{{ total_runs }}</strong> sesi
+      </div>
+      <div class="flex items-center space-x-1">
+        {% if current_page > 1 %}
+        <a href="/history?page={{ current_page - 1 }}" class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700">
+          &larr; Prev
+        </a>
+        {% endif %}
+
+        <span class="px-3 py-1.5 rounded bg-slate-900 text-white font-bold">
+          {{ current_page }} / {{ total_pages }}
+        </span>
+
+        {% if current_page < total_pages %}
+        <a href="/history?page={{ current_page + 1 }}" class="px-3 py-1.5 rounded border border-slate-300 bg-white hover:bg-slate-50 text-slate-700">
+          Next &rarr;
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+
+</div>
+{% endblock %}

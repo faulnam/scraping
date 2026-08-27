@@ -1,0 +1,245 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Peta & Analisis Leads — LeadMaps BI{% endblock %}
+{% block page_title %}Peta & Analisis Leads Usaha{% endblock %}
+{% block page_subtitle %}Eksplorasi Prospek Usaha Lokal & Tracking Funnel Sales{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-2">
+  <!-- Export Dropdown / Buttons -->
+  <a href="/export/leads.csv?search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
+     title="Download CSV" 
+     class="inline-flex items-center space-x-1.5 py-1.5 px-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+    <span>Export CSV</span>
+  </a>
+
+  <a href="/export/leads.xlsx?search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
+     title="Download Excel" 
+     class="inline-flex items-center space-x-1.5 py-1.5 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 text-xs font-semibold transition">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+    <span>Export Excel</span>
+  </a>
+
+  <a href="/" class="btn-primary flex items-center space-x-1 py-1.5 px-3 text-xs">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+    <span>Crawl Baru</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- 1. Card Filter Leads -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
+    <form id="leads-filter-form"
+          hx-get="/leads"
+          hx-target="#leads-table-container"
+          hx-push-url="true"
+          class="space-y-3">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        
+        <!-- Search Keyword -->
+        <div class="lg:col-span-2">
+          <label for="search" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Cari Nama / Alamat / Telepon
+          </label>
+          <input type="text" 
+                 id="search" 
+                 name="search" 
+                 value="{{ search }}" 
+                 placeholder="Ketik kata kunci..."
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+        </div>
+
+        <!-- Filter Kategori -->
+        <div>
+          <label for="category" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Kategori
+          </label>
+          <select id="category" name="category" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if category == 'all' %}selected{% endif %}>Semua Kategori</option>
+            {% for cat in available_categories %}
+            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Status Website -->
+        <div>
+          <label for="has_website" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Status Website
+          </label>
+          <select id="has_website" name="has_website" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if has_website == 'all' %}selected{% endif %}>Semua Status</option>
+            <option value="false" {% if has_website == 'false' %}selected{% endif %}>Belum Punya Website (Target)</option>
+            <option value="true" {% if has_website == 'true' %}selected{% endif %}>Sudah Punya Website</option>
+          </select>
+        </div>
+
+        <!-- Minimum Rating -->
+        <div>
+          <label for="min_rating" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Rating Minimum
+          </label>
+          <select id="min_rating" name="min_rating" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="0.0" {% if min_rating == 0.0 %}selected{% endif %}>Semua Rating</option>
+            <option value="4.0" {% if min_rating == 4.0 %}selected{% endif %}>★ 4.0 ke atas</option>
+            <option value="4.5" {% if min_rating == 4.5 %}selected{% endif %}>★ 4.5 ke atas (Prioritas)</option>
+          </select>
+        </div>
+
+        <!-- Status Kontak Funnel -->
+        <div>
+          <label for="contact_status" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Status Kontak
+          </label>
+          <select id="contact_status" name="contact_status" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if contact_status == 'all' %}selected{% endif %}>Semua Status</option>
+            <option value="belum_dihubungi" {% if contact_status == 'belum_dihubungi' %}selected{% endif %}>Belum Kontak</option>
+            <option value="sudah_dihubungi" {% if contact_status == 'sudah_dihubungi' %}selected{% endif %}>Sudah Di-WA</option>
+            <option value="follow_up" {% if contact_status == 'follow_up' %}selected{% endif %}>Follow Up</option>
+            <option value="deal" {% if contact_status == 'deal' %}selected{% endif %}>Deal Client</option>
+            <option value="tidak_tertarik" {% if contact_status == 'tidak_tertarik' %}selected{% endif %}>Tidak Tertarik</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Action Row -->
+      <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+        <div class="flex items-center space-x-2">
+          <button type="submit" class="btn-primary py-2 px-5 text-xs font-semibold flex items-center space-x-1.5 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span>Terapkan Filter</span>
+          </button>
+          
+          <a href="/leads" class="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition">
+            Reset
+          </a>
+        </div>
+
+        <div class="text-xs text-slate-500 font-medium">
+          Ditemukan <strong class="text-slate-900">{{ total_leads }}</strong> leads terdata
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- 2. Peta Interaktif Leaflet -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-slate-100 gap-2">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+          <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+          <span>Peta Persebaran Lokasi Leads</span>
+        </h3>
+        <p class="text-[11px] text-slate-500">Klik pin pada peta untuk melihat profil usaha dan kontak</p>
+      </div>
+
+      <!-- Map Legend -->
+      <div class="flex items-center space-x-4 text-[11px]">
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 border border-emerald-600"></span>
+          <span class="text-slate-700 font-medium">Belum Ada Website (Target)</span>
+        </div>
+        <div class="flex items-center space-x-1.5">
+          <span class="w-3 h-3 rounded-full bg-slate-500 border border-slate-600"></span>
+          <span class="text-slate-500 font-medium">Sudah Ada Website</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaflet Map Canvas -->
+    <div id="leads-map" class="w-full h-80 sm:h-96 rounded-lg border border-slate-200 shadow-inner z-0"></div>
+  </div>
+
+  <!-- 3. Tabel Leads Container (Updated via HTMX) -->
+  <div id="leads-table-container">
+    {% include "partials/leads_table.html" %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  let mapInstance = null;
+  let markersLayer = null;
+
+  const markersData = {{ map_markers_json|tojson }};
+
+  function initLeadsMap() {
+    if (mapInstance) {
+      mapInstance.remove();
+    }
+
+    const defaultLat = markersData.length > 0 ? markersData[0].lat : -6.917464;
+    const defaultLng = markersData.length > 0 ? markersData[0].lng : 107.619123;
+
+    mapInstance = L.map('leads-map', {
+      zoomControl: true,
+      attributionControl: false
+    }).setView([defaultLat, defaultLng], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    }).addTo(mapInstance);
+
+    markersLayer = L.layerGroup().addTo(mapInstance);
+    renderMapMarkers();
+  }
+
+  function renderMapMarkers() {
+    if (!markersLayer) return;
+    markersLayer.clearLayers();
+
+    const bounds = [];
+
+    markersData.forEach(item => {
+      if (!item.lat || !item.lng) return;
+
+      const isNoWeb = !item.has_website;
+      const markerColor = isNoWeb ? '#10B981' : '#64748B';
+      const borderCol = isNoWeb ? '#059669' : '#334155';
+
+      const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: ${markerColor}; border: 2px solid ${borderCol}; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      const popupHtml = `
+        <div class="p-1 text-xs space-y-1.5" style="min-width: 200px;">
+          <div class="font-bold text-slate-900">${item.title}</div>
+          <div class="text-[10px] text-slate-500">${item.category} &bull; ★ ${item.rating} (${item.reviews})</div>
+          <div class="text-[10px] ${isNoWeb ? 'text-emerald-700 font-bold' : 'text-slate-500'}">
+            ${isNoWeb ? '✓ Belum Punya Website' : 'Sudah Punya Website'}
+          </div>
+          <div class="text-[10px] text-slate-600 truncate">${item.address}</div>
+          <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-[10px] font-mono text-slate-700">${item.phone}</span>
+            <a href="/leads/${item.id}" class="text-[10px] font-bold text-blue-600 hover:underline">Buka Detail &rarr;</a>
+          </div>
+        </div>
+      `;
+
+      const marker = L.marker([item.lat, item.lng], { icon: customIcon })
+        .bindPopup(popupHtml);
+
+      markersLayer.addLayer(marker);
+      bounds.push([item.lat, item.lng]);
+    });
+
+    if (bounds.length > 0) {
+      mapInstance.fitBounds(bounds, { padding: [30, 30] });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initLeadsMap);
+</script>
+{% endblock %}

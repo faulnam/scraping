@@ -1,0 +1,116 @@
+<div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    
+    <!-- Left: Filter Form -->
+    <form id="filter-form" 
+          hx-get="/" 
+          hx-target="body" 
+          hx-push-url="true" 
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1">
+      
+      <!-- Provinsi Dropdown -->
+      <div>
+        <label for="filter-province" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+          Provinsi
+        </label>
+        <select id="filter-province" 
+                name="province"
+                onchange="updateCityDropdown('filter-province', 'filter-city', '{{ active_city }}')"
+                class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+          <option value="all" {% if active_province == 'all' %}selected{% endif %}>Semua Provinsi</option>
+          {% for p in available_provinces %}
+          <option value="{{ p }}" {% if active_province == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Kota/Kabupaten Dropdown -->
+      <div>
+        <label for="filter-city" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+          Kota / Kabupaten
+        </label>
+        <select id="filter-city" name="city" class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+          <option value="all" {% if active_city == 'all' %}selected{% endif %}>Semua Kota</option>
+          {% for c in available_cities %}
+          <option value="{{ c }}" {% if active_city == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Kategori Dropdown -->
+      <div>
+        <label for="filter-category" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+          Kategori Usaha
+        </label>
+        <select id="filter-category" name="category" class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+          <option value="all" {% if active_category == 'all' %}selected{% endif %}>Semua Kategori</option>
+          {% for cat in available_categories %}
+          <option value="{{ cat }}" {% if active_category == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Rentang Waktu -->
+      <div>
+        <label for="filter-time" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1.5">
+          Waktu Crawling
+        </label>
+        <select id="filter-time" name="time_range" class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+          <option value="all" {% if active_time_range == 'all' %}selected{% endif %}>Semua Waktu</option>
+          <option value="7d" {% if active_time_range == '7d' %}selected{% endif %}>7 Hari Terakhir</option>
+          <option value="30d" {% if active_time_range == '30d' %}selected{% endif %}>30 Hari Terakhir</option>
+          <option value="90d" {% if active_time_range == '90d' %}selected{% endif %}>90 Hari Terakhir</option>
+        </select>
+      </div>
+
+    </form>
+
+    <!-- Right: Actions Buttons -->
+    <div class="flex items-end space-x-2 pt-2 lg:pt-0">
+      <button type="submit" form="filter-form" class="btn-primary flex items-center space-x-1.5 py-2 px-4 text-xs font-semibold">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+        </svg>
+        <span>Terapkan</span>
+      </button>
+      
+      {% if active_province != 'all' or active_city != 'all' or active_category != 'all' or active_time_range != 'all' %}
+      <a href="/" class="inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg transition">
+        Reset
+      </a>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <!-- Active Filter Pills -->
+  {% if active_province != 'all' or active_city != 'all' or active_category != 'all' or active_time_range != 'all' %}
+  <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2">
+    <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Filter Aktif:</span>
+    
+    {% if active_province != 'all' %}
+    <span class="inline-flex items-center text-xs px-2.5 py-1 rounded-md font-medium bg-slate-100 text-slate-800 border border-slate-200">
+      <span>Provinsi: {{ active_province }}</span>
+    </span>
+    {% endif %}
+
+    {% if active_city != 'all' %}
+    <span class="inline-flex items-center text-xs px-2.5 py-1 rounded-md font-medium bg-slate-100 text-slate-800 border border-slate-200">
+      <span>Kota: {{ active_city }}</span>
+    </span>
+    {% endif %}
+
+    {% if active_category != 'all' %}
+    <span class="inline-flex items-center text-xs px-2.5 py-1 rounded-md font-medium bg-slate-100 text-slate-800 border border-slate-200">
+      <span>Kategori: {{ active_category }}</span>
+    </span>
+    {% endif %}
+
+    {% if active_time_range != 'all' %}
+    <span class="inline-flex items-center text-xs px-2.5 py-1 rounded-md font-medium bg-blue-50 text-blue-800 border border-blue-200">
+      <span>Rentang: {{ active_time_range }}</span>
+    </span>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

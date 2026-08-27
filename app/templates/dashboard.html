@@ -1,0 +1,373 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard Ringkasan — LeadMaps BI{% endblock %}
+{% block page_title %}Dashboard Ringkasan{% endblock %}
+{% block page_subtitle %}Ikhtisar Data & Analisis Leads Pasar{% endblock %}
+
+{% block header_actions %}
+<span class="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+  <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+  Live Database: MySQL
+</span>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- 1. Card: Mulai Crawling Leads Baru -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2 mb-4">
+      <div>
+        <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
+          <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <span>Pencarian & Ingesti Leads Usaha Baru</span>
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Eksplorasi prospek bisnis lokal per wilayah dan kategori secara real-time.
+        </p>
+      </div>
+      <div>
+        <span class="text-[11px] font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">
+          Google Maps Live Search
+        </span>
+      </div>
+    </div>
+
+    <!-- Crawl Form -->
+    <form id="crawl-form"
+          hx-post="/crawl"
+          hx-target="#crawl-feedback"
+          hx-indicator="#crawl-spinner"
+          hx-swap="innerHTML"
+          class="space-y-4">
+      
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <!-- Input Kategori Usaha -->
+        <div>
+          <label for="category_query" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            Kategori Usaha <span class="text-rose-500">*</span>
+          </label>
+          <input type="text"
+                 id="category_query"
+                 name="category_query"
+                 placeholder="Misal: Bengkel Motor, Klinik Gigi, Restoran"
+                 value="Klinik Gigi & Dental"
+                 required
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+        </div>
+
+        <!-- Dropdown Provinsi -->
+        <div>
+          <label for="province" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            Provinsi <span class="text-rose-500">*</span>
+          </label>
+          <select id="province"
+                  name="province"
+                  onchange="updateCityDropdown('province', 'city')"
+                  required
+                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+            <option value="Jawa Barat" selected>Jawa Barat</option>
+            <option value="DKI Jakarta">DKI Jakarta</option>
+            <option value="Jawa Timur">Jawa Timur</option>
+            <option value="Jawa Tengah">Jawa Tengah</option>
+            <option value="Banten">Banten</option>
+            <option value="DI Yogyakarta">DI Yogyakarta</option>
+            <option value="Bali">Bali</option>
+            <option value="Sumatera Utara">Sumatera Utara</option>
+            <option value="Sumatera Barat">Sumatera Barat</option>
+            <option value="Riau">Riau</option>
+            <option value="Sumatera Selatan">Sumatera Selatan</option>
+            <option value="Kepulauan Riau">Kepulauan Riau</option>
+            <option value="Lampung">Lampung</option>
+            <option value="Kalimantan Timur">Kalimantan Timur</option>
+            <option value="Kalimantan Barat">Kalimantan Barat</option>
+            <option value="Kalimantan Selatan">Kalimantan Selatan</option>
+            <option value="Sulawesi Selatan">Sulawesi Selatan</option>
+            <option value="Sulawesi Utara">Sulawesi Utara</option>
+            <option value="Nusa Tenggara Barat">Nusa Tenggara Barat</option>
+            <option value="Nusa Tenggara Timur">Nusa Tenggara Timur</option>
+          </select>
+        </div>
+
+        <!-- Dropdown Kota / Kabupaten -->
+        <div>
+          <label for="city" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            Kota / Kabupaten <span class="text-rose-500">*</span>
+          </label>
+          <select id="city"
+                  name="city"
+                  required
+                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+            <!-- Populated dynamically by JavaScript -->
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Suggestion Badges -->
+      <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 pt-0.5">
+        <span class="text-[11px] font-semibold text-slate-400">Pilihan Cepat:</span>
+        <button type="button" onclick="document.getElementById('category_query').value='Klinik Gigi & Dental'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Klinik Gigi</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Bengkel Motor'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Bengkel Motor</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Restoran & Kuliner'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Restoran</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Barbershop & Salon'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Barbershop</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Pet Shop & Dokter Hewan'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Pet Shop</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Laundry Express'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Laundry</button>
+      </div>
+
+      <!-- Action Button & Loading Indicator -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
+        <div id="crawl-spinner" class="htmx-indicator flex items-center space-x-2 text-xs font-medium text-slate-700">
+          <svg class="animate-spin h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span>Mengambil data bisnis live & normalisasi leads... Mohon tunggu.</span>
+        </div>
+        
+        <div class="sm:ml-auto">
+          <button type="submit" class="btn-primary w-full sm:w-auto flex items-center justify-center space-x-2 text-xs font-semibold py-2.5 px-6 shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>Mulai Crawling Leads</span>
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Feedback Container for HTMX Crawl Response -->
+    <div id="crawl-feedback" class="mt-3"></div>
+  </div>
+
+
+  <!-- 2. Card: Filter Data Agregasi -->
+  {% include "partials/filter_bar.html" %}
+
+
+  <!-- 3. Dynamic Aggregation Header & 4 Metric Cards Grid -->
+  <div id="dashboard-metrics-container"
+       hx-get="/api/dashboard/metrics?province={{ active_province }}&city={{ active_city }}&category={{ active_category }}&time_range={{ active_time_range }}"
+       hx-trigger="refreshDashboard from:body"
+       class="space-y-4">
+    {% include "partials/metric_card.html" %}
+  </div>
+
+
+  <!-- 4. Grid Chart Cards (2 columns desktop -> 1 col mobile) -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+    <!-- Chart 1: Sebaran Kategori Usaha -->
+    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div>
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Sebaran Kategori Usaha Terdata</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Top industri usaha hasil crawling di wilayah aktif</p>
+        </div>
+        <span class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">Distribusi</span>
+      </div>
+      <div class="relative h-64 sm:h-72">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Chart 2: Status Website vs Rating Pasar -->
+    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div>
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Status Website vs. Rating Pasar</h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Analisis prospek prioritas (Rating tinggi tanpa website)</p>
+        </div>
+        <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-medium border border-emerald-200">
+          Target Prioritas
+        </span>
+      </div>
+      <div class="relative h-64 sm:h-72">
+        <canvas id="websiteRatingChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // City mapping per Province in Indonesia
+  const INDONESIA_CITIES = {
+    "Jawa Barat": ["Kota Bandung", "Kota Bogor", "Kota Bekasi", "Kota Depok", "Kota Cimahi", "Kota Cirebon", "Kota Sukabumi", "Kota Tasikmalaya", "Kab. Bandung", "Kab. Bandung Barat", "Kab. Bekasi", "Kab. Bogor", "Kab. Garut", "Kab. Karawang", "Kab. Sumedang"],
+    "DKI Jakarta": ["Jakarta Selatan", "Jakarta Pusat", "Jakarta Barat", "Jakarta Timur", "Jakarta Utara"],
+    "Jawa Timur": ["Kota Surabaya", "Kota Malang", "Kota Sidoarjo", "Kota Kediri", "Kota Madiun", "Kota Mojokerto", "Kota Pasuruan", "Kota Probolinggo", "Kota Batu", "Kab. Gresik", "Kab. Jember", "Kab. Banyuwangi"],
+    "Jawa Tengah": ["Kota Semarang", "Kota Surakarta (Solo)", "Kota Magelang", "Kota Pekalongan", "Kota Salatiga", "Kota Tegal", "Kab. Banyumas (Purwokerto)", "Kab. Kudus", "Kab. Sukoharjo", "Kab. Klaten"],
+    "Banten": ["Kota Tangerang", "Kota Tangerang Selatan", "Kota Serang", "Kota Cilegon", "Kab. Tangerang", "Kab. Serang"],
+    "DI Yogyakarta": ["Kota Yogyakarta", "Kab. Sleman", "Kab. Bantul", "Kab. Gunungkidul", "Kab. Kulon Progo"],
+    "Bali": ["Kota Denpasar", "Kab. Badung (Kuta/Canggu)", "Kab. Gianyar (Ubud)", "Kab. Tabanan", "Kab. Buleleng"],
+    "Sumatera Utara": ["Kota Medan", "Kota Binjai", "Kota Pematangsiantar", "Kab. Deli Serdang"],
+    "Sumatera Barat": ["Kota Padang", "Kota Bukittinggi", "Kota Payakumbuh"],
+    "Riau": ["Kota Pekanbaru", "Kota Dumai"],
+    "Sumatera Selatan": ["Kota Palembang", "Kota Prabumulih"],
+    "Kepulauan Riau": ["Kota Batam", "Kota Tanjungpinang"],
+    "Lampung": ["Kota Bandar Lampung", "Kota Metro"],
+    "Kalimantan Timur": ["Kota Balikpapan", "Kota Samarinda", "Kota Bontang"],
+    "Kalimantan Barat": ["Kota Pontianak", "Kota Singkawang"],
+    "Kalimantan Selatan": ["Kota Banjarmasin", "Kota Banjarbaru"],
+    "Sulawesi Selatan": ["Kota Makassar", "Kota Parepare", "Kota Palopo"],
+    "Sulawesi Utara": ["Kota Manado", "Kota Tomohon"],
+    "Nusa Tenggara Barat": ["Kota Mataram", "Kab. Lombok Barat"],
+    "Nusa Tenggara Timur": ["Kota Kupang"]
+  };
+
+  function updateCityDropdown(provinceSelectId, citySelectId, defaultCity = "Kota Bandung") {
+    const provinceSelect = document.getElementById(provinceSelectId);
+    const citySelect = document.getElementById(citySelectId);
+    if (!provinceSelect || !citySelect) return;
+
+    const selectedProvince = provinceSelect.value;
+    const cities = INDONESIA_CITIES[selectedProvince] || ["Semua Kota"];
+
+    citySelect.innerHTML = "";
+    cities.forEach(city => {
+      const opt = document.createElement("option");
+      opt.value = city;
+      opt.textContent = city;
+      if (city === defaultCity) opt.selected = true;
+      citySelect.appendChild(opt);
+    });
+  }
+
+  // Initialize city dropdown
+  document.addEventListener('DOMContentLoaded', () => {
+    updateCityDropdown('province', 'city', 'Kota Bandung');
+    loadDashboardCharts();
+  });
+
+  let categoryChartInstance = null;
+  let websiteRatingChartInstance = null;
+
+  async function loadDashboardCharts() {
+    const province = "{{ active_province }}";
+    const city = "{{ active_city }}";
+    const category = "{{ active_category }}";
+    const timeRange = "{{ active_time_range }}";
+
+    const url = `/api/dashboard/charts?province=${encodeURIComponent(province)}&city=${encodeURIComponent(city)}&category=${encodeURIComponent(category)}&time_range=${encodeURIComponent(timeRange)}`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+
+      // 1. Render Category Distribution Bar Chart
+      const ctxCat = document.getElementById('categoryChart').getContext('2d');
+      if (categoryChartInstance) {
+        categoryChartInstance.destroy();
+      }
+
+      categoryChartInstance = new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+          labels: data.categories.labels.length > 0 ? data.categories.labels : ['Belum Ada Data'],
+          datasets: [{
+            label: 'Jumlah Usaha Terdata',
+            data: data.categories.counts.length > 0 ? data.categories.counts : [0],
+            backgroundColor: '#1E293B',
+            borderRadius: 4,
+            hoverBackgroundColor: '#0F172A',
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0F172A',
+              padding: 8,
+              titleFont: { size: 11, weight: 'bold' },
+              bodyFont: { size: 11 },
+              cornerRadius: 4
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, font: { size: 10 } },
+              grid: { color: '#F1F5F9' }
+            }
+          }
+        }
+      });
+
+      // 2. Render Website vs Rating Grouped Bar Chart
+      const ctxRating = document.getElementById('websiteRatingChart').getContext('2d');
+      if (websiteRatingChartInstance) {
+        websiteRatingChartInstance.destroy();
+      }
+
+      websiteRatingChartInstance = new Chart(ctxRating, {
+        type: 'bar',
+        data: {
+          labels: data.website_vs_rating.labels,
+          datasets: [
+            {
+              label: 'Belum Punya Website (Target)',
+              data: data.website_vs_rating.without_website,
+              backgroundColor: '#10B981', // Emerald 500
+              borderRadius: 4,
+              hoverBackgroundColor: '#059669',
+            },
+            {
+              label: 'Sudah Punya Website',
+              data: data.website_vs_rating.with_website,
+              backgroundColor: '#94A3B8', // Slate 400
+              borderRadius: 4,
+              hoverBackgroundColor: '#64748B',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { boxWidth: 10, font: { size: 10, weight: '600' } }
+            },
+            tooltip: {
+              backgroundColor: '#0F172A',
+              padding: 8,
+              titleFont: { size: 11, weight: 'bold' },
+              bodyFont: { size: 11 },
+              cornerRadius: 4
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, font: { size: 10 } },
+              grid: { color: '#F1F5F9' }
+            }
+          }
+        }
+      });
+
+    } catch (err) {
+      console.error("Gagal memuat data chart:", err);
+    }
+  }
+
+  // Auto-reload charts when HTMX triggers 'refreshDashboard'
+  document.body.addEventListener('refreshDashboard', () => {
+    setTimeout(loadDashboardCharts, 300);
+  });
+</script>
+{% endblock %}

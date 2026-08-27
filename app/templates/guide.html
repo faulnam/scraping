@@ -1,0 +1,222 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Metodologi & Panduan Penggunaan — LeadMaps BI{% endblock %}
+{% block page_title %}Metodologi & Panduan Leads{% endblock %}
+{% block page_subtitle %}Penjelasan Cara Kerja Scoring Prioritas, Kontrol Biaya API & Etika Outreach Sales{% endblock %}
+
+{% block content %}
+<div class="space-y-8 max-w-5xl mx-auto text-slate-800">
+
+  <!-- 1. Intro Card -->
+  <div class="card bg-slate-900 text-white border-0 shadow-md rounded-xl p-6">
+    <div class="space-y-2">
+      <div class="flex items-center space-x-2 text-emerald-400 font-bold text-xs uppercase tracking-wider">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        <span>STANDAR OPERASIONAL & METODOLOGI PROSPEK</span>
+      </div>
+      <h2 class="text-xl font-bold text-white">Studi Kasus: Lead Generation Jasa Pembuatan Website</h2>
+      <p class="text-xs text-slate-300 leading-relaxed max-w-3xl">
+        <strong>LeadMaps BI</strong> dirancang sebagai dashboard business intelligence internal untuk mencari prospek usaha lokal yang beroperasi aktif dan memiliki reputasi publik baik di Google Maps, namun belum memiliki website resmi. 
+        Data diperoleh secara terstruktur dengan sistem tracking status follow-up sales profesional.
+      </p>
+    </div>
+  </div>
+
+
+  <!-- 2. Lead Scoring Matrix Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+          <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          <span>1. Algoritma Lead Scoring & Penentuan Prioritas</span>
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">Aturan bisnis otomatis saat data di-ingest ke sistem</p>
+      </div>
+      <span class="text-xs font-semibold px-2.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+        Auto-Scored
+      </span>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-slate-200">
+      <table class="min-w-full divide-y divide-slate-200 text-xs text-left">
+        <thead class="bg-slate-50 font-semibold text-slate-600 text-[11px] uppercase tracking-wider">
+          <tr>
+            <th class="py-3 px-4">Tingkat Prioritas</th>
+            <th class="py-3 px-4">Kriteria Aturan</th>
+            <th class="py-3 px-4">Analisis Rasional Bisnis</th>
+            <th class="py-3 px-4">Rekomendasi Tindakan Sales</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200 bg-white">
+          
+          <!-- HIGH -->
+          <tr class="bg-rose-50/30">
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                HIGH PRIORITY
+              </span>
+            </td>
+            <td class="py-3 px-4 font-semibold text-slate-900">
+              <code>has_website = False</code><br>
+              <span class="text-emerald-700">DAN (Rating &ge; 4.0 ATAU Review &ge; 20)</span>
+            </td>
+            <td class="py-3 px-4 text-slate-600 leading-relaxed">
+              Usaha aktif, dipercaya pelanggan, dan memiliki aliran omset yang berjalan. Namun mereka kehilangan potensi trafik pencarian Google karena belum punya web.
+            </td>
+            <td class="py-3 px-4 text-emerald-800 font-semibold">
+              Prioritas Utama Outreach WA & Penawaran Landing Page / Company Profile.
+            </td>
+          </tr>
+
+          <!-- MEDIUM -->
+          <tr class="bg-amber-50/30">
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                MEDIUM PRIORITY
+              </span>
+            </td>
+            <td class="py-3 px-4 font-semibold text-slate-900">
+              <code>has_website = False</code><br>
+              <span class="text-slate-500">Rating &lt; 4.0 DAN Total Review &lt; 20</span>
+            </td>
+            <td class="py-3 px-4 text-slate-600 leading-relaxed">
+              Usaha baru buka atau belum banyak ulasan pelanggan di Google Maps.
+            </td>
+            <td class="py-3 px-4 text-amber-800 font-medium">
+              Prospek Sekunder (Tawarkan paket web starter / paket optimasi Google Bisnis).
+            </td>
+          </tr>
+
+          <!-- LOW -->
+          <tr>
+            <td class="py-3 px-4 whitespace-nowrap">
+              <span class="px-2.5 py-1 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                LOW PRIORITY
+              </span>
+            </td>
+            <td class="py-3 px-4 font-semibold text-slate-900">
+              <code>has_website = True</code>
+            </td>
+            <td class="py-3 px-4 text-slate-600 leading-relaxed">
+              Usaha sudah memiliki website resmi yang terdaftar di profil Google Maps.
+            </td>
+            <td class="py-3 px-4 text-slate-600">
+              Bisa ditawarkan layanan Redesign, Maintenance Web, atau SEO berkala.
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <!-- 3. Cost Control & Cache Architecture Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+    <div class="pb-3 border-b border-slate-100">
+      <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        <span>2. Mekanisme Hemat Biaya & Cache 30 Hari</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-0.5">Prinsip Deduplikasi Database & Optimasi Request</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs leading-relaxed">
+      
+      <div class="p-4 rounded-lg bg-blue-50 border border-blue-200 space-y-2">
+        <h4 class="font-bold text-blue-900 text-sm">Pencarian Fleksibel (SerpApi / Places API)</h4>
+        <p class="text-blue-800">
+          Sistem mendukung integrasi langsung ke <strong>SerpApi</strong> (tanpa kartu debit) maupun Google Places API resmi dengan efisiensi kuota tinggi.
+        </p>
+      </div>
+
+      <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 space-y-2">
+        <h4 class="font-bold text-emerald-900 text-sm">Cache Proteksi (30 Hari)</h4>
+        <p class="text-emerald-800">
+          Data yang sudah pernah di-crawl dalam kurun waktu <strong>&lt; 30 hari</strong> otomatis memanfaatkan database MySQL lokal tanpa memanggil request eksternal lagi.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- 4. Sales Funnel Workflow Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+    <div class="pb-3 border-b border-slate-100">
+      <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+        <span>3. Alur Funnel Status Kontak Sales</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-0.5">Tahapan follow-up prospek dari awal crawl hingga closing</p>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center text-xs">
+      
+      <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+        <div class="font-bold text-slate-800">Belum Kontak</div>
+        <div class="text-[10px] text-slate-500 mt-1">Lead baru hasil crawling</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-blue-200 bg-blue-50">
+        <div class="font-bold text-blue-900">Sudah Di-WA</div>
+        <div class="text-[10px] text-blue-700 mt-1">Pesan penawaran terkirim</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-amber-200 bg-amber-50">
+        <div class="font-bold text-amber-900">Follow Up</div>
+        <div class="text-[10px] text-amber-700 mt-1">Diskusi proposal & harga</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-emerald-300 bg-emerald-50">
+        <div class="font-bold text-emerald-900">Deal Client</div>
+        <div class="text-[10px] text-emerald-700 mt-1">Closing pembuatan web</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-rose-200 bg-rose-50">
+        <div class="font-bold text-rose-900">Tidak Tertarik</div>
+        <div class="text-[10px] text-rose-700 mt-1">Menolak / Belum butuh</div>
+      </div>
+
+      <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
+        <div class="font-bold text-slate-600">Tidak Relevan</div>
+        <div class="text-[10px] text-slate-400 mt-1">Bukan target yang pas</div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- 5. Ethics & Outreach Rules Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+    <div class="pb-3 border-b border-slate-100">
+      <h3 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+        <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span>4. Panduan Etika Outreach WhatsApp Profesional</span>
+      </h3>
+      <p class="text-xs text-slate-500 mt-0.5">Prinsip komunikasi profesional & kepatuhan privasi (anti-spam)</p>
+    </div>
+
+    <ul class="space-y-3 text-xs text-slate-700 leading-relaxed">
+      <li class="flex items-start space-x-2">
+        <span class="text-emerald-600 font-bold">✓</span>
+        <span><strong>Personalisasi Nama Usaha:</strong> Selalu gunakan placeholder <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">{business_name}</code> agar pesan terasa profesional dan relevan.</span>
+      </li>
+      <li class="flex items-start space-x-2">
+        <span class="text-emerald-600 font-bold">✓</span>
+        <span><strong>Fokus Solusi & Nilai:</strong> Awali dengan mengapresiasi rating positif Google Maps mereka, lalu jelaskan bagaimana website meningkatkan omset lokal.</span>
+      </li>
+      <li class="flex items-start space-x-2">
+        <span class="text-emerald-600 font-bold">✓</span>
+        <span><strong>Hormati Kebijakan Opt-Out:</strong> Jika pemilik usaha menolak, segera ubah status menjadi <code class="bg-slate-100 px-1 py-0.5 rounded font-mono text-[11px]">tidak_tertarik</code> dan jangan mengirim pesan berulang.</span>
+      </li>
+      <li class="flex items-start space-x-2">
+        <span class="text-emerald-600 font-bold">✓</span>
+        <span><strong>Jam Kerja:</strong> Kirim pesan pada jam operasional kerja (08.30 – 17.00 WIB) agar tidak mengganggu waktu istirahat calon klien.</span>
+      </li>
+    </ul>
+  </div>
+
+</div>
+{% endblock %}

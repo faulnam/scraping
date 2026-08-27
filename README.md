@@ -16,12 +16,18 @@ Dashboard internal business intelligence dan lead generation untuk mencari prosp
   - **MEDIUM**: Usaha tanpa website dengan rating & ulasan rendah (Prospek sekunder).
   - **LOW**: Usaha yang sudah memiliki website resmi.
 - **Dropdown Kota Dinamis**: Pilihan kota/kabupaten otomatis menyesuaikan dengan provinsi yang dipilih.
+- **Katalog Portofolio & Demo Web Otomatis (Demo Matcher)**:
+  - Sistem otomatis mencocokkan kategori usaha prospek dengan link demo web spesifik (misal: Toko/Retail $\rightarrow$ Demo E-Commerce, Klinik/Dokter $\rightarrow$ Demo Janji Temu Dental, Resto/Kafe $\rightarrow$ Demo QR Menu, Bengkel $\rightarrow$ Demo Service Booking).
+  - Manajemen katalog portofolio lengkap di menu **Profil Bisnis Saya** (bisa tambah/hapus link demo dan kata kunci kategori).
+- **WhatsApp Outreach Studio Interaktif**:
+  - Di halaman Detail Lead, tersedia editor pesan interaktif dengan preview real-time.
+  - Pilihan variasi template (*Direct Demo Link*, *Fokus Solusi Omset*, *Santai & Bersahabat*).
+  - Tombol WhatsApp otomatis memperbarui URL pesan secara langsung saat teks diketik atau saat link portofolio diganti.
+  - Tombol **Copy Teks** instan ke clipboard.
 - **Tabel Leads & Peta Interaktif (Leaflet.js)**:
   - Baris tanpa website otomatis di-highlight hijau lembut.
   - Pin peta interaktif (Emerald = Target Tanpa Web, Slate = Sudah Punya Web).
   - **Update Status Instan per Baris**: Ubah status kontak langsung dari dropdown tabel tanpa refresh halaman.
-- **Outreach WhatsApp Siap Kirim**:
-  - Tombol WhatsApp membuat link `wa.me/62...` dengan pesan penawaran otomatis yang mengganti `{business_name}` dengan nama bisnis calon klien.
 - **Tracking Funnel Sales Lengkap**:
   - 6 status follow-up: *Belum Kontak*, *Sudah Di-WA*, *Follow Up*, *Deal Client*, *Tidak Tertarik*, *Tidak Relevan*.
   - Catatan negosiasi sales (`notes`), PIC penanggung jawab (`assigned_to`), dan timestamp kontak terakhir.
@@ -31,6 +37,7 @@ Dashboard internal business intelligence dan lead generation untuk mencari prosp
 - **Zero Node.js di Server**:
   - Menggunakan **Tailwind CSS Standalone CLI** binary untuk kompilasi CSS statis minified.
   - Frontend interaktif menggunakan **HTMX**, **Leaflet.js**, dan **Chart.js** via CDN.
+
 
 ---
 

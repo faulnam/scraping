@@ -1,0 +1,292 @@
+{
+  "ChIJ_bengkel_juang_001": {
+    "id": "ChIJ_bengkel_juang_001",
+    "displayName": {
+      "text": "Bengkel Motor Juang Speed",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. LLRE Martadinata No. 128, Cihapit, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40114",
+    "nationalPhoneNumber": "0813-9876-5432",
+    "websiteUri": null,
+    "rating": 4.8,
+    "userRatingCount": 115,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 08.00–17.00",
+        "Selasa: 08.00–17.00",
+        "Rabu: 08.00–17.00",
+        "Kamis: 08.00–17.00",
+        "Jumat: 08.00–17.00",
+        "Sabtu: 08.00–17.00",
+        "Minggu: Tutup"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1001",
+    "location": {
+      "latitude": -6.908412,
+      "longitude": 107.625345
+    }
+  },
+  "ChIJ_dental_permata_002": {
+    "id": "ChIJ_dental_permata_002",
+    "displayName": {
+      "text": "Klinik Gigi Permata Dental Care",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Buah Batu No. 245, Turangga, Kec. Lengkong, Kota Bandung, Jawa Barat 40264",
+    "nationalPhoneNumber": "+62 812-2334-4556",
+    "websiteUri": null,
+    "rating": 4.9,
+    "userRatingCount": 68,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 09.00–21.00",
+        "Selasa: 09.00–21.00",
+        "Rabu: 09.00–21.00",
+        "Kamis: 09.00–21.00",
+        "Jumat: 09.00–21.00",
+        "Sabtu: 09.00–18.00",
+        "Minggu: Tutup"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1002",
+    "location": {
+      "latitude": -6.94215,
+      "longitude": 107.62887
+    }
+  },
+  "ChIJ_kopi_nusantara_003": {
+    "id": "ChIJ_kopi_nusantara_003",
+    "displayName": {
+      "text": "Kedai Kopi & Resto Aroma Nusantara",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Progo No. 14, Citarum, Kec. Bandung Wetan, Kota Bandung, Jawa Barat 40115",
+    "nationalPhoneNumber": "0812-9988-7766",
+    "websiteUri": "https://aromanusantara.id",
+    "rating": 4.4,
+    "userRatingCount": 210,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 08.00–23.00",
+        "Selasa: 08.00–23.00",
+        "Rabu: 08.00–23.00",
+        "Kamis: 08.00–23.00",
+        "Jumat: 08.00–24.00",
+        "Sabtu: 08.00–24.00",
+        "Minggu: 08.00–23.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1003",
+    "location": {
+      "latitude": -6.90422,
+      "longitude": 107.61895
+    }
+  },
+  "ChIJ_salon_barber_004": {
+    "id": "ChIJ_salon_barber_004",
+    "displayName": {
+      "text": "Studio 9 Barbershop & Hair Treatment",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Dipati Ukur No. 88, Lebakgede, Coblong, Kota Bandung, Jawa Barat 40132",
+    "nationalPhoneNumber": "0857-1234-8899",
+    "websiteUri": null,
+    "rating": 4.6,
+    "userRatingCount": 38,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 10.00–21.00",
+        "Selasa: 10.00–21.00",
+        "Rabu: 10.00–21.00",
+        "Kamis: 10.00–21.00",
+        "Jumat: 10.00–21.00",
+        "Sabtu: 10.00–22.00",
+        "Minggu: 10.00–21.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1004",
+    "location": {
+      "latitude": -6.89244,
+      "longitude": 107.61782
+    }
+  },
+  "ChIJ_apotek_sehat_005": {
+    "id": "ChIJ_apotek_sehat_005",
+    "displayName": {
+      "text": "Apotek Medika Sehat Prima",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Surya Sumantri No. 56, Sukawarna, Sukajadi, Kota Bandung, Jawa Barat 40164",
+    "nationalPhoneNumber": "(022) 2012345",
+    "websiteUri": "https://medikasehat.co.id",
+    "rating": 4.3,
+    "userRatingCount": 45,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 24 Jam",
+        "Selasa: 24 Jam",
+        "Rabu: 24 Jam",
+        "Kamis: 24 Jam",
+        "Jumat: 24 Jam",
+        "Sabtu: 24 Jam",
+        "Minggu: 24 Jam"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1005",
+    "location": {
+      "latitude": -6.88721,
+      "longitude": 107.57945
+    }
+  },
+  "ChIJ_catering_berkah_006": {
+    "id": "ChIJ_catering_berkah_006",
+    "displayName": {
+      "text": "Catering Berkah Rasa Ibu Hj. Eni",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Terusan Jakarta No. 102, Antapani Kulon, Antapani, Kota Bandung, Jawa Barat 40291",
+    "nationalPhoneNumber": "0818-0909-0909",
+    "websiteUri": null,
+    "rating": 4.9,
+    "userRatingCount": 175,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 07.00–18.00",
+        "Selasa: 07.00–18.00",
+        "Rabu: 07.00–18.00",
+        "Kamis: 07.00–18.00",
+        "Jumat: 07.00–18.00",
+        "Sabtu: 07.00–18.00",
+        "Minggu: 07.00–18.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1006",
+    "location": {
+      "latitude": -6.91455,
+      "longitude": 107.65432
+    }
+  },
+  "ChIJ_laundry_kilat_007": {
+    "id": "ChIJ_laundry_kilat_007",
+    "displayName": {
+      "text": "Laundry Kilat Bersih Express",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Tubagus Ismail No. 34, Sekeloa, Coblong, Kota Bandung, Jawa Barat 40134",
+    "nationalPhoneNumber": "0896-7788-9900",
+    "websiteUri": null,
+    "rating": 3.7,
+    "userRatingCount": 6,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 07.00–21.00",
+        "Selasa: 07.00–21.00",
+        "Rabu: 07.00–21.00",
+        "Kamis: 07.00–21.00",
+        "Jumat: 07.00–21.00",
+        "Sabtu: 07.00–21.00",
+        "Minggu: 07.00–21.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1007",
+    "location": {
+      "latitude": -6.88392,
+      "longitude": 107.62145
+    }
+  },
+  "ChIJ_gym_fitness_008": {
+    "id": "ChIJ_gym_fitness_008",
+    "displayName": {
+      "text": "Titan Gym & Fitness Club Bandung",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Soekarno Hatta No. 590, Sekejati, Buahbatu, Kota Bandung, Jawa Barat 40286",
+    "nationalPhoneNumber": "0813-4455-6677",
+    "websiteUri": null,
+    "rating": 4.7,
+    "userRatingCount": 98,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 06.00–22.00",
+        "Selasa: 06.00–22.00",
+        "Rabu: 06.00–22.00",
+        "Kamis: 06.00–22.00",
+        "Jumat: 06.00–22.00",
+        "Sabtu: 06.00–21.00",
+        "Minggu: 08.00–20.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1008",
+    "location": {
+      "latitude": -6.95311,
+      "longitude": 107.64899
+    }
+  },
+  "ChIJ_petshop_sahabat_009": {
+    "id": "ChIJ_petshop_sahabat_009",
+    "displayName": {
+      "text": "Sahabat Satwa Pet Shop & Care",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Cihampelas No. 160, Cipaganti, Coblong, Kota Bandung, Jawa Barat 40131",
+    "nationalPhoneNumber": "0817-8899-0011",
+    "websiteUri": null,
+    "rating": 4.8,
+    "userRatingCount": 52,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 08.30–20.30",
+        "Selasa: 08.30–20.30",
+        "Rabu: 08.30–20.30",
+        "Kamis: 08.30–20.30",
+        "Jumat: 08.30–20.30",
+        "Sabtu: 08.30–21.00",
+        "Minggu: 09.00–18.00"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1009",
+    "location": {
+      "latitude": -6.89912,
+      "longitude": 107.60384
+    }
+  },
+  "ChIJ_printing_agung_010": {
+    "id": "ChIJ_printing_agung_010",
+    "displayName": {
+      "text": "Percetakan & Digital Printing Grafika Mandiri",
+      "languageCode": "id"
+    },
+    "formattedAddress": "Jl. Pagarsih No. 77, Cibadak, Astanaanyar, Kota Bandung, Jawa Barat 40241",
+    "nationalPhoneNumber": "0819-9988-7766",
+    "websiteUri": null,
+    "rating": 3.8,
+    "userRatingCount": 14,
+    "regularOpeningHours": {
+      "weekdayDescriptions": [
+        "Senin: 08.00–17.00",
+        "Selasa: 08.00–17.00",
+        "Rabu: 08.00–17.00",
+        "Kamis: 08.00–17.00",
+        "Jumat: 08.00–17.00",
+        "Sabtu: 08.00–15.00",
+        "Minggu: Tutup"
+      ]
+    },
+    "businessStatus": "OPERATIONAL",
+    "googleMapsUri": "https://maps.google.com/?cid=1010",
+    "location": {
+      "latitude": -6.92488,
+      "longitude": 107.59632
+    }
+  }
+}

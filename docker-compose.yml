@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: leadmaps_app
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=mysql+pymysql://leadmaps_user:leadmaps_password@mysql:3306/leadmaps_bi
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - DEBUG=False
+      - APP_NAME=LeadMaps BI
+      - APP_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-leadmaps_production_secret_key_change_me}
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: leadmaps_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_secure_password
+      MYSQL_DATABASE: leadmaps_bi
+      MYSQL_USER: leadmaps_user
+      MYSQL_PASSWORD: leadmaps_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
