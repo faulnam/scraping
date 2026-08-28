@@ -147,7 +147,7 @@
       <tr>
         <th scope="col" class="py-3.5 px-4">
           <a href="#" 
-             hx-get="/leads?sort_by=name&sort_order={% if sort_by == 'name' and sort_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
+             hx-get="/leads?crawl_run_id={{ crawl_run_id }}&sort_by=name&sort_order={% if sort_by == 'name' and sort_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
              hx-target="#leads-table-container"
              hx-push-url="true"
              class="flex items-center space-x-1 hover:text-slate-900">
@@ -163,7 +163,7 @@
         <th scope="col" class="py-3.5 px-3">Website</th>
         <th scope="col" class="py-3.5 px-3">
           <a href="#" 
-             hx-get="/leads?sort_by=rating&sort_order={% if sort_by == 'rating' and sort_order == 'desc' %}asc{% else %}desc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
+             hx-get="/leads?crawl_run_id={{ crawl_run_id }}&sort_by=rating&sort_order={% if sort_by == 'rating' and sort_order == 'desc' %}asc{% else %}desc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
              hx-target="#leads-table-container"
              hx-push-url="true"
              class="flex items-center space-x-1 hover:text-slate-900">
@@ -175,7 +175,7 @@
         </th>
         <th scope="col" class="py-3.5 px-3 min-w-[150px]">
           <a href="#" 
-             hx-get="/leads?sort_by=status&sort_order={% if sort_by == 'status' and sort_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
+             hx-get="/leads?crawl_run_id={{ crawl_run_id }}&sort_by=status&sort_order={% if sort_by == 'status' and sort_order == 'asc' %}desc{% else %}asc{% endif %}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
              hx-target="#leads-table-container"
              hx-push-url="true"
              class="flex items-center space-x-1 hover:text-slate-900">
@@ -380,7 +380,7 @@
   <div class="flex items-center space-x-1.5">
     {% if current_page > 1 %}
     <a href="#" 
-       hx-get="/leads?page={{ current_page - 1 }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
+       hx-get="/leads?page={{ current_page - 1 }}&crawl_run_id={{ crawl_run_id }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
        hx-target="#leads-table-container"
        hx-push-url="true"
        class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold transition shadow-sm">
@@ -394,7 +394,7 @@
 
     {% if current_page < total_pages %}
     <a href="#" 
-       hx-get="/leads?page={{ current_page + 1 }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
+       hx-get="/leads?page={{ current_page + 1 }}&crawl_run_id={{ crawl_run_id }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}"
        hx-target="#leads-table-container"
        hx-push-url="true"
        class="inline-flex items-center justify-center px-3 py-2 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold transition shadow-sm">

@@ -168,6 +168,7 @@ def build_personalized_wa_link(
 
 def _get_filtered_leads_query(
     db: Session,
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -179,6 +180,10 @@ def _get_filtered_leads_query(
 ):
     """Construct filtered and sorted SQLAlchemy query for businesses joined with lead_status."""
     query = db.query(models.Business).outerjoin(models.LeadStatus, models.Business.id == models.LeadStatus.business_id)
+
+    # Crawl Run Session filter
+    if crawl_run_id:
+        query = query.filter(models.Business.crawl_run_id == crawl_run_id)
 
     # Search keyword filter (name, address, phone)
     if search and search.strip():
@@ -192,9 +197,16 @@ def _get_filtered_leads_query(
             )
         )
 
-    # Category filter
+    # Category filter (supports exact category or flexible partial keyword fallback)
     if category and category.strip() and category.strip() != "all":
-        query = query.filter(models.Business.category == category.strip())
+        cat_term = category.strip()
+        query = query.filter(
+            or_(
+                models.Business.category == cat_term,
+                models.Business.category.ilike(f"%{cat_term}%"),
+                models.Business.location_query.ilike(f"%{cat_term}%")
+            )
+        )
 
     # Website status filter
     if has_website == "true":
@@ -235,6 +247,7 @@ def _get_filtered_leads_query(
 @router.get("/leads", response_class=HTMLResponse)
 async def leads_list_view(
     request: Request,
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -249,10 +262,11 @@ async def leads_list_view(
 ):
     """
     Render the Leads Management page with interactive Leaflet map & dynamic table.
-    Supports partial rendering for HTMX requests.
+    Supports partial rendering for HTMX requests and specific CrawlRun session filtering.
     """
     query = _get_filtered_leads_query(
         db,
+        crawl_run_id=crawl_run_id,
         search=search,
         category=category,
         has_website=has_website,
@@ -310,6 +324,8 @@ async def leads_list_view(
     # Available categories for dropdown filter
     available_categories = [c[0] for c in db.query(models.Business.category).distinct().all() if c[0]]
 
+    active_crawl_run = db.query(models.CrawlRun).filter(models.CrawlRun.id == crawl_run_id).first() if crawl_run_id else None
+
     context = {
         "request": request,
         "active_page": "leads",
@@ -318,6 +334,8 @@ async def leads_list_view(
         "total_pages": total_pages,
         "current_page": page,
         "page_size": page_size,
+        "crawl_run_id": crawl_run_id or "",
+        "active_crawl_run": active_crawl_run,
         "search": search or "",
         "category": category or "all",
         "has_website": has_website or "all",
@@ -350,6 +368,7 @@ async def leads_list_view(
 @router.get("/api/leads/table", response_class=HTMLResponse)
 async def leads_table_partial(
     request: Request,
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -365,6 +384,7 @@ async def leads_table_partial(
     """Explicit endpoint for HTMX partial table updates."""
     return await leads_list_view(
         request=request,
+        crawl_run_id=crawl_run_id,
         search=search,
         category=category,
         has_website=has_website,

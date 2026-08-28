@@ -16,6 +16,7 @@ router = APIRouter(prefix="/export", tags=["export"])
 
 def _build_leads_export_dataframe(
     db: Session,
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -28,6 +29,7 @@ def _build_leads_export_dataframe(
     """Query MySQL and construct a pandas DataFrame ready for CSV/Excel export."""
     query = _get_filtered_leads_query(
         db,
+        crawl_run_id=crawl_run_id,
         search=search,
         category=category,
         has_website=has_website,
@@ -96,6 +98,7 @@ def _build_leads_export_dataframe(
 
 @router.get("/leads.csv")
 async def export_leads_csv(
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -111,6 +114,7 @@ async def export_leads_csv(
     """
     df = _build_leads_export_dataframe(
         db,
+        crawl_run_id=crawl_run_id,
         search=search,
         category=category,
         has_website=has_website,
@@ -136,6 +140,7 @@ async def export_leads_csv(
 
 @router.get("/leads.xlsx")
 async def export_leads_excel(
+    crawl_run_id: Optional[int] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
@@ -151,6 +156,7 @@ async def export_leads_excel(
     """
     df = _build_leads_export_dataframe(
         db,
+        crawl_run_id=crawl_run_id,
         search=search,
         category=category,
         has_website=has_website,

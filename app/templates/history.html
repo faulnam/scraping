@@ -190,10 +190,14 @@
 
             <!-- Aksi -->
             <td class="py-3.5 px-4 text-right whitespace-nowrap">
-              <a href="/leads?category={{ r.category_query }}" 
-                 class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition">
-                <span>Lihat Leads &rarr;</span>
+              {% if r.total_businesses > 0 %}
+              <a href="/leads?crawl_run_id={{ r.id }}" 
+                 class="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-[11px] transition shadow-sm border border-blue-200">
+                <span>Lihat Leads ({{ r.total_businesses }}) &rarr;</span>
               </a>
+              {% else %}
+              <span class="text-[11px] text-slate-400 font-medium italic">0 leads</span>
+              {% endif %}
             </td>
 
           </tr>

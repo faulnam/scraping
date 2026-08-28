@@ -7,14 +7,14 @@
 {% block header_actions %}
 <div class="flex items-center space-x-1.5 sm:space-x-2">
   <!-- Export Dropdown / Buttons -->
-  <a href="/export/leads.csv?search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
+  <a href="/export/leads.csv?crawl_run_id={{ crawl_run_id }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
      title="Download CSV" 
      class="inline-flex items-center space-x-1 py-1.5 px-2.5 sm:px-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition">
     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
     <span class="hidden sm:inline">Export </span><span>CSV</span>
   </a>
 
-  <a href="/export/leads.xlsx?search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
+  <a href="/export/leads.xlsx?crawl_run_id={{ crawl_run_id }}&search={{ search }}&category={{ category }}&has_website={{ has_website }}&min_rating={{ min_rating }}&contact_status={{ contact_status }}&priority={{ priority }}&sort_by={{ sort_by }}&sort_order={{ sort_order }}" 
      title="Download Excel" 
      class="inline-flex items-center space-x-1 py-1.5 px-2.5 sm:px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-300 text-xs font-semibold transition">
     <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -31,6 +31,23 @@
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto">
 
+  <!-- Active Crawl Run Session Banner -->
+  {% if active_crawl_run %}
+  <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-blue-900 shadow-sm animate-fade-in">
+    <div class="flex items-center space-x-2.5">
+      <span class="px-2.5 py-1 rounded-md bg-blue-600 text-white font-bold text-[11px] shadow-sm">Sesi #{{ active_crawl_run.id }}</span>
+      <div>
+        <span class="font-semibold text-blue-950">Menampilkan hasil crawling:</span>
+        <span class="text-blue-800 font-medium">'{{ active_crawl_run.category_query }}' di {{ active_crawl_run.location_query }} (<strong>{{ total_leads }} leads</strong>)</span>
+      </div>
+    </div>
+    <a href="/leads" class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-blue-100 text-blue-700 hover:text-blue-900 font-bold text-xs border border-blue-200 shadow-sm transition">
+      <span>Tampilkan Semua Leads</span>
+      <span>✕</span>
+    </a>
+  </div>
+  {% endif %}
+
   <!-- 1. Card Filter Leads -->
   <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-5">
     <form id="leads-filter-form"
@@ -38,6 +55,10 @@
           hx-target="#leads-table-container"
           hx-push-url="true"
           class="space-y-3">
+      
+      {% if crawl_run_id %}
+      <input type="hidden" name="crawl_run_id" value="{{ crawl_run_id }}">
+      {% endif %}
       
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         
@@ -215,7 +236,7 @@
 
       const popupHtml = `
         <div class="p-1 text-xs space-y-1.5" style="min-width: 200px;">
-          <div class="font-bold text-slate-900">${item.title}</div>
+          <div class="font-bold text-slate-900">${item.name || item.title || 'Usaha'}</div>
           <div class="text-[10px] text-slate-500">${item.category} &bull; ★ ${item.rating} (${item.reviews})</div>
           <div class="text-[10px] ${isNoWeb ? 'text-emerald-700 font-bold' : 'text-slate-500'}">
             ${isNoWeb ? '✓ Belum Punya Website' : 'Sudah Punya Website'}
