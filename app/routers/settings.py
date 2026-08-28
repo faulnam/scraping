@@ -4,8 +4,11 @@ portfolio demo catalogue, multi-API key management with auto-fallback, account s
 """
 from datetime import datetime
 from typing import Optional
+import os
+import re
+import uuid
 import httpx
-from fastapi import APIRouter, Depends, Request, Form, HTTPException
+from fastapi import APIRouter, Depends, Request, Form, File, UploadFile, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -17,6 +20,35 @@ from app.routers.leads import DEFAULT_WA_TEMPLATE
 
 router = APIRouter(tags=["settings"])
 templates = Jinja2Templates(directory="app/templates")
+
+UPLOAD_DIR = os.path.join("app", "static", "uploads", "portfolio")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+async def _save_portfolio_image(image_file: Optional[UploadFile]) -> Optional[str]:
+    if not image_file or not image_file.filename:
+        return None
+    
+    filename = image_file.filename.strip()
+    if not filename:
+        return None
+    
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]:
+        ext = ".png"
+    
+    clean_name = re.sub(r"[^a-zA-Z0-9_\-]", "", os.path.splitext(filename)[0])[:30]
+    unique_filename = f"p_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}_{clean_name}{ext}"
+    target_path = os.path.join(UPLOAD_DIR, unique_filename)
+    
+    contents = await image_file.read()
+    if not contents:
+        return None
+    
+    with open(target_path, "wb") as f:
+        f.write(contents)
+    
+    return f"/static/uploads/portfolio/{unique_filename}"
 
 
 # ==============================================================================
@@ -121,17 +153,27 @@ async def add_portfolio_item(
     category_keywords: Optional[str] = Form(""),
     demo_url: str = Form(...),
     pitch_snippet: Optional[str] = Form(""),
+    image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
     is_default: Optional[bool] = Form(False),
     db: Session = Depends(get_db)
 ):
-    """Add a new Portfolio / Demo link preset to MySQL."""
+    """Add a new Portfolio / Demo link preset with optional image mockup to MySQL."""
     if is_default:
         db.query(models.PortfolioItem).update({models.PortfolioItem.is_default: False})
+
+    final_image_url = image_url.strip() if image_url and image_url.strip() else None
+    
+    if image_file and image_file.filename:
+        uploaded_path = await _save_portfolio_image(image_file)
+        if uploaded_path:
+            final_image_url = uploaded_path
 
     new_item = models.PortfolioItem(
         title=title.strip(),
         category_keywords=category_keywords.strip() if category_keywords else "",
         demo_url=demo_url.strip(),
+        image_url=final_image_url,
         pitch_snippet=pitch_snippet.strip() if pitch_snippet else "",
         is_default=bool(is_default),
         created_at=datetime.utcnow()
@@ -140,6 +182,27 @@ async def add_portfolio_item(
     db.commit()
 
     return RedirectResponse(url="/settings/profile?portfolio_added=1", status_code=303)
+
+
+@router.post("/settings/portfolios/{portfolio_id}/update-image", response_class=HTMLResponse)
+async def update_portfolio_image(
+    request: Request,
+    portfolio_id: int,
+    image_file: Optional[UploadFile] = File(None),
+    image_url: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    """Upload or update mockup image for an existing portfolio preset."""
+    item = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id).first()
+    if item:
+        if image_file and image_file.filename:
+            uploaded_path = await _save_portfolio_image(image_file)
+            if uploaded_path:
+                item.image_url = uploaded_path
+        elif image_url and image_url.strip():
+            item.image_url = image_url.strip()
+        db.commit()
+    return RedirectResponse(url="/settings/profile?image_updated=1", status_code=303)
 
 
 @router.post("/settings/portfolios/{portfolio_id}/delete", response_class=HTMLResponse)

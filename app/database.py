@@ -30,6 +30,14 @@ def init_db():
     except Exception:
         pass
 
+    # Safe migration: Add image_url column to portfolio_items if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE portfolio_items ADD COLUMN image_url VARCHAR(500) NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
     # Seed default portfolio presets if table is empty
     db = SessionLocal()
     try:

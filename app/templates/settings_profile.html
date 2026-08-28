@@ -173,10 +173,10 @@
     </div>
 
     <!-- Add Portfolio Form Accordion (Hidden by default) -->
-    <div id="add-portfolio-form-container" class="hidden p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
-      <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Form Tambah Portofolio / Demo Baru</h3>
+    <div id="add-portfolio-form-container" class="hidden p-4 sm:p-5 rounded-xl bg-slate-50 border border-slate-200 space-y-4 animate-fade-in">
+      <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Form Tambah Portofolio & Mockup Demo Baru</h3>
       
-      <form method="POST" action="/settings/portfolios" class="space-y-4 text-xs">
+      <form method="POST" action="/settings/portfolios" enctype="multipart/form-data" class="space-y-4 text-xs">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <!-- Title -->
           <div>
@@ -186,7 +186,7 @@
             <input type="text" 
                    name="title" 
                    required 
-                   placeholder="Misal: Website Properti & Real Estate" 
+                   placeholder="Misal: Website Bengkel & Servis Motor" 
                    class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none">
           </div>
 
@@ -198,8 +198,27 @@
             <input type="url" 
                    name="demo_url" 
                    required 
-                   placeholder="https://demo-properti.juangdev.my.id" 
+                   placeholder="https://juangdev.my.id/demo/bengkel-motor" 
                    class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 font-mono focus:ring-2 focus:ring-slate-900 focus:outline-none">
+          </div>
+
+          <!-- Image Upload (Choice File) -->
+          <div class="sm:col-span-2">
+            <label class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Upload Gambar / Mockup Desain Web (Choice File)
+            </label>
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <input type="file" 
+                     name="image_file" 
+                     accept="image/png, image/jpeg, image/webp, image/gif"
+                     class="flex-1 text-xs bg-white border border-slate-300 rounded-lg p-2 text-slate-900 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white hover:file:bg-slate-800 cursor-pointer">
+              <span class="text-xs text-slate-400 font-medium text-center sm:text-left">atau</span>
+              <input type="url" 
+                     name="image_url" 
+                     placeholder="URL Gambar Online (https://...)" 
+                     class="flex-1 text-xs bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 font-mono focus:ring-2 focus:ring-slate-900 focus:outline-none">
+            </div>
+            <span class="text-[10px] text-slate-400 mt-1 block">Gambar/mockup ini otomatis ditampilkan dan dikirim ke bisnis yang belum memiliki website saat outreach WhatsApp.</span>
           </div>
 
           <!-- Category Keywords -->
@@ -209,9 +228,9 @@
             </label>
             <input type="text" 
                    name="category_keywords" 
-                   placeholder="Misal: properti, perumahan, agen, rumah, tanah, apartemen, real estate" 
+                   placeholder="Misal: bengkel, motor, mobil, otomotif, servis, variasi, modif" 
                    class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none">
-            <span class="text-[10px] text-slate-400 mt-1 block">Jika kategori bisnis yang di-crawl mengandung kata kunci di atas, link demo ini akan otomatis diprioritaskan.</span>
+            <span class="text-[10px] text-slate-400 mt-1 block">Jika kategori bisnis yang di-crawl mengandung kata kunci di atas, portofolio & gambar ini akan otomatis dipasangkan.</span>
           </div>
 
           <!-- Pitch Snippet -->
@@ -221,14 +240,14 @@
             </label>
             <textarea name="pitch_snippet" 
                       rows="2" 
-                      placeholder="Misal: Kami memiliki portfolio website listing properti dengan fitur virtual tour dan filter pencarian rumah..."
+                      placeholder="Misal: Kami memiliki portfolio website bengkel & modifikasi untuk memudahkan calon customer melihat galeri variasi..."
                       class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none"></textarea>
           </div>
         </div>
 
         <div class="flex items-center justify-end space-x-2 pt-2">
           <button type="button" onclick="document.getElementById('add-portfolio-form-container').classList.add('hidden')" class="px-3 py-2 rounded-lg bg-slate-200 text-slate-700 text-xs font-semibold">Batal</button>
-          <button type="submit" class="btn-primary py-2 px-5 text-xs font-semibold">Simpan Portofolio</button>
+          <button type="submit" class="btn-primary py-2 px-5 text-xs font-semibold">Simpan Portofolio & Mockup</button>
         </div>
       </form>
     </div>
@@ -239,7 +258,8 @@
         <thead class="bg-slate-50 text-slate-600 uppercase font-semibold text-[11px] tracking-wider select-none">
           <tr>
             <th class="py-3 px-4">Nama Portofolio</th>
-            <th class="py-3 px-4">Kata Kunci Kategori Cocok</th>
+            <th class="py-3 px-4">Mockup / Gambar</th>
+            <th class="py-3 px-4">Kata Kunci Kategori</th>
             <th class="py-3 px-4">Link Demo Web</th>
             <th class="py-3 px-4">Cuplikan Pitch</th>
             <th class="py-3 px-4 text-center">Aksi</th>
@@ -258,18 +278,41 @@
               </div>
             </td>
 
-            <td class="py-3.5 px-4 max-w-[200px]">
+            <!-- Mockup Image Thumbnail -->
+            <td class="py-3.5 px-4 whitespace-nowrap">
+              {% if p.image_url %}
+              <div class="flex items-center space-x-2">
+                <a href="{{ p.image_url }}" target="_blank" rel="noopener noreferrer" title="Klik untuk perbesar mockup" class="block shrink-0 rounded-lg border border-slate-200 overflow-hidden hover:opacity-80 transition shadow-sm">
+                  <img src="{{ p.image_url }}" alt="{{ p.title }}" class="w-12 h-9 object-cover bg-slate-100">
+                </a>
+                <button type="button" 
+                        onclick="openImageModal({{ p.id }}, '{{ p.title }}', '{{ p.image_url|default('') }}')" 
+                        class="text-[10px] text-blue-600 hover:text-blue-800 font-semibold hover:underline">
+                  Ganti
+                </button>
+              </div>
+              {% else %}
+              <button type="button" 
+                      onclick="openImageModal({{ p.id }}, '{{ p.title }}', '')" 
+                      class="inline-flex items-center space-x-1 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-semibold border border-slate-200 transition">
+                <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span>+ Upload</span>
+              </button>
+              {% endif %}
+            </td>
+
+            <td class="py-3.5 px-4 max-w-[180px]">
               <p class="truncate text-slate-600" title="{{ p.category_keywords }}">{{ p.category_keywords|default('-') }}</p>
             </td>
 
             <td class="py-3.5 px-4 whitespace-nowrap font-mono text-[11px]">
               <a href="{{ p.demo_url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline flex items-center space-x-1">
-                <span>{{ p.demo_url }}</span>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                <span class="truncate max-w-[180px]">{{ p.demo_url }}</span>
+                <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
               </a>
             </td>
 
-            <td class="py-3.5 px-4 max-w-[220px]">
+            <td class="py-3.5 px-4 max-w-[200px]">
               <p class="text-[11px] text-slate-600 line-clamp-2" title="{{ p.pitch_snippet }}">{{ p.pitch_snippet|default('-') }}</p>
             </td>
 
@@ -289,6 +332,44 @@
           {% endfor %}
         </tbody>
       </table>
+    </div>
+
+    <!-- Modal for Uploading/Replacing Portfolio Image -->
+    <div id="image-upload-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-5 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+          <h4 class="text-sm font-bold text-slate-900" id="modal-portfolio-title">Upload Mockup Portofolio</h4>
+          <button type="button" onclick="closeImageModal()" class="text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+        </div>
+
+        <form id="modal-upload-form" method="POST" action="" enctype="multipart/form-data" class="space-y-4 text-xs">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Pilih File Gambar Mockup (PNG/JPG/WEBP)
+            </label>
+            <input type="file" 
+                   name="image_file" 
+                   accept="image/png, image/jpeg, image/webp, image/gif"
+                   class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2 text-slate-900 file:mr-3 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-slate-900 file:text-white cursor-pointer">
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+              Atau Masukkan URL Gambar Online
+            </label>
+            <input type="url" 
+                   id="modal-image-url-input"
+                   name="image_url" 
+                   placeholder="https://domain.com/screenshot.jpg" 
+                   class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 font-mono focus:ring-2 focus:ring-slate-900 focus:outline-none">
+          </div>
+
+          <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+            <button type="button" onclick="closeImageModal()" class="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold">Batal</button>
+            <button type="submit" class="btn-primary py-2 px-4 text-xs font-semibold">Simpan Gambar</button>
+          </div>
+        </form>
+      </div>
     </div>
 
   </div>
@@ -387,7 +468,20 @@
     preview = preview.replace(/{company_name}/g, company);
     preview = preview.replace(/{contact_person}/g, person);
 
-    document.getElementById('live-preview-box').textContent = preview;
+    if (document.getElementById('live-preview-box')) {
+      document.getElementById('live-preview-box').textContent = preview;
+    }
+  }
+
+  function openImageModal(id, title, currentUrl) {
+    document.getElementById('modal-portfolio-title').textContent = 'Upload / Ganti Mockup: ' + title;
+    document.getElementById('modal-upload-form').action = '/settings/portfolios/' + id + '/update-image';
+    document.getElementById('modal-image-url-input').value = currentUrl || '';
+    document.getElementById('image-upload-modal').classList.remove('hidden');
+  }
+
+  function closeImageModal() {
+    document.getElementById('image-upload-modal').classList.add('hidden');
   }
 
   document.addEventListener('DOMContentLoaded', updatePreview);

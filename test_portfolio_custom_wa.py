@@ -78,6 +78,9 @@ def test_portfolio_feature():
     assert "juangdev.my.id" in wa_link
     print(" [OK] Dynamic WA link with demo URL & official website URL verified.")
 
+    from app.auth import create_session_token, SESSION_COOKIE_NAME
+    client.cookies.set(SESSION_COOKIE_NAME, create_session_token(1))
+
     print("\n=======================================================")
     print(" 4. TESTING LEAD DETAIL ROUTE WITH OUTREACH STUDIO")
     print("=======================================================")
@@ -88,12 +91,16 @@ def test_portfolio_feature():
         assert res.status_code == 200
         assert "WhatsApp Outreach Studio" in res.text
         assert "Pilih Portofolio / Demo Web yang Ditawarkan" in res.text
-        print(f" [OK] GET /leads/{first_biz.id} successfully rendered with Outreach Studio!")
+        assert "Mockup Desain Web" in res.text
+        print(f" [OK] GET /leads/{first_biz.id} successfully rendered with Outreach Studio & Mockup preview!")
 
     print("\n=======================================================")
-    print(" 5. TESTING PORTFOLIO CRUD IN SETTINGS")
+    print(" 5. TESTING PORTFOLIO CRUD WITH IMAGE MOCKUP UPLOAD")
     print("=======================================================")
-    # Add new portfolio
+    import io
+    # Test uploading fake PNG image file
+    fake_img = io.BytesIO(b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4")
+    
     post_res = client.post(
         "/settings/portfolios",
         data={
@@ -103,13 +110,29 @@ def test_portfolio_feature():
             "pitch_snippet": "Kami memiliki demo website listing properti.",
             "is_default": False
         },
+        files={
+            "image_file": ("properti_mockup.png", fake_img, "image/png")
+        },
         follow_redirects=False
     )
     assert post_res.status_code == 303
     
     new_p = db.query(models.PortfolioItem).filter(models.PortfolioItem.title == "Website Agensi Properti & Real Estate").first()
     assert new_p is not None
-    print(f" [OK] Added new portfolio ID #{new_p.id}: {new_p.title}")
+    assert new_p.image_url is not None
+    assert "/static/uploads/portfolio/" in new_p.image_url
+    print(f" [OK] Added new portfolio ID #{new_p.id} with uploaded mockup: {new_p.image_url}")
+
+    # Test updating image
+    update_res = client.post(
+        f"/settings/portfolios/{new_p.id}/update-image",
+        data={"image_url": "https://images.unsplash.com/photo-1560518883-ce09059eeffa"},
+        follow_redirects=False
+    )
+    assert update_res.status_code == 303
+    db.refresh(new_p)
+    assert new_p.image_url == "https://images.unsplash.com/photo-1560518883-ce09059eeffa"
+    print(f" [OK] Updated portfolio image successfully: {new_p.image_url}")
 
     # Delete portfolio
     del_res = client.post(f"/settings/portfolios/{new_p.id}/delete", follow_redirects=False)

@@ -129,6 +129,7 @@ class PortfolioItem(Base):
     title = Column(String(255), nullable=False)
     category_keywords = Column(String(500), nullable=True)
     demo_url = Column(String(500), nullable=False)
+    image_url = Column(String(500), nullable=True)
     pitch_snippet = Column(Text, nullable=True)
     is_default = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

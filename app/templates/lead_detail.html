@@ -288,18 +288,50 @@
                     data-title="{{ p.title }}" 
                     data-url="{{ p.demo_url }}" 
                     data-snippet="{{ p.pitch_snippet|default('') }}"
+                    data-image="{{ p.image_url|default('') }}"
                     {% if matched_portfolio and matched_portfolio.id == p.id %}selected{% endif %}>
               {% if matched_portfolio and matched_portfolio.id == p.id %}★ [Rekomendasi Cocok] {% endif %}{{ p.title }} — {{ p.demo_url }}
             </option>
             {% endfor %}
           </select>
 
-          <!-- Highlight Box of Selected Portfolio -->
-          <div id="portfolio-info-badge" class="p-2.5 rounded-lg bg-emerald-50/70 border border-emerald-200 text-xs flex items-start space-x-2">
-            <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-            <div class="text-[11px] text-emerald-900 overflow-hidden">
-              <span class="font-bold block" id="selected-portfolio-name">{{ matched_portfolio.title if matched_portfolio else 'Website Profesional' }}</span>
-              <span class="text-emerald-700 block truncate font-mono text-[10px]" id="selected-portfolio-url">{{ matched_portfolio.demo_url if matched_portfolio else 'https://juangdev.my.id' }}</span>
+          <!-- Highlight Box of Selected Portfolio with Mockup Image Preview -->
+          <div id="portfolio-info-badge" class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start space-x-2">
+                <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <div class="text-[11px] text-emerald-900 overflow-hidden">
+                  <span class="font-bold block" id="selected-portfolio-name">{{ matched_portfolio.title if matched_portfolio else 'Website Profesional' }}</span>
+                  <span class="text-emerald-700 block truncate font-mono text-[10px]" id="selected-portfolio-url">{{ matched_portfolio.demo_url if matched_portfolio else 'https://juangdev.my.id' }}</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                Portofolio Otomatis
+              </span>
+            </div>
+
+            <!-- Visual Mockup Image Card for Non-Website Leads -->
+            <div id="portfolio-mockup-card" class="{% if not (matched_portfolio and matched_portfolio.image_url) %}hidden{% endif %} pt-2.5 border-t border-emerald-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div class="flex items-center space-x-2.5">
+                <a id="mockup-img-link" href="{{ matched_portfolio.image_url if matched_portfolio else '#' }}" target="_blank" rel="noopener noreferrer" class="block shrink-0 rounded-lg overflow-hidden border border-emerald-300 shadow-sm hover:opacity-85 transition group">
+                  <img id="mockup-img-preview" src="{{ matched_portfolio.image_url if matched_portfolio else '' }}" alt="Mockup Preview" class="w-14 h-11 object-cover bg-white">
+                </a>
+                <div>
+                  <span class="text-[11px] font-bold text-emerald-950 block flex items-center space-x-1">
+                    <span>✨ Mockup Desain Web</span>
+                  </span>
+                  <span class="text-[10px] text-emerald-700 block">Siap dilampirkan ke WhatsApp prospek</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0 w-full sm:w-auto justify-end">
+                <a id="btn-view-mockup" href="{{ matched_portfolio.image_url if matched_portfolio else '#' }}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-white hover:bg-emerald-100 text-emerald-900 font-semibold text-[10px] border border-emerald-300 shadow-xs transition">
+                  🔍 Buka
+                </a>
+                <button type="button" onclick="copyMockupLink()" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[10px] shadow-xs transition flex items-center space-x-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                  <span>Salin Link Mockup</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -442,14 +474,16 @@
       return {
         title: "Website Profesional",
         url: "https://juangdev.my.id",
-        snippet: "Kami memiliki portfolio website profesional."
+        snippet: "Kami memiliki portfolio website profesional.",
+        image: ""
       };
     }
     const opt = sel.options[sel.selectedIndex];
     return {
       title: opt.getAttribute('data-title') || "Website Profesional",
       url: opt.getAttribute('data-url') || "https://juangdev.my.id",
-      snippet: opt.getAttribute('data-snippet') || ""
+      snippet: opt.getAttribute('data-snippet') || "",
+      image: opt.getAttribute('data-image') || ""
     };
   }
 
@@ -463,6 +497,8 @@
     msg = msg.replace(/{pitch_snippet}/g, port.snippet);
     msg = msg.replace(/{company_name}/g, COMPANY_NAME);
     msg = msg.replace(/{contact_person}/g, CONTACT_PERSON);
+    msg = msg.replace(/{image_url}/g, port.image);
+    msg = msg.replace(/{mockup_url}/g, port.image);
     return msg;
   }
 
@@ -483,11 +519,40 @@
     document.getElementById('selected-portfolio-name').textContent = port.title;
     document.getElementById('selected-portfolio-url').textContent = port.url;
 
+    // Update Mockup Card Visibility & Image
+    const mockupCard = document.getElementById('portfolio-mockup-card');
+    const mockupImg = document.getElementById('mockup-img-preview');
+    const mockupLink = document.getElementById('mockup-img-link');
+    const btnViewMockup = document.getElementById('btn-view-mockup');
+    
+    if (port.image && port.image.trim()) {
+      if (mockupCard) mockupCard.classList.remove('hidden');
+      if (mockupImg) mockupImg.src = port.image;
+      if (mockupLink) mockupLink.href = port.image;
+      if (btnViewMockup) btnViewMockup.href = port.image;
+    } else {
+      if (mockupCard) mockupCard.classList.add('hidden');
+    }
+
     // Re-render template into textarea
     const rawTemplate = PITCH_TEMPLATES_DATA[currentVariant] || PITCH_TEMPLATES_DATA['direct_demo'];
     const newText = renderTemplateMessage(rawTemplate);
     document.getElementById('live_pitch_textarea').value = newText;
     updateWaButtonHref(newText);
+  }
+
+  function copyMockupLink() {
+    const port = getSelectedPortfolio();
+    if (!port.image || !port.image.trim()) {
+      alert("Belum ada file gambar mockup untuk portofolio ini.");
+      return;
+    }
+    const fullUrl = port.image.startsWith("http") ? port.image : window.location.origin + port.image;
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      alert("✓ Link mockup gambar berhasil disalin ke clipboard:\n" + fullUrl);
+    }).catch(() => {
+      prompt("Salin link mockup:", fullUrl);
+    });
   }
 
   function selectTemplateVariant(variantKey) {
