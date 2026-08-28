@@ -54,10 +54,12 @@
           hx-get="/leads"
           hx-target="#leads-table-container"
           hx-push-url="true"
-          class="space-y-3">
+          class="space-y-4">
       
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        
         <!-- Search Keyword -->
-        <div class="sm:col-span-2 md:col-span-2 lg:col-span-2">
+        <div class="sm:col-span-2 md:col-span-3 lg:col-span-2">
           <label for="search" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Cari Nama / Alamat / Telepon
           </label>
@@ -70,7 +72,7 @@
         </div>
 
         <!-- Filter Sesi Crawling -->
-        <div>
+        <div class="sm:col-span-1 md:col-span-1 lg:col-span-2">
           <label for="crawl_run_id" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Sesi / Keyword Crawl
           </label>
@@ -78,14 +80,14 @@
             <option value="" {% if not crawl_run_id %}selected{% endif %}>Semua Sesi</option>
             {% for cr in available_crawl_runs %}
             <option value="{{ cr.id }}" {% if crawl_run_id|string == cr.id|string %}selected{% endif %}>
-              #{{ cr.id }}: {{ cr.category_query }}
+              #{{ cr.id }}: {{ cr.category_query }} ({{ cr.city or cr.location_query }})
             </option>
             {% endfor %}
           </select>
         </div>
 
         <!-- Filter Kategori Usaha -->
-        <div>
+        <div class="sm:col-span-1 md:col-span-1 lg:col-span-2">
           <label for="category" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Kategori Google Maps
           </label>
@@ -98,7 +100,7 @@
         </div>
 
         <!-- Status Website -->
-        <div>
+        <div class="sm:col-span-1 md:col-span-1 lg:col-span-2">
           <label for="has_website" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Status Website
           </label>
@@ -110,7 +112,7 @@
         </div>
 
         <!-- Minimum Rating -->
-        <div>
+        <div class="sm:col-span-1 md:col-span-1 lg:col-span-2">
           <label for="min_rating" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Rating Minimum
           </label>
@@ -122,7 +124,7 @@
         </div>
 
         <!-- Status Kontak Funnel -->
-        <div>
+        <div class="sm:col-span-1 md:col-span-1 lg:col-span-2">
           <label for="contact_status" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Status Kontak
           </label>
