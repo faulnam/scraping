@@ -10,6 +10,28 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- Tailwind CSS CDN Fallback & Config -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sidebar: "#0B0F19",
+            sidebarActive: "#1E293B",
+            contentBg: "#F5F6F8",
+            accentBlue: "#1D4ED8",
+            accentBlueBg: "#DBEAFE",
+            highlightLead: "#ECFDF5",
+          },
+          fontFamily: {
+            sans: ["Inter", "sans-serif"],
+          },
+        }
+      }
+    }
+  </script>
+  
   <!-- Compiled Tailwind CSS with Cache Buster -->
   <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=1.0.4">
 </head>

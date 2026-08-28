@@ -3,12 +3,12 @@ Description=LeadMaps BI - FastAPI Application
 After=network.target mysql.service
 
 [Service]
-User=www-data
-Group=www-data
-WorkingDirectory=/var/www/leadmaps-bi
-Environment="PATH=/var/www/leadmaps-bi/venv/bin"
-EnvironmentFile=/var/www/leadmaps-bi/.env
-ExecStart=/var/www/leadmaps-bi/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+# Sesuaikan User dan Path dengan server Anda (untuk aaPanel biasanya www atau root)
+User=root
+WorkingDirectory=/www/wwwroot/scraping.juangdev.my.id
+Environment="PATH=/www/wwwroot/scraping.juangdev.my.id/venv/bin"
+EnvironmentFile=/www/wwwroot/scraping.juangdev.my.id/.env
+ExecStart=/www/wwwroot/scraping.juangdev.my.id/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
 
 Restart=always
 RestartSec=5
