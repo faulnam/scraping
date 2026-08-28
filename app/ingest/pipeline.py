@@ -68,13 +68,14 @@ async def run_ingest_pipeline(
     location_query: str,
     province: Optional[str] = None,
     city: Optional[str] = None,
+    max_results: Optional[int] = None,  # None = Unlimited / Ambil Hingga Habis
     db: Optional[Session] = None,
     client: Optional[PlacesApiClient] = None
 ) -> CrawlRun:
     """
     Main ingestion execution:
     1. Records new CrawlRun session in MySQL.
-    2. Searches places via PlacesApiClient using Basic field mask (cost-efficient).
+    2. Searches places via PlacesApiClient iteratively (pagination looping until exhausted or max_results reached).
     3. Checks MySQL for existing place_ids:
        - If scraped < 30 days ago: Uses cached data, skips details API call (Cost Saving Rule).
        - If new / expired: Calls Place Details (Enterprise field mask).
@@ -89,7 +90,7 @@ async def run_ingest_pipeline(
         should_close_db = True
 
     if client is None:
-        client = PlacesApiClient()
+        client = PlacesApiClient(db=db)
 
     # 1. Initialize CrawlRun record
     crawl_run = CrawlRun(
@@ -112,10 +113,64 @@ async def run_ingest_pipeline(
     try:
         # Build search query string
         full_query = f"{category_query} {location_query}".strip()
-        search_result = await client.search_text(text_query=full_query, page_size=20)
-        api_requests_used += search_result.get("api_requests_used", 1)
 
-        candidate_places = search_result.get("places", [])
+        candidate_places: List[Dict[str, Any]] = []
+        seen_place_ids = set()
+        start_offset = 0
+        page_num = 1
+        has_more = True
+
+        print(f"[Ingest Pipeline] Memulai pencarian '{full_query}' (Mode: {'Semua Hingga Habis' if not max_results else f'Maksimal {max_results} leads'})...")
+
+        while has_more:
+            search_result = await client.search_text(
+                text_query=full_query,
+                page_size=20,
+                start_offset=start_offset
+            )
+            api_requests_used += search_result.get("api_requests_used", 0)
+
+            new_places = search_result.get("places", [])
+            if not new_places:
+                print(f"[Ingest Pipeline] Tidak ada hasil lagi pada offset {start_offset}.")
+                break
+
+            added_this_page = 0
+            for place in new_places:
+                place_id = place.get("id")
+                if place_id and place_id not in seen_place_ids:
+                    seen_place_ids.add(place_id)
+                    candidate_places.append(place)
+                    added_this_page += 1
+
+            print(f"[Ingest Pipeline] Halaman {page_num} (offset {start_offset}): Ditemukan {len(new_places)} listing ({added_this_page} unik baru). Total terakumulasi: {len(candidate_places)} leads.")
+
+            # Stop conditions:
+            # 1. Tidak ada hasil baru yang unik di halaman ini
+            if added_this_page == 0:
+                print("[Ingest Pipeline] Berhenti: Semua hasil di halaman ini sudah terdata.")
+                break
+
+            # 2. Batas max_results tercapai jika dikonfigurasi
+            if max_results and len(candidate_places) >= max_results:
+                print(f"[Ingest Pipeline] Target kuota tercapai: {len(candidate_places)}/{max_results} leads.")
+                candidate_places = candidate_places[:max_results]
+                break
+
+            # 3. SerpApi/Google Places API tidak memiliki halaman lanjutan lagi
+            if not search_result.get("has_next_page", False):
+                print("[Ingest Pipeline] Mencapai halaman terakhir hasil Google Maps.")
+                break
+
+            # 4. Safety Cap (500 leads per sesi untuk mencegah infinite loop)
+            if len(candidate_places) >= 500:
+                print("[Ingest Pipeline] Mencapai batas pengaman maksimum 500 leads per satu sesi.")
+                break
+
+            start_offset += 20
+            page_num += 1
+            await asyncio.sleep(0.4)  # Small delay between page calls
+
         now = datetime.utcnow()
         cache_threshold = now - timedelta(days=30)
 

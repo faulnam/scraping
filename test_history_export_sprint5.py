@@ -9,13 +9,16 @@ from fastapi.testclient import TestClient
 import pandas as pd
 import openpyxl
 from app.main import app
-from app.database import SessionLocal
+from app.database import SessionLocal, init_db
 from app.models import CrawlRun, Business
+from app.auth import create_session_token, SESSION_COOKIE_NAME
 
 client = TestClient(app)
 
 
 def test_history_and_export():
+    init_db()
+    client.cookies.set(SESSION_COOKIE_NAME, create_session_token(1))
     print("\n=======================================================")
     print(" 1. TESTING GET /history (CRAWL AUDIT LOG VIEW)")
     print("=======================================================")

@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Compiled Tailwind CSS (Standalone CLI) -->
-  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/app.css') }}?v=1.0.3">
   
   <!-- htmx CDN -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
@@ -89,6 +89,9 @@
       }
     }
   </script>
+
+  <!-- Modals Slot -->
+  {% block modals %}{% endblock %}
 
   {% block scripts %}{% endblock %}
 </body>

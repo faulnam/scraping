@@ -8,13 +8,16 @@ Automated validation test script for Sprint 4:
 import sys
 from fastapi.testclient import TestClient
 from app.main import app
-from app.database import SessionLocal
+from app.database import SessionLocal, init_db
 from app.models import Business, LeadStatus, ContactStatus
+from app.auth import create_session_token, SESSION_COOKIE_NAME
 
 client = TestClient(app)
 
 
 def test_leads_sprint4():
+    init_db()
+    client.cookies.set(SESSION_COOKIE_NAME, create_session_token(1))
     print("\n=======================================================")
     print(" 1. TESTING GET /leads (LEADS LIST & MAP OVERVIEW)")
     print("=======================================================")

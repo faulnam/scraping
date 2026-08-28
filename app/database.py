@@ -33,6 +33,56 @@ def init_db():
     # Seed default portfolio presets if table is empty
     db = SessionLocal()
     try:
+        from app.auth import hash_password
+
+        # 1. Seed Admin User
+        user_count = db.query(models.User).count()
+        if user_count == 0:
+            default_admin = models.User(
+                username="admin",
+                password_hash=hash_password("admin123"),
+                full_name="Administrator LeadMaps",
+                is_active=True,
+                is_admin=True
+            )
+            db.add(default_admin)
+            db.commit()
+            print("[Database] Default Admin user created: 'admin' / 'admin123'")
+
+        # 2. Seed Default API Keys from .env
+        api_key_count = db.query(models.ApiKeyConfig).count()
+        if api_key_count == 0:
+            initial_keys = []
+            priority_idx = 1
+            if settings.SERPAPI_API_KEY and settings.SERPAPI_API_KEY.strip():
+                initial_keys.append(models.ApiKeyConfig(
+                    provider="serpapi",
+                    label="SerpApi Akun Utama (250 Kuota)",
+                    api_key=settings.SERPAPI_API_KEY.strip(),
+                    is_active=True,
+                    priority=priority_idx,
+                    status="active",
+                    quota_limit=250
+                ))
+                priority_idx += 1
+
+            if settings.GOOGLE_MAPS_API_KEY and settings.GOOGLE_MAPS_API_KEY.strip():
+                initial_keys.append(models.ApiKeyConfig(
+                    provider="google_places",
+                    label="Google Places API Resmi",
+                    api_key=settings.GOOGLE_MAPS_API_KEY.strip(),
+                    is_active=True,
+                    priority=priority_idx,
+                    status="active",
+                    quota_limit=1000
+                ))
+
+            if initial_keys:
+                db.add_all(initial_keys)
+                db.commit()
+                print(f"[Database] Seeded {len(initial_keys)} API keys from configuration.")
+
+        # 3. Seed Default Portfolios
         count = db.query(models.PortfolioItem).count()
         if count == 0:
             default_portfolios = [
@@ -82,8 +132,9 @@ def init_db():
             db.add_all(default_portfolios)
             db.commit()
     except Exception as err:
-        print(f"[Warning] Failed to seed portfolio items: {err}")
+        print(f"[Warning] Failed during db initialization seeding: {err}")
         db.rollback()
     finally:
         db.close()
+
 

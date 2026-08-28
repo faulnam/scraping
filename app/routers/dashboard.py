@@ -162,6 +162,7 @@ async def trigger_crawl(
     category_query: str = Form(...),
     province: Optional[str] = Form("Jawa Barat"),
     city: Optional[str] = Form("Kota Bandung"),
+    crawl_mode: Optional[str] = Form("unlimited"),
     db: Session = Depends(get_db)
 ):
     """
@@ -171,8 +172,8 @@ async def trigger_crawl(
     global _last_crawl_timestamp
 
     now_ts = time.time()
-    # Rate limit: minimum 3 seconds cooldown between requests
-    if now_ts - _last_crawl_timestamp < 3.0 or _crawl_lock.locked():
+    # Rate limit: minimum 2 seconds cooldown between requests
+    if now_ts - _last_crawl_timestamp < 2.0 or _crawl_lock.locked():
         cooldown_html = """
         <div class="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center justify-between shadow-sm animate-fade-in">
           <div class="flex items-center space-x-2">
@@ -184,6 +185,8 @@ async def trigger_crawl(
         """
         return HTMLResponse(content=cooldown_html, status_code=429)
 
+    max_results = int(crawl_mode) if crawl_mode and crawl_mode.isdigit() else None
+
     async with _crawl_lock:
         _last_crawl_timestamp = time.time()
         location_query = f"{city}, {province}".strip(", ")
@@ -193,9 +196,11 @@ async def trigger_crawl(
                 location_query=location_query,
                 province=province,
                 city=city,
+                max_results=max_results,
                 db=db
             )
 
+            mode_label = "Semua Listing Hingga Habis" if not max_results else f"Maksimal {max_results} Leads"
             response_html = f"""
             <div class="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-start justify-between shadow-sm animate-fade-in">
               <div class="flex items-center space-x-3">
@@ -203,8 +208,8 @@ async def trigger_crawl(
                 <div>
                   <p class="font-bold text-emerald-900">Crawling Selesai Berhasil!</p>
                   <p class="text-xs text-emerald-700 mt-0.5">
-                    Memproses <strong>{crawl_run.total_businesses} usaha</strong> untuk kategori '<strong>{category_query}</strong>' di <strong>{location_query}</strong>.
-                    Total API request terpakai: <strong>{crawl_run.api_requests_used} request</strong> (Sesi #{crawl_run.id}).
+                    Berhasil memproses <strong>{crawl_run.total_businesses} usaha</strong> untuk kategori '<strong>{category_query}</strong>' di <strong>{location_query}</strong> (Mode: {mode_label}).
+                    Total request API terpakai: <strong>{crawl_run.api_requests_used} request</strong> (Sesi #{crawl_run.id}).
                   </p>
                 </div>
               </div>
@@ -214,6 +219,7 @@ async def trigger_crawl(
             response = HTMLResponse(content=response_html)
             response.headers["HX-Trigger"] = "refreshDashboard"
             return response
+
 
         except Exception as e:
             error_html = f"""

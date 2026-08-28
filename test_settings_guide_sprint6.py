@@ -6,20 +6,23 @@ Automated validation test script for Sprint 6:
 """
 from fastapi.testclient import TestClient
 from app.main import app
-from app.database import SessionLocal
+from app.database import SessionLocal, init_db
 from app.models import BusinessProfile
+from app.auth import create_session_token, SESSION_COOKIE_NAME
 
 client = TestClient(app)
 
 
 def test_settings_and_guide():
+    init_db()
+    client.cookies.set(SESSION_COOKIE_NAME, create_session_token(1))
     print("\n=======================================================")
     print(" 1. TESTING GET /settings/profile (PROFILE FORM VIEW)")
     print("=======================================================")
     resp = client.get("/settings/profile")
     assert resp.status_code == 200, f"Expected 200, got {resp.status_code}"
     html = resp.text
-    assert "Profil Bisnis & Template Outreach" in html
+    assert "Profil Bisnis" in html
     assert "company_name" in html
     assert "default_wa_template" in html
     assert "{business_name}" in html

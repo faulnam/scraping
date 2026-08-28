@@ -103,11 +103,30 @@
             <!-- Populated dynamically by JavaScript -->
           </select>
         </div>
+
+        <!-- Mode Scraping / Target Kedalaman -->
+        <div>
+          <label for="crawl_mode" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Target Pengambilan Data</span>
+            <span class="text-[10px] text-blue-600 font-semibold lowercase">auto-paging</span>
+          </label>
+          <select id="crawl_mode"
+                  name="crawl_mode"
+                  class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+            <option value="unlimited" selected>♾️ Ambil Semua Hingga Habis (Auto-Pagination)</option>
+            <option value="20">⚡ Cepat: 1 Halaman (~20 Leads / Hemat 1 Kuota)</option>
+            <option value="40">🎯 2 Halaman (~40 Leads)</option>
+            <option value="60">🎯 3 Halaman (~60 Leads)</option>
+            <option value="100">🎯 5 Halaman (~100 Leads)</option>
+            <option value="200">🎯 10 Halaman (~200 Leads)</option>
+          </select>
+        </div>
       </div>
 
       <!-- Quick Suggestion Badges -->
       <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 pt-0.5">
         <span class="text-[11px] font-semibold text-slate-400">Pilihan Cepat:</span>
+        <button type="button" onclick="document.getElementById('category_query').value='Sekolah & Pendidikan'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Sekolah</button>
         <button type="button" onclick="document.getElementById('category_query').value='Klinik Gigi & Dental'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Klinik Gigi</button>
         <button type="button" onclick="document.getElementById('category_query').value='Bengkel Motor'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Bengkel Motor</button>
         <button type="button" onclick="document.getElementById('category_query').value='Restoran & Kuliner'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Restoran</button>

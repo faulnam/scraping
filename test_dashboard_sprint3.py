@@ -10,11 +10,14 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.database import SessionLocal, init_db
 from app.models import Business, LeadStatus, CrawlRun
+from app.auth import create_session_token, SESSION_COOKIE_NAME
 
 client = TestClient(app)
 
 
 def test_dashboard_sprint3():
+    init_db()
+    client.cookies.set(SESSION_COOKIE_NAME, create_session_token(1))
     print("\n=======================================================")
     print(" 1. TESTING GET / (DASHBOARD HTML VIEW)")
     print("=======================================================")

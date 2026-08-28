@@ -1,0 +1,422 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Manajemen API Key & Auto-Fallback — LeadMaps BI{% endblock %}
+{% block page_title %}Manajemen API Key & Multi-Account Fallback{% endblock %}
+{% block page_subtitle %}Kelola beberapa akun SerpApi & Google Places dengan sistem failover otomatis{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-6xl">
+
+  <!-- Summary Metric Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <!-- Card 1: Active Keys -->
+    <div class="card p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">API Key Siap Pakai</p>
+        <p class="text-2xl font-bold text-slate-900 mt-1">{{ total_active_keys }} <span class="text-xs font-normal text-slate-500">/ {{ keys|length }} key</span></p>
+      </div>
+      <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
+        🔑
+      </div>
+    </div>
+
+    <!-- Card 2: Combined Quota -->
+    <div class="card p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Pool Kuota Gratis</p>
+        <p class="text-2xl font-bold text-emerald-600 mt-1">{{ total_quota_limit }} <span class="text-xs font-normal text-slate-500">pencarian/bln</span></p>
+      </div>
+      <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+        ⚡
+      </div>
+    </div>
+
+    <!-- Card 3: Requests Used -->
+    <div class="card p-5 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center justify-between">
+      <div>
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Request Terpakai</p>
+        <p class="text-2xl font-bold text-indigo-600 mt-1">{{ total_requests_used }} <span class="text-xs font-normal text-slate-500">panggilan API</span></p>
+      </div>
+      <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
+        📊
+      </div>
+    </div>
+  </div>
+
+  <!-- How Auto-Fallback Works Alert -->
+  <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 text-blue-950 text-xs shadow-sm flex items-start space-x-3">
+    <span class="text-xl shrink-0 mt-0.5">💡</span>
+    <div class="leading-relaxed">
+      <strong class="font-bold text-blue-900">Cara Kerja Auto-Fallback Multi-API:</strong>
+      <p class="mt-0.5 text-blue-800">
+        Sistem selalu menggunakan <strong>API Key dengan Prioritas #1</strong> sebagai jalur utama. Saat kuota API Key #1 habis (HTTP 429 atau limit kuota bulanan tercapai), pipeline secara otomatis beralih (*switch*) ke <strong>API Key #2 (Cadangan)</strong> secara instan tanpa menghentikan proses scraping. Anda dapat mendaftarkan 2 atau lebih akun SerpApi (misal 250 kuota + 250 kuota = 500 pencarian gratis!).
+      </p>
+    </div>
+  </div>
+
+  <!-- Feedback Notifications -->
+  {% if request.query_params.get('added') %}
+  <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
+    <span>✅ API Key baru berhasil didaftarkan ke dalam sistem!</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('toggled') %}
+  <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium flex items-center justify-between">
+    <span>🔄 Status aktif API Key berhasil diperbarui!</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-blue-700 hover:text-blue-950 font-bold">✕</button>
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('primary_set') %}
+  <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-medium flex items-center justify-between">
+    <span>⭐ API Key berhasil dijadikan Prioritas #1 (Jalur Utama)!</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-indigo-700 hover:text-indigo-950 font-bold">✕</button>
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('status_reset') %}
+  <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
+    <span>✅ Status API Key berhasil di-reset menjadi Aktif.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
+  </div>
+  {% endif %}
+
+  {% if request.query_params.get('deleted') %}
+  <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 text-xs font-medium flex items-center justify-between">
+    <span>🗑️ API Key berhasil dihapus dari sistem.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-slate-600 hover:text-slate-900 font-bold">✕</button>
+  </div>
+  {% endif %}
+
+  <!-- Main API Keys Table Card -->
+  <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+      <div>
+        <h2 class="text-sm font-bold text-slate-900">Daftar API Key Terdaftar</h2>
+        <p class="text-xs text-slate-500 mt-0.5">Urutan prioritas menentukan urutan failover otomatis saat scraping berjalan.</p>
+      </div>
+
+      <button type="button" 
+              onclick="openAddKeyModal()"
+              class="btn-primary text-xs font-semibold px-4 py-2 flex items-center space-x-1.5 shrink-0 shadow-sm cursor-pointer">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Tambah API Key Baru</span>
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs text-slate-700 divide-y divide-slate-200">
+        <thead class="bg-slate-50 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          <tr>
+            <th class="px-5 py-3">Prioritas</th>
+            <th class="px-5 py-3">Label & Provider</th>
+            <th class="px-5 py-3">API Key Token</th>
+            <th class="px-5 py-3">Status</th>
+            <th class="px-5 py-3">Pemakaian Kuota</th>
+            <th class="px-5 py-3 text-right">Aksi & Kontrol</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100 bg-white">
+          {% if not keys %}
+          <tr>
+            <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+              Belum ada API Key yang didaftarkan. Klik tombol <strong>Tambah API Key Baru</strong> di atas.
+            </td>
+          </tr>
+          {% endif %}
+
+          {% for k in keys %}
+          <tr class="hover:bg-slate-50/80 transition">
+            <!-- Priority Badge -->
+            <td class="px-5 py-3.5 whitespace-nowrap">
+              {% if k.priority == 1 %}
+              <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200 shadow-xs">
+                ⭐ #1 Utama
+              </span>
+              {% else %}
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                #{{ k.priority }} Cadangan
+              </span>
+              {% endif %}
+            </td>
+
+            <!-- Label & Provider -->
+            <td class="px-5 py-3.5">
+              <div class="font-semibold text-slate-900">{{ k.label }}</div>
+              <div class="text-[10px] text-slate-500 font-mono uppercase mt-0.5 flex items-center space-x-1">
+                <span>{{ k.provider }}</span>
+                {% if k.last_used_at %}
+                <span>&bull; Terakhir: {{ k.last_used_at.strftime('%d/%m %H:%M') }}</span>
+                {% endif %}
+              </div>
+            </td>
+
+            <!-- Obfuscated API Key -->
+            <td class="px-5 py-3.5 font-mono text-[11px] text-slate-600">
+              {% if k.api_key|length > 10 %}
+                {{ k.api_key[:6] }}••••••••{{ k.api_key[-4:] }}
+              {% else %}
+                ••••••••
+              {% endif %}
+            </td>
+
+            <!-- Status Badge -->
+            <td class="px-5 py-3.5 whitespace-nowrap">
+              {% if not k.is_active %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-300">
+                  ⚪ Dinonaktifkan
+                </span>
+              {% elif k.status == 'active' %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  🟢 Siap / Aktif
+                </span>
+              {% elif k.status == 'exhausted' %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200" title="{{ k.last_error_message }}">
+                  🔴 Kuota Habis
+                </span>
+              {% else %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="{{ k.last_error_message }}">
+                  ⚠️ Error
+                </span>
+              {% endif %}
+            </td>
+
+            <!-- Usage Bar -->
+            <td class="px-5 py-3.5">
+              <div class="flex items-center justify-between text-[11px] font-medium text-slate-600 mb-1">
+                <span>{{ k.requests_used }} used</span>
+                <span>Limit: {{ k.quota_limit }}</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                {% set pct = (k.requests_used / k.quota_limit * 100)|round|int if k.quota_limit > 0 else 0 %}
+                <div class="h-1.5 rounded-full {% if pct >= 100 %}bg-rose-500{% elif pct >= 80 %}bg-amber-500{% else %}bg-blue-600{% endif %}" style="width: {{ [pct, 100]|min }}%"></div>
+              </div>
+            </td>
+
+            <!-- Action Controls -->
+            <td class="px-5 py-3.5 text-right whitespace-nowrap">
+              <div class="inline-flex items-center space-x-1.5">
+                
+                <!-- Live Test Button (HTMX) -->
+                <button type="button"
+                        hx-post="/settings/api-keys/{{ k.id }}/test"
+                        hx-target="#test-result-{{ k.id }}"
+                        hx-indicator="#test-spinner-{{ k.id }}"
+                        class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded border border-slate-200 text-xs transition"
+                        title="Uji Validitas & Sisa Kuota API">
+                  ⚡ Test
+                </button>
+
+                <!-- Set Primary Button -->
+                {% if k.priority != 1 and k.is_active %}
+                <form action="/settings/api-keys/{{ k.id }}/set-primary" method="POST" class="inline">
+                  <button type="submit" 
+                          class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded border border-indigo-200 text-xs transition"
+                          title="Jadikan Jalur Utama (Prioritas #1)">
+                    ⭐ Jadikan #1
+                  </button>
+                </form>
+                {% endif %}
+
+                <!-- Reset Status if exhausted -->
+                {% if k.status != 'active' %}
+                <form action="/settings/api-keys/{{ k.id }}/reset-status" method="POST" class="inline">
+                  <button type="submit" 
+                          class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded border border-emerald-200 text-xs transition"
+                          title="Reset Status ke Aktif">
+                    🔄 Reset
+                  </button>
+                </form>
+                {% endif %}
+
+                <!-- Toggle Active -->
+                <form action="/settings/api-keys/{{ k.id }}/toggle" method="POST" class="inline">
+                  <button type="submit" 
+                          class="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded border border-slate-200 text-xs transition"
+                          title="{% if k.is_active %}Nonaktifkan Key{% else %}Aktifkan Key{% endif %}">
+                    {% if k.is_active %}Matikan{% else %}Hidupkan{% endif %}
+                  </button>
+                </form>
+
+                <!-- Delete -->
+                <form action="/settings/api-keys/{{ k.id }}/delete" method="POST" class="inline" onsubmit="return confirm('Hapus API Key ini?');">
+                  <button type="submit" 
+                          class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded border border-rose-200 text-xs transition"
+                          title="Hapus API Key">
+                    🗑️
+                  </button>
+                </form>
+
+              </div>
+              
+              <!-- Slot for live test result -->
+              <div id="test-result-{{ k.id }}" class="mt-1 text-right"></div>
+              <div id="test-spinner-{{ k.id }}" class="htmx-indicator mt-1 text-[10px] text-blue-600">Menguji koneksi...</div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block modals %}
+<!-- Add New API Key Modal (Centered Fixed Overlay on Top of All Elements) -->
+<div id="add-key-modal" 
+     class="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4 hidden"
+     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999; background-color: rgba(2, 6, 23, 0.75); display: none; align-items: center; justify-content: center; padding: 1rem;"
+     onclick="handleModalBackdropClick(event)">
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative z-10 animate-fade-in" 
+       style="max-width: 32rem; width: 100%; background-color: #ffffff; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35); position: relative; margin: auto;"
+       onclick="event.stopPropagation()">
+    
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/90" style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc;">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm" style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center;">
+          🔑
+        </div>
+        <div>
+          <h3 class="font-bold text-slate-900 text-sm" style="font-weight: 700; color: #0f172a; font-size: 0.875rem; line-height: 1.25rem;">Tambah API Key Baru ke Pool</h3>
+          <p class="text-[11px] text-slate-500" style="font-size: 11px; color: #64748b;">Daftarkan akun SerpApi atau Google Places untuk failover</p>
+        </div>
+      </div>
+      <button type="button" 
+              onclick="closeAddKeyModal()" 
+              class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition font-bold"
+              style="width: 2rem; height: 2rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #94a3b8; cursor: pointer; border: none; background: transparent;"
+              aria-label="Tutup Modal">
+        ✕
+      </button>
+    </div>
+
+    <!-- Modal Form -->
+    <form action="/settings/api-keys/create" method="POST" class="p-6 space-y-4" style="padding: 1.5rem;">
+      <div style="margin-bottom: 1rem;">
+        <label for="label" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" style="display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem;">
+          Label / Nama Pengenal <span class="text-rose-500" style="color: #f43f5e;">*</span>
+        </label>
+        <input type="text"
+               id="label"
+               name="label"
+               required
+               placeholder="Contoh: SerpApi Akun 2 (Cadangan)"
+               class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition"
+               style="width: 100%; font-size: 0.75rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.625rem 0.875rem; color: #0f172a; box-sizing: border-box;">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.875rem; margin-bottom: 1rem;">
+        <div>
+          <label for="provider" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" style="display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem;">
+            Provider Engine
+          </label>
+          <select id="provider"
+                  name="provider"
+                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition cursor-pointer"
+                  style="width: 100%; font-size: 0.75rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.625rem 0.875rem; color: #0f172a; box-sizing: border-box;">
+            <option value="serpapi" selected>SerpApi (Google Maps)</option>
+            <option value="google_places">Google Places API (Official)</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="quota_limit" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" style="display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem;">
+            Batas Kuota / Bulan
+          </label>
+          <input type="number"
+                 id="quota_limit"
+                 name="quota_limit"
+                 value="250"
+                 min="1"
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition"
+                 style="width: 100%; font-size: 0.75rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.625rem 0.875rem; color: #0f172a; box-sizing: border-box;">
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label for="api_key" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" style="display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem;">
+          API Key Token String <span class="text-rose-500" style="color: #f43f5e;">*</span>
+        </label>
+        <input type="password"
+               id="api_key"
+               name="api_key"
+               required
+               placeholder="Masukkan API Key (misal: fc7b4178...)"
+               class="w-full text-xs font-mono bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition"
+               style="width: 100%; font-size: 0.75rem; font-family: monospace; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.625rem 0.875rem; color: #0f172a; box-sizing: border-box;">
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label for="priority" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5" style="display: block; font-size: 0.75rem; font-weight: 600; color: #334155; margin-bottom: 0.375rem;">
+          Urutan Prioritas
+        </label>
+        <input type="number"
+               id="priority"
+               name="priority"
+               value="{{ (keys|length) + 1 }}"
+               min="1"
+               class="w-full text-xs bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600 focus:outline-none transition"
+               style="width: 100%; font-size: 0.75rem; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 0.75rem; padding: 0.625rem 0.875rem; color: #0f172a; box-sizing: border-box;">
+        <p class="text-[11px] text-slate-500 mt-1" style="font-size: 11px; color: #64748b; margin-top: 0.25rem;">Nilai 1 = Jalur Utama, Nilai 2 ke atas = Cadangan Failover.</p>
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-4 border-t border-slate-100" style="display: flex; align-items: center; justify-content: flex-end; gap: 0.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9;">
+        <button type="button" 
+                onclick="closeAddKeyModal()"
+                class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                style="padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid #cbd5e1; font-size: 0.75rem; font-weight: 600; color: #334155; background: #ffffff; cursor: pointer;">
+          Batal
+        </button>
+        <button type="submit"
+                class="btn-primary px-5 py-2 rounded-xl text-xs font-semibold shadow-md shadow-blue-600/20"
+                style="padding: 0.5rem 1.25rem; border-radius: 0.75rem; font-size: 0.75rem; font-weight: 600; color: #ffffff; background-color: #2563eb; cursor: pointer; border: none;">
+          Simpan API Key
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function openAddKeyModal() {
+    const modal = document.getElementById('add-key-modal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => {
+      document.getElementById('label')?.focus();
+    }, 100);
+  }
+
+  function closeAddKeyModal() {
+    const modal = document.getElementById('add-key-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  function handleModalBackdropClick(e) {
+    if (e.target.id === 'add-key-modal') {
+      closeAddKeyModal();
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeAddKeyModal();
+    }
+  });
+</script>
+{% endblock %}

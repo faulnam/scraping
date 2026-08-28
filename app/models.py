@@ -133,3 +133,34 @@ class PortfolioItem(Base):
     is_default = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    username = Column(String(100), unique=True, nullable=False, index=True)
+    password_hash = Column(String(255), nullable=False)
+    full_name = Column(String(255), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    is_admin = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    last_login_at = Column(DateTime, nullable=True)
+
+
+class ApiKeyConfig(Base):
+    __tablename__ = "api_key_configs"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    provider = Column(String(50), default="serpapi", nullable=False)  # serpapi / google_places
+    label = Column(String(255), nullable=False)
+    api_key = Column(String(255), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False, index=True)
+    priority = Column(Integer, default=1, nullable=False, index=True)  # 1 = primary, 2 = fallback 1, etc.
+    status = Column(String(50), default="active", nullable=False)  # active, exhausted, invalid, error
+    requests_used = Column(Integer, default=0, nullable=False)
+    quota_limit = Column(Integer, default=250, nullable=False)
+    last_used_at = Column(DateTime, nullable=True)
+    last_error_message = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
