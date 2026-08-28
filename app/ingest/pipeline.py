@@ -1,7 +1,8 @@
 """
-Ingestion Pipeline: Orchestrates Google Places API search, 30-day cache dedup,
+Ingegion Pipeline: Orchestrates Google Places API search, 30-day cache dedup,
 pandas-based data cleaning & phone normalization, lead scoring, and MySQL persistence.
 """
+import asyncio
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 import pandas as pd
@@ -210,8 +211,10 @@ async def run_ingest_pipeline(
                 }
             else:
                 # Cache MISS / Expired: fetch Place Details
+                was_in_memory = (place_id in client._serpapi_details_cache) if hasattr(client, "_serpapi_details_cache") else False
                 details = await client.get_place_details(place_id=place_id)
-                api_requests_used += 1
+                if not was_in_memory and not client.is_mock_mode:
+                    api_requests_used += 1
 
                 raw_place_data = details if details else place
                 biz_dict = map_place_to_business_dict(
@@ -234,58 +237,84 @@ async def run_ingest_pipeline(
 
         total_saved = 0
 
+        def _clean_val(v):
+            if pd.isna(v) or v is None:
+                return None
+            s = str(v).strip()
+            if s.lower() in ("nan", "none", "null"):
+                return None
+            return s
+
         # 4. Upsert into MySQL and Auto-sync LeadStatus
         for _, row in cleaned_df.iterrows():
-            place_id = row["google_place_id"]
-            is_cached = row.get("_is_cached", False)
-            existing_id = row.get("_existing_id")
+            place_id = str(row["google_place_id"]) if pd.notna(row.get("google_place_id")) else None
+            if not place_id:
+                continue
 
-            if existing_id and not is_cached:
+            is_cached = bool(row.get("_is_cached", False)) if pd.notna(row.get("_is_cached")) else False
+            raw_existing_id = row.get("_existing_id")
+            existing_id = int(raw_existing_id) if pd.notna(raw_existing_id) and raw_existing_id is not None and str(raw_existing_id).replace('.', '', 1).isdigit() else None
+
+            biz = None
+            if existing_id:
+                biz = db.query(Business).filter(Business.id == existing_id).first()
+
+            if not biz:
+                biz = db.query(Business).filter(Business.google_place_id == place_id).first()
+
+            rating_raw = row.get("rating_avg")
+            rating_val = float(rating_raw) if pd.notna(rating_raw) and rating_raw is not None else None
+            review_raw = row.get("total_review")
+            review_val = int(review_raw) if pd.notna(review_raw) and review_raw is not None else 0
+            has_web = bool(row.get("has_website")) if pd.notna(row.get("has_website")) else False
+
+            lat_raw = row.get("latitude")
+            lat_val = float(lat_raw) if pd.notna(lat_raw) and lat_raw is not None else None
+            lng_raw = row.get("longitude")
+            lng_val = float(lng_raw) if pd.notna(lng_raw) and lng_raw is not None else None
+
+            if biz and not is_cached:
                 # Update existing business record
-                biz = db.query(Business).filter(Business.id == existing_id).first()
-                if biz:
-                    biz.business_name = row["business_name"]
-                    biz.category = row["category"]
-                    biz.address = row["address"]
-                    biz.location_query = location_query
-                    biz.province = province or biz.province
-                    biz.city = city or biz.city
-                    biz.phone = row["phone"]
-                    biz.whatsapp_link = row["whatsapp_link"]
-                    biz.website = row["website"]
-                    biz.has_website = bool(row["has_website"])
-                    biz.rating_avg = row["rating_avg"] if pd.notna(row["rating_avg"]) else None
-                    biz.total_review = int(row["total_review"]) if pd.notna(row["total_review"]) else 0
-                    biz.opening_hours = row["opening_hours"]
-                    biz.business_status = row["business_status"]
-                    biz.gmaps_url = row["gmaps_url"]
-                    biz.latitude = row["latitude"] if pd.notna(row["latitude"]) else None
-                    biz.longitude = row["longitude"] if pd.notna(row["longitude"]) else None
-                    biz.scraped_at = now
-            elif existing_id and is_cached:
-                biz = db.query(Business).filter(Business.id == existing_id).first()
-            else:
+                biz.business_name = _clean_val(row.get("business_name")) or biz.business_name
+                biz.category = _clean_val(row.get("category")) or biz.category
+                biz.address = _clean_val(row.get("address")) or biz.address
+                biz.location_query = location_query
+                biz.province = province or biz.province
+                biz.city = city or biz.city
+                biz.phone = _clean_val(row.get("phone"))
+                biz.whatsapp_link = _clean_val(row.get("whatsapp_link"))
+                biz.website = _clean_val(row.get("website"))
+                biz.has_website = has_web
+                biz.rating_avg = rating_val
+                biz.total_review = review_val
+                biz.opening_hours = _clean_val(row.get("opening_hours"))
+                biz.business_status = _clean_val(row.get("business_status"))
+                biz.gmaps_url = _clean_val(row.get("gmaps_url"))
+                biz.latitude = lat_val
+                biz.longitude = lng_val
+                biz.scraped_at = now
+            elif not biz:
                 # Insert brand new Business record
                 biz = Business(
                     crawl_run_id=crawl_run.id,
                     google_place_id=place_id,
                     location_query=location_query,
-                    category=row["category"],
-                    business_name=row["business_name"],
-                    address=row["address"],
+                    category=_clean_val(row.get("category")) or category_query,
+                    business_name=_clean_val(row.get("business_name")) or "Usaha Tanpa Nama",
+                    address=_clean_val(row.get("address")),
                     province=province,
                     city=city,
-                    phone=row["phone"],
-                    whatsapp_link=row["whatsapp_link"],
-                    website=row["website"],
-                    has_website=bool(row["has_website"]),
-                    rating_avg=row["rating_avg"] if pd.notna(row["rating_avg"]) else None,
-                    total_review=int(row["total_review"]) if pd.notna(row["total_review"]) else 0,
-                    opening_hours=row["opening_hours"],
-                    business_status=row["business_status"],
-                    gmaps_url=row["gmaps_url"],
-                    latitude=row["latitude"] if pd.notna(row["latitude"]) else None,
-                    longitude=row["longitude"] if pd.notna(row["longitude"]) else None,
+                    phone=_clean_val(row.get("phone")),
+                    whatsapp_link=_clean_val(row.get("whatsapp_link")),
+                    website=_clean_val(row.get("website")),
+                    has_website=has_web,
+                    rating_avg=rating_val,
+                    total_review=review_val,
+                    opening_hours=_clean_val(row.get("opening_hours")),
+                    business_status=_clean_val(row.get("business_status")),
+                    gmaps_url=_clean_val(row.get("gmaps_url")),
+                    latitude=lat_val,
+                    longitude=lng_val,
                     scraped_at=now
                 )
                 db.add(biz)
