@@ -324,6 +324,9 @@ async def leads_list_view(
     # Available categories for dropdown filter
     available_categories = [c[0] for c in db.query(models.Business.category).distinct().all() if c[0]]
 
+    # Available crawl runs for session filter
+    available_crawl_runs = db.query(models.CrawlRun).filter(models.CrawlRun.total_businesses > 0).order_by(models.CrawlRun.id.desc()).all()
+
     active_crawl_run = db.query(models.CrawlRun).filter(models.CrawlRun.id == crawl_run_id).first() if crawl_run_id else None
 
     context = {
@@ -336,6 +339,7 @@ async def leads_list_view(
         "page_size": page_size,
         "crawl_run_id": crawl_run_id or "",
         "active_crawl_run": active_crawl_run,
+        "available_crawl_runs": available_crawl_runs,
         "search": search or "",
         "category": category or "all",
         "has_website": has_website or "all",

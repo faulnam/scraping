@@ -56,14 +56,8 @@
           hx-push-url="true"
           class="space-y-3">
       
-      {% if crawl_run_id %}
-      <input type="hidden" name="crawl_run_id" value="{{ crawl_run_id }}">
-      {% endif %}
-      
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        
         <!-- Search Keyword -->
-        <div class="sm:col-span-2 md:col-span-3 lg:col-span-2">
+        <div class="sm:col-span-2 md:col-span-2 lg:col-span-2">
           <label for="search" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
             Cari Nama / Alamat / Telepon
           </label>
@@ -75,10 +69,25 @@
                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
         </div>
 
-        <!-- Filter Kategori -->
+        <!-- Filter Sesi Crawling -->
+        <div>
+          <label for="crawl_run_id" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Sesi / Keyword Crawl
+          </label>
+          <select id="crawl_run_id" name="crawl_run_id" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer font-medium">
+            <option value="" {% if not crawl_run_id %}selected{% endif %}>Semua Sesi</option>
+            {% for cr in available_crawl_runs %}
+            <option value="{{ cr.id }}" {% if crawl_run_id|string == cr.id|string %}selected{% endif %}>
+              #{{ cr.id }}: {{ cr.category_query }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Filter Kategori Usaha -->
         <div>
           <label for="category" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
-            Kategori
+            Kategori Google Maps
           </label>
           <select id="category" name="category" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
             <option value="all" {% if category == 'all' %}selected{% endif %}>Semua Kategori</option>
