@@ -166,13 +166,37 @@ def build_personalized_wa_link(
 
 
 
+def _parse_int(val: Optional[Any], default: Optional[int] = None) -> Optional[int]:
+    if val is None:
+        return default
+    s = str(val).strip()
+    if not s or s.lower() in ("none", "null", "all", ""):
+        return default
+    try:
+        return int(s)
+    except (ValueError, TypeError):
+        return default
+
+
+def _parse_float(val: Optional[Any], default: Optional[float] = None) -> Optional[float]:
+    if val is None:
+        return default
+    s = str(val).strip()
+    if not s or s.lower() in ("none", "null", "all", ""):
+        return default
+    try:
+        return float(s)
+    except (ValueError, TypeError):
+        return default
+
+
 def _get_filtered_leads_query(
     db: Session,
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[Any] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[Any] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",
@@ -182,8 +206,9 @@ def _get_filtered_leads_query(
     query = db.query(models.Business).outerjoin(models.LeadStatus, models.Business.id == models.LeadStatus.business_id)
 
     # Crawl Run Session filter
-    if crawl_run_id:
-        query = query.filter(models.Business.crawl_run_id == crawl_run_id)
+    parsed_cr_id = _parse_int(crawl_run_id)
+    if parsed_cr_id:
+        query = query.filter(models.Business.crawl_run_id == parsed_cr_id)
 
     # Search keyword filter (name, address, phone)
     if search and search.strip():
@@ -215,8 +240,9 @@ def _get_filtered_leads_query(
         query = query.filter(models.Business.has_website == False)  # noqa: E712
 
     # Minimum rating filter
-    if min_rating and min_rating > 0:
-        query = query.filter(models.Business.rating_avg >= min_rating)
+    parsed_min_rating = _parse_float(min_rating, default=0.0)
+    if parsed_min_rating and parsed_min_rating > 0:
+        query = query.filter(models.Business.rating_avg >= parsed_min_rating)
 
     # Contact status funnel filter
     if contact_status and contact_status.strip() and contact_status.strip() != "all":
@@ -247,30 +273,35 @@ def _get_filtered_leads_query(
 @router.get("/leads", response_class=HTMLResponse)
 async def leads_list_view(
     request: Request,
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[str] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",
     sort_order: str = "desc",
-    page: int = 1,
-    page_size: int = 20,
+    page: Optional[str] = "1",
+    page_size: Optional[str] = "20",
     db: Session = Depends(get_db)
 ):
     """
     Render the Leads Management page with interactive Leaflet map & dynamic table.
     Supports partial rendering for HTMX requests and specific CrawlRun session filtering.
     """
+    parsed_cr_id = _parse_int(crawl_run_id)
+    parsed_min_rating = _parse_float(min_rating, default=0.0) or 0.0
+    parsed_page = max(1, _parse_int(page, default=1) or 1)
+    parsed_page_size = max(1, _parse_int(page_size, default=20) or 20)
+
     query = _get_filtered_leads_query(
         db,
-        crawl_run_id=crawl_run_id,
+        crawl_run_id=parsed_cr_id,
         search=search,
         category=category,
         has_website=has_website,
-        min_rating=min_rating,
+        min_rating=parsed_min_rating,
         contact_status=contact_status,
         priority=priority,
         sort_by=sort_by,
@@ -278,11 +309,11 @@ async def leads_list_view(
     )
 
     total_leads = query.count()
-    total_pages = max(1, (total_leads + page_size - 1) // page_size)
-    page = max(1, min(page, total_pages))
-    offset = (page - 1) * page_size
+    total_pages = max(1, (total_leads + parsed_page_size - 1) // parsed_page_size)
+    parsed_page = max(1, min(parsed_page, total_pages))
+    offset = (parsed_page - 1) * parsed_page_size
 
-    businesses = query.offset(offset).limit(page_size).all()
+    businesses = query.offset(offset).limit(parsed_page_size).all()
     company_name, contact_person, website_url, wa_template = get_profile_data(db)
 
     # Attach dynamic personalized WA link and matched portfolio to each business record
@@ -299,27 +330,41 @@ async def leads_list_view(
             website_url=website_url
         )
 
-    # Prepare map markers for businesses with coordinates
+    # Prepare map markers for all matching filtered businesses with coordinates (up to 300 pins)
+    map_businesses = query.filter(
+        models.Business.latitude.isnot(None), 
+        models.Business.longitude.isnot(None)
+    ).limit(300).all()
+
     map_markers: List[Dict[str, Any]] = []
-    for b in businesses:
-        if b.latitude and b.longitude:
-            map_markers.append({
-                "id": b.id,
-                "name": b.business_name,
-                "lat": float(b.latitude),
-                "lng": float(b.longitude),
-                "has_website": bool(b.has_website),
-                "rating": float(b.rating_avg) if b.rating_avg is not None else 0.0,
-                "reviews": b.total_review,
-                "category": b.category or "Usaha",
-                "address": b.address or "",
-                "phone": b.phone or "-",
-                "wa_url": b.dynamic_wa_link,
-                "portfolio_name": b.matched_portfolio.title if b.matched_portfolio else "Website Profesional",
-                "portfolio_url": b.matched_portfolio.demo_url if b.matched_portfolio else "https://juangdev.my.id",
-                "priority": b.lead_status.priority.value if b.lead_status else "low",
-                "status": b.lead_status.contact_status.value if b.lead_status else "belum_dihubungi"
-            })
+    for b in map_businesses:
+        matched_p = match_portfolio_for_business(b, db)
+        wa_link = build_personalized_wa_link(
+            b.phone,
+            b.business_name,
+            wa_template,
+            portfolio=matched_p,
+            company_name=company_name,
+            contact_person=contact_person,
+            website_url=website_url
+        )
+        map_markers.append({
+            "id": b.id,
+            "name": b.business_name,
+            "lat": float(b.latitude),
+            "lng": float(b.longitude),
+            "has_website": bool(b.has_website),
+            "rating": float(b.rating_avg) if b.rating_avg is not None else 0.0,
+            "reviews": b.total_review,
+            "category": b.category or "Usaha",
+            "address": b.address or "",
+            "phone": b.phone or "-",
+            "wa_url": wa_link,
+            "portfolio_name": matched_p.title if matched_p else "Website Profesional",
+            "portfolio_url": matched_p.demo_url if matched_p else "https://juangdev.my.id",
+            "priority": b.lead_status.priority.value if b.lead_status else "low",
+            "status": b.lead_status.contact_status.value if b.lead_status else "belum_dihubungi"
+        })
 
     # Available categories for dropdown filter
     available_categories = [c[0] for c in db.query(models.Business.category).distinct().all() if c[0]]
@@ -327,7 +372,7 @@ async def leads_list_view(
     # Available crawl runs for session filter
     available_crawl_runs = db.query(models.CrawlRun).filter(models.CrawlRun.total_businesses > 0).order_by(models.CrawlRun.id.desc()).all()
 
-    active_crawl_run = db.query(models.CrawlRun).filter(models.CrawlRun.id == crawl_run_id).first() if crawl_run_id else None
+    active_crawl_run = db.query(models.CrawlRun).filter(models.CrawlRun.id == parsed_cr_id).first() if parsed_cr_id else None
 
     context = {
         "request": request,
@@ -335,15 +380,15 @@ async def leads_list_view(
         "businesses": businesses,
         "total_leads": total_leads,
         "total_pages": total_pages,
-        "current_page": page,
-        "page_size": page_size,
-        "crawl_run_id": crawl_run_id or "",
+        "current_page": parsed_page,
+        "page_size": parsed_page_size,
+        "crawl_run_id": str(parsed_cr_id) if parsed_cr_id is not None else "",
         "active_crawl_run": active_crawl_run,
         "available_crawl_runs": available_crawl_runs,
         "search": search or "",
         "category": category or "all",
         "has_website": has_website or "all",
-        "min_rating": min_rating or 0.0,
+        "min_rating": parsed_min_rating,
         "contact_status": contact_status or "all",
         "priority": priority or "all",
         "sort_by": sort_by,
@@ -372,17 +417,17 @@ async def leads_list_view(
 @router.get("/api/leads/table", response_class=HTMLResponse)
 async def leads_table_partial(
     request: Request,
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[str] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",
     sort_order: str = "desc",
-    page: int = 1,
-    page_size: int = 20,
+    page: Optional[str] = "1",
+    page_size: Optional[str] = "20",
     db: Session = Depends(get_db)
 ):
     """Explicit endpoint for HTMX partial table updates."""

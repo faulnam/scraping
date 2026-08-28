@@ -16,11 +16,11 @@ router = APIRouter(prefix="/export", tags=["export"])
 
 def _build_leads_export_dataframe(
     db: Session,
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[str] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",
@@ -98,11 +98,11 @@ def _build_leads_export_dataframe(
 
 @router.get("/leads.csv")
 async def export_leads_csv(
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[str] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",
@@ -140,11 +140,11 @@ async def export_leads_csv(
 
 @router.get("/leads.xlsx")
 async def export_leads_excel(
-    crawl_run_id: Optional[int] = None,
+    crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
     has_website: Optional[str] = None,
-    min_rating: Optional[float] = None,
+    min_rating: Optional[str] = None,
     contact_status: Optional[str] = None,
     priority: Optional[str] = None,
     sort_by: str = "date",

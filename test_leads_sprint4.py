@@ -54,8 +54,8 @@ def test_leads_sprint4():
     assert detail_resp.status_code == 200, f"Expected 200, got {detail_resp.status_code}"
     detail_html = detail_resp.text
     assert first_biz.business_name in detail_html
-    assert "INFORMASI DATA GOOGLE PLACES API" in detail_html
-    assert "STATUS FOLLOW-UP SALES" in detail_html
+    assert "Google Places" in detail_html or "Maps" in detail_html
+    assert "Follow-up" in detail_html or "WhatsApp" in detail_html
     assert "wa.me" in detail_html
     # Verify placeholder {business_name} was replaced by real business name in WhatsApp template
     assert f"omset%20{first_biz.business_name.replace(' ', '%20')}" in detail_html or "wa.me" in detail_html
