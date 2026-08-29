@@ -60,6 +60,22 @@ def init_db():
     except Exception:
         pass
 
+    # Safe migration: Add user_id column to business_profile if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE business_profile ADD COLUMN user_id BIGINT NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
+    # Safe migration: Add user_id column to portfolio_items if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE portfolio_items ADD COLUMN user_id BIGINT NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
     # Safe migration: Add user_id column to crawl_runs if it doesn't exist
     try:
         with engine.connect() as conn:
@@ -118,10 +134,12 @@ def init_db():
             db.commit()
             print("[Database] Admin Demo user created: 'demo' / 'demo123'")
 
-        # 3. Associate any unassigned crawl_runs and businesses to admin
+        # 3. Associate unassigned data to admin
         if admin_user:
             db.query(models.CrawlRun).filter(models.CrawlRun.user_id.is_(None)).update({"user_id": admin_user.id})
             db.query(models.Business).filter(models.Business.user_id.is_(None)).update({"user_id": admin_user.id})
+            db.query(models.BusinessProfile).filter(models.BusinessProfile.user_id.is_(None)).update({"user_id": admin_user.id})
+            db.query(models.PortfolioItem).filter(models.PortfolioItem.user_id.is_(None)).update({"user_id": admin_user.id})
             db.commit()
 
 

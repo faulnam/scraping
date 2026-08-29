@@ -2,12 +2,13 @@
 Outreach Speed-Dial Router: Batch WhatsApp outreach mode for rapid lead contact.
 Enables Admin to send WA messages to multiple leads sequentially without
 returning to the table after each send.
+Supports rich keyword search, category, session, and status filters with full queue (no artificial 50 limit).
 """
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 import urllib.parse
 from fastapi import APIRouter, Depends, Request, Form, Query
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc, or_
@@ -39,11 +40,16 @@ QUICK_NOTE_CHIPS = [
 def _build_outreach_queue(
     db: Session,
     user_id: Optional[int] = None,
-    filter_mode: str = "new_high",
-    lead_ids: Optional[str] = None,
-    limit: int = 50
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    crawl_run_id: Optional[str] = None,
+    has_website: Optional[str] = None,
+    contact_status: Optional[str] = None,
+    priority: Optional[str] = None,
+    filter_mode: Optional[str] = None,
+    lead_ids: Optional[str] = None
 ) -> List[models.Business]:
-    """Build a queue of leads for outreach based on filter mode and isolated by user_id."""
+    """Build an unlimited queue of leads for outreach based on comprehensive filters, isolated by user_id."""
     query = db.query(models.Business).outerjoin(
         models.LeadStatus, models.Business.id == models.LeadStatus.business_id
     )
@@ -51,47 +57,87 @@ def _build_outreach_queue(
     if user_id:
         query = query.filter(models.Business.user_id == user_id)
 
-    if lead_ids:
-        # Specific lead IDs from bulk selection
+    # 1. Lead IDs (from bulk selection)
+    if lead_ids and lead_ids.strip():
         id_list = [int(x) for x in lead_ids.split(",") if x.strip().isdigit()]
         if id_list:
             query = query.filter(models.Business.id.in_(id_list))
-    elif filter_mode == "new_high":
-        # New HIGH priority leads that haven't been contacted
-        query = query.filter(
-            models.LeadStatus.priority == models.LeadPriority.HIGH,
-            or_(
-                models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
-                models.LeadStatus.contact_status.is_(None)
+    else:
+        # 2. Search keyword filter
+        if search and search.strip():
+            term = f"%{search.strip()}%"
+            query = query.filter(
+                or_(
+                    models.Business.business_name.ilike(term),
+                    models.Business.category.ilike(term),
+                    models.Business.address.ilike(term),
+                    models.Business.location_query.ilike(term),
+                    models.Business.phone.ilike(term)
+                )
             )
-        )
-    elif filter_mode == "followup_today":
-        # Leads with follow-up scheduled for today or overdue
-        today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
-        tomorrow_start = today_start.replace(hour=23, minute=59, second=59)
-        query = query.filter(
-            models.LeadStatus.next_followup_at.isnot(None),
-            models.LeadStatus.next_followup_at <= tomorrow_start
-        )
-    elif filter_mode == "not_contacted":
-        # All leads not yet contacted
-        query = query.filter(
-            or_(
-                models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
-                models.LeadStatus.contact_status.is_(None)
-            )
-        )
-    elif filter_mode == "no_website":
-        # Leads without website
-        query = query.filter(models.Business.has_website == False)  # noqa: E712
-        query = query.filter(
-            or_(
-                models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
-                models.LeadStatus.contact_status.is_(None)
-            )
-        )
 
-    # Only include leads with phone numbers
+        # 3. Category filter
+        if category and category.strip() and category.strip() != "all":
+            cat_term = category.strip()
+            query = query.filter(
+                or_(
+                    models.Business.category == cat_term,
+                    models.Business.category.ilike(f"%{cat_term}%"),
+                    models.Business.location_query.ilike(f"%{cat_term}%")
+                )
+            )
+
+        # 4. Crawl Run Session filter
+        if crawl_run_id and crawl_run_id.strip() and crawl_run_id.strip() != "all" and crawl_run_id.strip().isdigit():
+            query = query.filter(models.Business.crawl_run_id == int(crawl_run_id.strip()))
+
+        # 5. Website status filter
+        if has_website == "true":
+            query = query.filter(models.Business.has_website == True)  # noqa: E712
+        elif has_website == "false":
+            query = query.filter(models.Business.has_website == False)  # noqa: E712
+
+        # 6. Contact Status filter
+        if contact_status and contact_status.strip() and contact_status.strip() != "all":
+            query = query.filter(models.LeadStatus.contact_status == contact_status.strip())
+
+        # 7. Priority filter
+        if priority and priority.strip() and priority.strip() != "all":
+            query = query.filter(models.LeadStatus.priority == priority.strip())
+
+        # 8. Preset filter_mode fallback if specific filters are not set
+        if filter_mode == "new_high":
+            query = query.filter(
+                models.LeadStatus.priority == models.LeadPriority.HIGH,
+                or_(
+                    models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
+                    models.LeadStatus.contact_status.is_(None)
+                )
+            )
+        elif filter_mode == "followup_today":
+            today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+            tomorrow_start = today_start.replace(hour=23, minute=59, second=59)
+            query = query.filter(
+                models.LeadStatus.next_followup_at.isnot(None),
+                models.LeadStatus.next_followup_at <= tomorrow_start
+            )
+        elif filter_mode == "no_website":
+            query = query.filter(models.Business.has_website == False)  # noqa: E712
+            query = query.filter(
+                or_(
+                    models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
+                    models.LeadStatus.contact_status.is_(None)
+                )
+            )
+        elif filter_mode == "not_contacted":
+            query = query.filter(
+                or_(
+                    models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
+                    models.LeadStatus.contact_status.is_(None)
+                )
+            )
+
+    # Only include leads with valid phone numbers for WhatsApp outreach
     query = query.filter(
         models.Business.phone.isnot(None),
         models.Business.phone != ""
@@ -99,40 +145,96 @@ def _build_outreach_queue(
 
     query = query.order_by(
         desc(models.LeadStatus.priority),
-        desc(models.Business.rating_avg)
+        desc(models.Business.rating_avg),
+        desc(models.Business.scraped_at)
     )
 
-    return query.limit(limit).all()
+    # No artificial limit — retrieve the full queue!
+    return query.all()
 
 
 @router.get("/outreach", response_class=HTMLResponse)
 async def outreach_view(
     request: Request,
-    filter_mode: str = "new_high",
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    crawl_run_id: Optional[str] = None,
+    has_website: Optional[str] = None,
+    contact_status: Optional[str] = None,
+    priority: Optional[str] = None,
+    filter_mode: Optional[str] = None,
     lead_ids: Optional[str] = None,
     current_index: int = 0,
     db: Session = Depends(get_db)
 ):
-    """Render Outreach Speed-Dial Mode page with user isolation."""
+    """Render Outreach Speed-Dial Mode page with full filter bar, unlimited queue, and portfolio attachment studio."""
     user = getattr(request.state, "current_user", None)
     user_id = user.id if user else None
 
-    queue = _build_outreach_queue(db, user_id=user_id, filter_mode=filter_mode, lead_ids=lead_ids)
+    # Available categories for dropdown filter
+    cat_query = db.query(models.Business.category)
+    if user_id:
+        cat_query = cat_query.filter(models.Business.user_id == user_id)
+    available_categories = [c[0] for c in cat_query.distinct().all() if c[0]]
+
+    # Available crawl runs for session filter
+    cr_query = db.query(models.CrawlRun).filter(models.CrawlRun.total_businesses > 0)
+    if user_id:
+        cr_query = cr_query.filter(models.CrawlRun.user_id == user_id)
+    available_crawl_runs = cr_query.order_by(models.CrawlRun.id.desc()).all()
+
+    # Build queue
+    queue = _build_outreach_queue(
+        db,
+        user_id=user_id,
+        search=search,
+        category=category,
+        crawl_run_id=crawl_run_id,
+        has_website=has_website,
+        contact_status=contact_status,
+        priority=priority,
+        filter_mode=filter_mode,
+        lead_ids=lead_ids
+    )
     total_queue = len(queue)
+
+    company_name, contact_person, website_url, wa_template = get_profile_data(db, user_id=user_id)
+    port_query = db.query(models.PortfolioItem)
+    if user_id:
+        port_query = port_query.filter(models.PortfolioItem.user_id == user_id)
+    portfolios = port_query.all()
+
+    common_context = {
+        "request": request,
+        "active_page": "outreach",
+        "total_queue": total_queue,
+        "current_index": current_index,
+        "search": search or "",
+        "category": category or "all",
+        "crawl_run_id": crawl_run_id or "all",
+        "has_website": has_website or "all",
+        "contact_status": contact_status or "all",
+        "priority": priority or "all",
+        "filter_mode": filter_mode or "",
+        "lead_ids": lead_ids or "",
+        "available_categories": sorted(available_categories),
+        "available_crawl_runs": available_crawl_runs,
+        "portfolios": portfolios,
+        "pitch_templates": PITCH_TEMPLATES,
+        "company_name": company_name,
+        "contact_person": contact_person,
+        "website_url": website_url,
+        "quick_note_chips": QUICK_NOTE_CHIPS,
+    }
 
     if total_queue == 0:
         return templates.TemplateResponse(
             request=request,
             name="outreach.html",
             context={
-                "active_page": "outreach",
+                **common_context,
                 "queue_empty": True,
-                "total_queue": 0,
-                "current_index": 0,
-                "filter_mode": filter_mode,
-                "lead_ids": lead_ids or "",
                 "business": None,
-                "quick_note_chips": QUICK_NOTE_CHIPS,
             }
         )
 
@@ -140,9 +242,7 @@ async def outreach_view(
     current_index = max(0, min(current_index, total_queue - 1))
     current_lead = queue[current_index]
 
-    company_name, contact_person, website_url, wa_template = get_profile_data(db)
-    matched_portfolio = match_portfolio_for_business(current_lead, db)
-    portfolios = db.query(models.PortfolioItem).all()
+    matched_portfolio = match_portfolio_for_business(current_lead, db, user_id=user_id)
 
     # Build WA link
     wa_link = build_personalized_wa_link(
@@ -165,7 +265,7 @@ async def outreach_view(
     pitch_text = pitch_text.replace("{contact_person}", contact_person)
     pitch_text = pitch_text.replace("{website_url}", website_url)
 
-    # Standardize phone
+    # Standardize phone for WA
     clean_digits = "".join([c for c in (current_lead.phone or "") if c.isdigit()])
     if clean_digits.startswith("08"):
         target_phone_wa = "62" + clean_digits[1:]
@@ -185,35 +285,32 @@ async def outreach_view(
         request=request,
         name="outreach.html",
         context={
-            "active_page": "outreach",
+            **common_context,
             "queue_empty": False,
-            "total_queue": total_queue,
             "current_index": current_index,
-            "filter_mode": filter_mode,
-            "lead_ids": lead_ids or "",
             "business": current_lead,
             "lead_status": current_lead.lead_status,
             "matched_portfolio": matched_portfolio,
-            "portfolios": portfolios,
-            "pitch_templates": PITCH_TEMPLATES,
-            "company_name": company_name,
-            "contact_person": contact_person,
-            "website_url": website_url,
             "pitch_text": pitch_text,
             "wa_link": wa_link,
             "target_phone_wa": target_phone_wa,
-            "quick_note_chips": QUICK_NOTE_CHIPS,
             "activities": activities,
             "contact_status_enum": models.ContactStatus,
         }
     )
 
 
-@router.post("/outreach/{business_id}/mark-sent", response_class=HTMLResponse)
+@router.post("/outreach/{business_id}/mark-sent")
 async def mark_sent_and_next(
     request: Request,
     business_id: int,
-    filter_mode: str = Form("new_high"),
+    search: Optional[str] = Form(""),
+    category: Optional[str] = Form("all"),
+    crawl_run_id: Optional[str] = Form("all"),
+    has_website: Optional[str] = Form("all"),
+    contact_status: Optional[str] = Form("all"),
+    priority: Optional[str] = Form("all"),
+    filter_mode: Optional[str] = Form(""),
     lead_ids: Optional[str] = Form(""),
     current_index: int = Form(0),
     quick_note: Optional[str] = Form(None),
@@ -221,77 +318,89 @@ async def mark_sent_and_next(
     db: Session = Depends(get_db)
 ):
     """
-    Mark current lead as 'Sudah Dihubungi', log activity, and redirect to next lead.
+    Mark current lead as 'Sudah Dihubungi', log activity, and redirect to next lead preserving all filter queries.
     """
-    business = db.query(models.Business).filter(models.Business.id == business_id).first()
-    if not business:
-        return HTMLResponse("<p>Lead tidak ditemukan.</p>", status_code=404)
-
-    now = datetime.utcnow()
     user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
     username = user.full_name or user.username if user else "Admin"
 
-    # Update lead status
-    lead_status = business.lead_status
-    if not lead_status:
-        lead_status = models.LeadStatus(
-            business_id=business.id,
-            contact_status=models.ContactStatus.SUDAH_DIHUBUNGI,
-            priority=models.LeadPriority.LOW,
-            last_contacted_at=now,
-            updated_at=now
-        )
-        db.add(lead_status)
-    else:
-        lead_status.contact_status = models.ContactStatus.SUDAH_DIHUBUNGI
-        lead_status.last_contacted_at = now
-        lead_status.updated_at = now
+    biz_query = db.query(models.Business).filter(models.Business.id == business_id)
+    if user_id:
+        biz_query = biz_query.filter(models.Business.user_id == user_id)
+    business = biz_query.first()
 
-    # Save note
-    note_text = quick_note or custom_note
-    if note_text and note_text.strip():
-        if lead_status.notes:
-            lead_status.notes = f"{lead_status.notes}\n[{now.strftime('%d/%m/%y %H:%M')}] {note_text.strip()}"
+    if business:
+        now = datetime.utcnow()
+        lead_status = business.lead_status
+        if not lead_status:
+            lead_status = models.LeadStatus(
+                business_id=business.id,
+                contact_status=models.ContactStatus.SUDAH_DIHUBUNGI,
+                priority=models.LeadPriority.LOW,
+                last_contacted_at=now,
+                updated_at=now
+            )
+            db.add(lead_status)
         else:
-            lead_status.notes = f"[{now.strftime('%d/%m/%y %H:%M')}] {note_text.strip()}"
+            lead_status.contact_status = models.ContactStatus.SUDAH_DIHUBUNGI
+            lead_status.last_contacted_at = now
+            lead_status.updated_at = now
 
-    # Log activity
-    activity = models.ActivityLog(
-        business_id=business.id,
-        action="wa_sent",
-        detail=f"Pesan WhatsApp dikirim via Outreach Mode. {('Catatan: ' + note_text.strip()) if note_text and note_text.strip() else ''}",
-        created_by=username,
-        created_at=now
-    )
-    db.add(activity)
-    db.commit()
+        note_text = quick_note or custom_note
+        if note_text and note_text.strip():
+            if lead_status.notes:
+                lead_status.notes = f"{lead_status.notes}\n[{now.strftime('%d/%m/%y %H:%M')}] {note_text.strip()}"
+            else:
+                lead_status.notes = f"[{now.strftime('%d/%m/%y %H:%M')}] {note_text.strip()}"
 
-    # Redirect to next lead
+        activity = models.ActivityLog(
+            business_id=business.id,
+            action="wa_sent",
+            detail=f"Pesan WhatsApp dikirim via Outreach Speed-Dial. {('Catatan: ' + note_text.strip()) if note_text and note_text.strip() else ''}",
+            created_by=username,
+            created_at=now
+        )
+        db.add(activity)
+        db.commit()
+
     next_index = current_index + 1
-    lead_ids_param = f"&lead_ids={lead_ids}" if lead_ids else ""
-    redirect_url = f"/outreach?filter_mode={filter_mode}&current_index={next_index}{lead_ids_param}"
+    params = {
+        "current_index": next_index,
+        "search": search or "",
+        "category": category or "all",
+        "crawl_run_id": crawl_run_id or "all",
+        "has_website": has_website or "all",
+        "contact_status": contact_status or "all",
+        "priority": priority or "all",
+        "filter_mode": filter_mode or "",
+        "lead_ids": lead_ids or "",
+    }
+    encoded_params = urllib.parse.urlencode({k: v for k, v in params.items() if v})
+    return RedirectResponse(url=f"/outreach?{encoded_params}", status_code=303)
 
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url=redirect_url, status_code=303)
 
-
-@router.post("/outreach/{business_id}/skip", response_class=HTMLResponse)
+@router.post("/outreach/{business_id}/skip")
 async def skip_lead(
     request: Request,
     business_id: int,
-    filter_mode: str = Form("new_high"),
+    search: Optional[str] = Form(""),
+    category: Optional[str] = Form("all"),
+    crawl_run_id: Optional[str] = Form("all"),
+    has_website: Optional[str] = Form("all"),
+    contact_status: Optional[str] = Form("all"),
+    priority: Optional[str] = Form("all"),
+    filter_mode: Optional[str] = Form(""),
     lead_ids: Optional[str] = Form(""),
     current_index: int = Form(0),
     skip_reason: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Skip current lead and move to next without sending WA."""
-    now = datetime.utcnow()
+    """Skip current lead and move to next lead in the queue."""
     user = getattr(request.state, "current_user", None)
     username = user.full_name or user.username if user else "Admin"
 
-    # Log skip activity
     if skip_reason and skip_reason.strip():
+        now = datetime.utcnow()
         activity = models.ActivityLog(
             business_id=business_id,
             action="skipped",
@@ -303,11 +412,19 @@ async def skip_lead(
         db.commit()
 
     next_index = current_index + 1
-    lead_ids_param = f"&lead_ids={lead_ids}" if lead_ids else ""
-    redirect_url = f"/outreach?filter_mode={filter_mode}&current_index={next_index}{lead_ids_param}"
-
-    from fastapi.responses import RedirectResponse
-    return RedirectResponse(url=redirect_url, status_code=303)
+    params = {
+        "current_index": next_index,
+        "search": search or "",
+        "category": category or "all",
+        "crawl_run_id": crawl_run_id or "all",
+        "has_website": has_website or "all",
+        "contact_status": contact_status or "all",
+        "priority": priority or "all",
+        "filter_mode": filter_mode or "",
+        "lead_ids": lead_ids or "",
+    }
+    encoded_params = urllib.parse.urlencode({k: v for k, v in params.items() if v})
+    return RedirectResponse(url=f"/outreach?{encoded_params}", status_code=303)
 
 
 @router.post("/outreach/{business_id}/quick-note", response_class=HTMLResponse)
@@ -318,15 +435,19 @@ async def add_quick_note(
     db: Session = Depends(get_db)
 ):
     """Add a quick note chip to a lead's activity log via HTMX."""
-    now = datetime.utcnow()
     user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
     username = user.full_name or user.username if user else "Admin"
 
-    business = db.query(models.Business).filter(models.Business.id == business_id).first()
+    biz_query = db.query(models.Business).filter(models.Business.id == business_id)
+    if user_id:
+        biz_query = biz_query.filter(models.Business.user_id == user_id)
+    business = biz_query.first()
+
     if not business:
         return HTMLResponse("<span class='text-xs text-rose-600'>Lead tidak ditemukan.</span>")
 
-    # Append to notes
+    now = datetime.utcnow()
     lead_status = business.lead_status
     if lead_status:
         if lead_status.notes:
@@ -335,7 +456,6 @@ async def add_quick_note(
             lead_status.notes = f"[{now.strftime('%d/%m/%y %H:%M')}] {note.strip()}"
         lead_status.updated_at = now
 
-    # Log activity
     activity = models.ActivityLog(
         business_id=business_id,
         action="note_added",

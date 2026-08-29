@@ -28,15 +28,14 @@ async def login_view(
     next: Optional[str] = "/",
     db: Session = Depends(get_db)
 ):
-    """Render login page or redirect if already authenticated."""
+    """Render login page allowing login or switching accounts."""
     current_user = get_current_user_optional(request, db)
-    if current_user:
-        return RedirectResponse(url=next or "/", status_code=303)
 
     return templates.TemplateResponse(
         request=request,
         name="login.html",
         context={
+            "current_user": current_user,
             "next": next or "/",
             "error_message": None
         }
@@ -52,15 +51,17 @@ async def login_submit(
     next: Optional[str] = Form("/"),
     db: Session = Depends(get_db)
 ):
-    """Authenticate user credentials and set session cookie."""
+    """Authenticate user credentials and set fresh session cookie."""
     clean_username = username.strip()
     user = db.query(models.User).filter(models.User.username == clean_username).first()
 
     if not user or not user.is_active or not verify_password(password, user.password_hash):
+        current_user = get_current_user_optional(request, db)
         return templates.TemplateResponse(
             request=request,
             name="login.html",
             context={
+                "current_user": current_user,
                 "username": clean_username,
                 "next": next or "/",
                 "error_message": "Username atau kata sandi tidak valid. Silakan coba lagi."
@@ -72,9 +73,9 @@ async def login_submit(
     user.last_login_at = datetime.utcnow()
     db.commit()
 
-    # Create signed session token
+    # Create signed session token for authenticated user
     token = create_session_token(user.id)
-    redirect_target = next if next and next.startswith("/") else "/"
+    redirect_target = next if next and next.startswith("/") and not next.startswith("/login") else "/"
 
     redirect_resp = RedirectResponse(url=redirect_target, status_code=303)
     redirect_resp.set_cookie(

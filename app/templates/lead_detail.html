@@ -173,119 +173,6 @@
 
       </div>
 
-      <!-- Card: Form Update Status Funnel & Catatan Sales -->
-      <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
-          STATUS FOLLOW-UP SALES
-        </h2>
-
-        <!-- Alert Container for HTMX Response -->
-        <div id="status-feedback"></div>
-
-        <form hx-post="/leads/{{ business.id }}/status"
-              hx-target="#status-feedback"
-              hx-swap="innerHTML"
-              class="space-y-4 text-xs">
-          
-          <!-- Funnel Status Dropdown -->
-          <div>
-            <label for="contact_status" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Status Funnel Prospek <span class="text-rose-500">*</span>
-            </label>
-            {% set cur_st = lead_status.contact_status.value if lead_status else 'belum_dihubungi' %}
-            <select id="contact_status" 
-                    name="contact_status" 
-                    required
-                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 font-semibold focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
-              <option value="belum_dihubungi" {% if cur_st == 'belum_dihubungi' %}selected{% endif %}>Belum Kontak</option>
-              <option value="sudah_dihubungi" {% if cur_st == 'sudah_dihubungi' %}selected{% endif %}>Sudah Dihubungi (WA/Email)</option>
-              <option value="follow_up" {% if cur_st == 'follow_up' %}selected{% endif %}>Follow Up (Diskusi Proposal)</option>
-              <option value="deal" {% if cur_st == 'deal' %}selected{% endif %}>Deal Client (Closing)</option>
-              <option value="tidak_tertarik" {% if cur_st == 'tidak_tertarik' %}selected{% endif %}>Tidak Tertarik</option>
-              <option value="tidak_relevan" {% if cur_st == 'tidak_relevan' %}selected{% endif %}>Tidak Relevan</option>
-            </select>
-          </div>
-
-          <!-- Jadwal Follow-up Berikutnya -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label for="next_followup_at" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Jadwal Follow-Up
-              </label>
-              <input type="datetime-local" 
-                     id="next_followup_at" 
-                     name="next_followup_at" 
-                     value="{{ lead_status.next_followup_at.strftime('%Y-%m-%dT%H:%M') if lead_status and lead_status.next_followup_at else '' }}"
-                     class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
-            </div>
-            <div>
-              <label for="followup_note" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                Agenda Pengingat
-              </label>
-              <input type="text" 
-                     id="followup_note" 
-                     name="followup_note" 
-                     value="{{ lead_status.followup_note|default('') if lead_status else '' }}"
-                     placeholder="Misal: Kirim revisi demo"
-                     class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
-            </div>
-          </div>
-
-          <!-- PIC Sales -->
-          <div>
-            <label for="assigned_to" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              PIC Sales / Konsultan
-            </label>
-            <input type="text" 
-                   id="assigned_to" 
-                   name="assigned_to" 
-                   value="{{ lead_status.assigned_to|default('') if lead_status else '' }}"
-                   placeholder="Misal: Ahmad / Tim Sales"
-                   class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
-          </div>
-
-          <!-- Quick Note Chips -->
-          <div>
-            <label class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Catatan Cepat
-            </label>
-            <div class="flex flex-wrap gap-1.5">
-              {% for chip in quick_note_chips %}
-              <button type="button" 
-                      onclick="appendNote('{{ chip.value }}')" 
-                      class="px-2 py-0.5 text-[10px] font-medium rounded border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:border-slate-300 transition cursor-pointer">
-                {{ chip.label }}
-              </button>
-              {% endfor %}
-            </div>
-          </div>
-
-          <!-- Catatan Follow-up -->
-          <div>
-            <label for="notes" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
-              Catatan Negosiasi / Follow-up
-            </label>
-            <textarea id="notes" 
-                      name="notes" 
-                      rows="3" 
-                      placeholder="Tuliskan ringkasan respon calon klien..."
-                      class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">{{ lead_status.notes|default('') if lead_status else '' }}</textarea>
-          </div>
-
-          <!-- Timestamp Terakhir Dihubungi -->
-          {% if lead_status and lead_status.last_contacted_at %}
-          <div class="p-2 rounded bg-slate-50 border border-slate-200 text-slate-600 text-[10px] flex justify-between">
-            <span class="font-medium">Terakhir Dihubungi:</span>
-            <span class="font-mono text-slate-900">{{ lead_status.last_contacted_at.strftime('%d %B %Y, %H:%M') }} WIB</span>
-          </div>
-          {% endif %}
-
-          <button type="submit" class="btn-primary w-full py-2.5 text-xs font-semibold shadow-sm">
-            Simpan Perubahan Status
-          </button>
-        </form>
-      </div>
-
       <!-- Card: Riwayat Aktivitas / Timeline -->
       <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
         <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider border-b border-slate-100 pb-2">
@@ -313,6 +200,7 @@
       </div>
 
     </div>
+
 
 
     <!-- Right Column: Dedicated WhatsApp Outreach Studio (7 cols) -->

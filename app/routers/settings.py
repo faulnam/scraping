@@ -60,15 +60,33 @@ async def profile_view(
     request: Request,
     db: Session = Depends(get_db)
 ):
-    """Render Business Profile, WhatsApp template, and Portfolio configuration."""
-    profile = db.query(models.BusinessProfile).first()
-    portfolios = db.query(models.PortfolioItem).order_by(models.PortfolioItem.id.asc()).all()
+    """Render Business Profile, WhatsApp template, and Portfolio configuration isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
 
-    company_name = profile.company_name if profile else "JuangDev Solutions"
-    contact_person = profile.contact_person if profile else "Tim Konsultan Web"
-    phone = profile.phone if profile else "081234567890"
-    website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else "https://juangdev.my.id"
-    wa_template = profile.default_wa_template if profile and profile.default_wa_template else DEFAULT_WA_TEMPLATE
+    profile_query = db.query(models.BusinessProfile)
+    if user_id:
+        profile_query = profile_query.filter(models.BusinessProfile.user_id == user_id)
+    profile = profile_query.first()
+
+    port_query = db.query(models.PortfolioItem)
+    if user_id:
+        port_query = port_query.filter(models.PortfolioItem.user_id == user_id)
+    portfolios = port_query.order_by(models.PortfolioItem.id.asc()).all()
+
+    if user and user.role == "admin_demo":
+        # For demo user, default fields are empty as requested
+        company_name = profile.company_name if profile else ""
+        contact_person = profile.contact_person if profile else ""
+        phone = profile.phone if profile else ""
+        website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else ""
+        wa_template = profile.default_wa_template if profile and profile.default_wa_template else DEFAULT_WA_TEMPLATE
+    else:
+        company_name = profile.company_name if profile else "JuangDev Solutions"
+        contact_person = profile.contact_person if profile else "Tim Konsultan Web"
+        phone = profile.phone if profile else "081234567890"
+        website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else "https://juangdev.my.id"
+        wa_template = profile.default_wa_template if profile and profile.default_wa_template else DEFAULT_WA_TEMPLATE
 
     return templates.TemplateResponse(
         request=request,
@@ -96,14 +114,21 @@ async def update_profile(
     default_wa_template: Optional[str] = Form(DEFAULT_WA_TEMPLATE),
     db: Session = Depends(get_db)
 ):
-    """Update or create BusinessProfile record in MySQL."""
-    profile = db.query(models.BusinessProfile).first()
+    """Update or create BusinessProfile record in MySQL isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    profile_query = db.query(models.BusinessProfile)
+    if user_id:
+        profile_query = profile_query.filter(models.BusinessProfile.user_id == user_id)
+    profile = profile_query.first()
     now = datetime.utcnow()
 
-    clean_website_url = website_url.strip() if website_url and website_url.strip() else "https://juangdev.my.id"
+    clean_website_url = website_url.strip() if website_url and website_url.strip() else ""
 
     if not profile:
         profile = models.BusinessProfile(
+            user_id=user_id,
             company_name=company_name.strip(),
             contact_person=contact_person.strip() if contact_person else None,
             phone=phone.strip() if phone else None,
@@ -123,7 +148,10 @@ async def update_profile(
     db.commit()
     db.refresh(profile)
 
-    portfolios = db.query(models.PortfolioItem).order_by(models.PortfolioItem.id.asc()).all()
+    port_query = db.query(models.PortfolioItem)
+    if user_id:
+        port_query = port_query.filter(models.PortfolioItem.user_id == user_id)
+    portfolios = port_query.order_by(models.PortfolioItem.id.asc()).all()
 
     return templates.TemplateResponse(
         request=request,
@@ -135,7 +163,7 @@ async def update_profile(
             "company_name": profile.company_name,
             "contact_person": profile.contact_person or "",
             "phone": profile.phone or "",
-            "website_url": getattr(profile, "website_url", None) or "https://juangdev.my.id",
+            "website_url": getattr(profile, "website_url", None) or "",
             "wa_template": profile.default_wa_template,
             "success_message": "Profil bisnis, website resmi, dan template WhatsApp berhasil disimpan!"
         }
@@ -158,9 +186,15 @@ async def add_portfolio_item(
     is_default: Optional[bool] = Form(False),
     db: Session = Depends(get_db)
 ):
-    """Add a new Portfolio / Demo link preset with optional image mockup to MySQL."""
+    """Add a new Portfolio / Demo link preset with optional image mockup to MySQL isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
     if is_default:
-        db.query(models.PortfolioItem).update({models.PortfolioItem.is_default: False})
+        def_query = db.query(models.PortfolioItem)
+        if user_id:
+            def_query = def_query.filter(models.PortfolioItem.user_id == user_id)
+        def_query.update({models.PortfolioItem.is_default: False})
 
     final_image_url = image_url.strip() if image_url and image_url.strip() else None
     
@@ -170,6 +204,7 @@ async def add_portfolio_item(
             final_image_url = uploaded_path
 
     new_item = models.PortfolioItem(
+        user_id=user_id,
         title=title.strip(),
         category_keywords=category_keywords.strip() if category_keywords else "",
         demo_url=demo_url.strip(),
@@ -192,8 +227,15 @@ async def update_portfolio_image(
     image_url: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Upload or update mockup image for an existing portfolio preset."""
-    item = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id).first()
+    """Upload or update mockup image for an existing portfolio preset isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    item_query = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id)
+    if user_id:
+        item_query = item_query.filter(models.PortfolioItem.user_id == user_id)
+    item = item_query.first()
+
     if item:
         if image_file and image_file.filename:
             uploaded_path = await _save_portfolio_image(image_file)
@@ -211,8 +253,15 @@ async def delete_portfolio_item(
     portfolio_id: int,
     db: Session = Depends(get_db)
 ):
-    """Delete a Portfolio preset from MySQL."""
-    item = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id).first()
+    """Delete a Portfolio preset from MySQL isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    item_query = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id)
+    if user_id:
+        item_query = item_query.filter(models.PortfolioItem.user_id == user_id)
+    item = item_query.first()
+
     if item:
         db.delete(item)
         db.commit()

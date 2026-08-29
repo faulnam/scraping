@@ -122,6 +122,7 @@ class BusinessProfile(Base):
     __tablename__ = "business_profile"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     company_name = Column(String(255), nullable=False)
     contact_person = Column(String(255), nullable=True)
     phone = Column(String(50), nullable=True)
@@ -129,11 +130,14 @@ class BusinessProfile(Base):
     default_wa_template = Column(Text, nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
+    user = relationship("User", backref="business_profiles")
+
 
 class PortfolioItem(Base):
     __tablename__ = "portfolio_items"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     title = Column(String(255), nullable=False)
     category_keywords = Column(String(500), nullable=True)
     demo_url = Column(String(500), nullable=False)
@@ -141,6 +145,8 @@ class PortfolioItem(Base):
     pitch_snippet = Column(Text, nullable=True)
     is_default = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    user = relationship("User", backref="portfolio_items")
 
 
 class User(Base):

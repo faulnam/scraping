@@ -68,31 +68,48 @@ PITCH_TEMPLATES = {
 }
 
 
-def get_profile_data(db: Session):
-    """Retrieve company name, contact person, website URL, and custom template from BusinessProfile."""
-    profile = db.query(models.BusinessProfile).first()
-    company_name = profile.company_name if profile and profile.company_name else "JuangDev Solutions"
-    contact_person = profile.contact_person if profile and profile.contact_person else "Tim Konsultan Web"
-    website_url = getattr(profile, "website_url", None) if profile and getattr(profile, "website_url", None) else "https://juangdev.my.id"
-    wa_template = profile.default_wa_template if profile and profile.default_wa_template and profile.default_wa_template.strip() else DEFAULT_WA_TEMPLATE
+def get_profile_data(db: Session, user_id: Optional[int] = None):
+    """Retrieve company name, contact person, website URL, and custom template from BusinessProfile, isolated by user_id."""
+    query = db.query(models.BusinessProfile)
+    if user_id:
+        query = query.filter(models.BusinessProfile.user_id == user_id)
+    profile = query.first()
+
+    if not profile:
+        # If demo user with no profile, return clean empty defaults
+        if user_id:
+            return "", "", "", DEFAULT_WA_TEMPLATE
+        return "JuangDev Solutions", "Tim Konsultan Web", "https://juangdev.my.id", DEFAULT_WA_TEMPLATE
+
+    company_name = profile.company_name or ""
+    contact_person = profile.contact_person or ""
+    website_url = getattr(profile, "website_url", None) or ""
+    wa_template = profile.default_wa_template if profile.default_wa_template and profile.default_wa_template.strip() else DEFAULT_WA_TEMPLATE
     return company_name, contact_person, website_url, wa_template
 
 
-def get_default_wa_template(db: Session) -> str:
+def get_default_wa_template(db: Session, user_id: Optional[int] = None) -> str:
     """Retrieve template from BusinessProfile or fallback to default."""
-    _, _, _, wa_template = get_profile_data(db)
+    _, _, _, wa_template = get_profile_data(db, user_id=user_id)
     return wa_template
 
 
-
-def match_portfolio_for_business(business: models.Business, db: Session) -> Optional[models.PortfolioItem]:
+def match_portfolio_for_business(business: Optional[models.Business], db: Session, user_id: Optional[int] = None) -> Optional[models.PortfolioItem]:
     """
-    Find the most relevant portfolio preset based on business category & name keyword scoring.
+    Find the most relevant portfolio preset based on business category & name keyword scoring, isolated by user_id.
     """
-    portfolios = db.query(models.PortfolioItem).all()
+    target_user_id = user_id or (business.user_id if business else None)
+    query = db.query(models.PortfolioItem)
+    if target_user_id:
+        query = query.filter(models.PortfolioItem.user_id == target_user_id)
+    
+    portfolios = query.all()
     if not portfolios:
         return None
     
+    if not business:
+        return portfolios[0]
+
     target_text = f"{business.category or ''} {business.business_name or ''}".lower()
     
     best_item = None
@@ -323,11 +340,11 @@ async def leads_list_view(
     offset = (parsed_page - 1) * parsed_page_size
 
     businesses = query.offset(offset).limit(parsed_page_size).all()
-    company_name, contact_person, website_url, wa_template = get_profile_data(db)
+    company_name, contact_person, website_url, wa_template = get_profile_data(db, user_id=user_id)
 
     # Attach dynamic personalized WA link and matched portfolio to each business record
     for b in businesses:
-        matched_p = match_portfolio_for_business(b, db)
+        matched_p = match_portfolio_for_business(b, db, user_id=user_id)
         b.matched_portfolio = matched_p
         b.dynamic_wa_link = build_personalized_wa_link(
             b.phone, 
@@ -347,7 +364,7 @@ async def leads_list_view(
 
     map_markers: List[Dict[str, Any]] = []
     for b in map_businesses:
-        matched_p = match_portfolio_for_business(b, db)
+        matched_p = match_portfolio_for_business(b, db, user_id=user_id)
         wa_link = build_personalized_wa_link(
             b.phone,
             b.business_name,
@@ -486,9 +503,12 @@ async def lead_detail_view(
     if not business:
         raise HTTPException(status_code=404, detail="Lead tidak ditemukan")
 
-    company_name, contact_person, website_url, wa_template = get_profile_data(db)
-    portfolios = db.query(models.PortfolioItem).all()
-    matched_portfolio = match_portfolio_for_business(business, db)
+    company_name, contact_person, website_url, wa_template = get_profile_data(db, user_id=user_id)
+    port_query = db.query(models.PortfolioItem)
+    if user_id:
+        port_query = port_query.filter(models.PortfolioItem.user_id == user_id)
+    portfolios = port_query.all()
+    matched_portfolio = match_portfolio_for_business(business, db, user_id=user_id)
 
     # Initial personalized WhatsApp link & text
     personalized_wa_link = build_personalized_wa_link(

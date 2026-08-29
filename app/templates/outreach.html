@@ -1,146 +1,229 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Outreach Mode — LeadMaps BI{% endblock %}
-{% block page_title %}Outreach Speed-Dial{% endblock %}
-{% block page_subtitle %}Kirim pesan WhatsApp ke banyak lead secara berurutan{% endblock %}
+{% block title %}Outreach Speed-Dial — LeadMaps BI{% endblock %}
+{% block page_title %}Outreach Speed-Dial Mode{% endblock %}
+{% block page_subtitle %}Kirim penawaran WhatsApp ke prospek bertarget secara cepat dan terarah{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto space-y-5">
 
+  <!-- 1. Filter Bar Card -->
+  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-4 sm:p-5">
+    <form method="GET" action="/outreach" class="space-y-3.5">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-2.5 border-b border-slate-100 gap-2">
+        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-2">
+          <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+          <span>Filter Antrean Outreach</span>
+        </h3>
+        <div class="text-xs text-slate-500 font-medium">
+          Ditemukan <strong class="text-slate-900">{{ total_queue }}</strong> leads dalam antrean
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        
+        <!-- Search Keyword -->
+        <div class="sm:col-span-2">
+          <label for="search" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Kata Kunci / Nama Usaha
+          </label>
+          <input type="text" 
+                 id="search" 
+                 name="search" 
+                 value="{{ search }}" 
+                 placeholder="Misal: Padel, Bengkel, Klinik..." 
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+        </div>
+
+        <!-- Kategori Dropdown -->
+        <div>
+          <label for="category" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Kategori
+          </label>
+          <select id="category" name="category" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if category == 'all' or not category %}selected{% endif %}>Semua Kategori</option>
+            {% for cat in available_categories %}
+            <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Sesi Crawling Dropdown -->
+        <div>
+          <label for="crawl_run_id" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Sesi Crawling
+          </label>
+          <select id="crawl_run_id" name="crawl_run_id" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if crawl_run_id == 'all' or not crawl_run_id %}selected{% endif %}>Semua Sesi</option>
+            {% for cr in available_crawl_runs %}
+            <option value="{{ cr.id }}" {% if crawl_run_id == (cr.id | string) %}selected{% endif %}>
+              #{{ cr.id }} - {{ cr.category_query }} ({{ cr.location_query }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Status Website -->
+        <div>
+          <label for="has_website" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Status Web
+          </label>
+          <select id="has_website" name="has_website" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if has_website == 'all' or not has_website %}selected{% endif %}>Semua</option>
+            <option value="false" {% if has_website == 'false' %}selected{% endif %}>Belum Ada Web</option>
+            <option value="true" {% if has_website == 'true' %}selected{% endif %}>Sudah Ada Web</option>
+          </select>
+        </div>
+
+        <!-- Status Kontak -->
+        <div>
+          <label for="contact_status" class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+            Status Kontak
+          </label>
+          <select id="contact_status" name="contact_status" class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:outline-none cursor-pointer">
+            <option value="all" {% if contact_status == 'all' or not contact_status %}selected{% endif %}>Semua Status</option>
+            <option value="belum_dihubungi" {% if contact_status == 'belum_dihubungi' %}selected{% endif %}>Belum Kontak</option>
+            <option value="sudah_dihubungi" {% if contact_status == 'sudah_dihubungi' %}selected{% endif %}>Sudah Di-WA</option>
+            <option value="follow_up" {% if contact_status == 'follow_up' %}selected{% endif %}>Follow Up</option>
+            <option value="deal" {% if contact_status == 'deal' %}selected{% endif %}>Deal Client</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Action Buttons & Quick Filter Presets -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
+        <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+          <span class="text-slate-400 font-medium mr-1">Preset Cepat:</span>
+          <a href="/outreach?filter_mode=new_high" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">Prioritas Tinggi</a>
+          <a href="/outreach?filter_mode=followup_today" class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold border border-amber-200 transition">Follow-up Hari Ini</a>
+          <a href="/outreach?has_website=false" class="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition">Belum Punya Website</a>
+        </div>
+
+        <div class="flex items-center space-x-2">
+          <button type="submit" class="btn-primary py-2 px-5 text-xs font-semibold flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <span>Terapkan Filter</span>
+          </button>
+          <a href="/outreach" class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition text-center">
+            Reset
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+
   {% if queue_empty %}
   <!-- Empty State -->
-  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
-    <svg class="w-12 h-12 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-10 text-center space-y-3">
+    <svg class="w-12 h-12 mx-auto text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
     </svg>
-    <h3 class="text-sm font-bold text-slate-800 mb-1">Tidak Ada Lead dalam Antrean</h3>
-    <p class="text-xs text-slate-500 mb-4">Semua lead untuk filter "{{ filter_mode }}" sudah diproses atau tidak ditemukan.</p>
-    <a href="/leads" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
-      Kembali ke Tabel Leads
-    </a>
+    <h3 class="text-sm font-bold text-slate-800">Tidak Ada Lead yang Cocok</h3>
+    <p class="text-xs text-slate-500 max-w-md mx-auto">
+      Tidak ada lead dengan nomor telepon yang sesuai dengan kombinasi filter di atas. Coba ubah kata kunci atau reset filter.
+    </p>
+    <div class="pt-2">
+      <a href="/outreach" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
+        Lihat Semua Antrean
+      </a>
+    </div>
   </div>
 
   {% elif current_index >= total_queue %}
   <!-- All Done State -->
-  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
-    <svg class="w-12 h-12 mx-auto text-emerald-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-10 text-center space-y-3">
+    <svg class="w-12 h-12 mx-auto text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
     </svg>
-    <h3 class="text-sm font-bold text-slate-800 mb-1">Outreach Selesai</h3>
-    <p class="text-xs text-slate-500 mb-4">
-      Semua {{ total_queue }} lead dalam antrean telah diproses.
+    <h3 class="text-sm font-bold text-slate-800">Outreach Selesai!</h3>
+    <p class="text-xs text-slate-500">
+      Seluruh <strong>{{ total_queue }} lead</strong> dalam antrean filter ini telah berhasil diproses.
     </p>
-    <div class="flex items-center justify-center space-x-3">
+    <div class="flex items-center justify-center space-x-3 pt-2">
       <a href="/leads" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
         Kembali ke Tabel Leads
       </a>
-      <a href="/outreach?filter_mode={{ filter_mode }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
-        Mulai Ulang
+      <a href="/outreach?search={{ search }}&category={{ category }}&has_website={{ has_website }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
+        Mulai Ulang Antrean
       </a>
     </div>
   </div>
 
   {% else %}
-  <!-- Progress Bar -->
+  <!-- Progress Header Bar -->
   <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
     <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-semibold text-slate-700">Progress Outreach</span>
+      <span class="text-xs font-semibold text-slate-700">Progres Outreach Antrean</span>
       <span class="text-xs font-bold text-slate-900">Lead {{ current_index + 1 }} dari {{ total_queue }}</span>
     </div>
     <div class="w-full bg-slate-100 rounded-full h-2">
-      <div class="bg-slate-800 h-2 rounded-full transition-all duration-500" style="width: {{ ((current_index) / total_queue * 100) | round(1) }}%"></div>
+      <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ ((current_index + 1) / total_queue * 100) | round(1) }}%"></div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
-    <!-- LEFT: Lead Info Panel -->
-    <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
-      <div>
-        <h3 class="text-sm font-bold text-slate-900 leading-tight">{{ business.business_name }}</h3>
-        <p class="text-[11px] text-slate-500 mt-0.5">{{ business.category or "Usaha" }}</p>
-      </div>
+  <!-- Main 2-Column Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+    
+    <!-- LEFT: Lead Info & Context Panel (5 cols) -->
+    <div class="lg:col-span-5 space-y-4">
+      
+      <!-- Lead Profile Card -->
+      <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4 {% if not business.has_website %}border-l-4 border-l-emerald-500{% endif %}">
+        <div>
+          <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700">
+              {{ business.category|default('Usaha Lokal') }}
+            </span>
+            
+            {% set prio = lead_status.priority.value if lead_status else 'low' %}
+            {% if prio == 'high' %}
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">HIGH</span>
+            {% elif prio == 'medium' %}
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">MED</span>
+            {% else %}
+            <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">LOW</span>
+            {% endif %}
 
-      <div class="space-y-2.5 text-xs text-slate-600">
-        <div class="flex items-start space-x-2">
-          <svg class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-          <span>{{ business.address or "-" }}</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-          <span>{{ business.phone or "Tidak tersedia" }}</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
-          <span>{{ "%.1f" | format(business.rating_avg | float) if business.rating_avg else "0.0" }} ({{ business.total_review }} ulasan)</span>
-        </div>
-      </div>
-
-      <!-- Website Status -->
-      <div class="pt-2 border-t border-slate-100">
-        {% if not business.has_website %}
-        <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          Belum Punya Website — Target Utama
-        </span>
-        {% else %}
-        <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
-          Sudah Punya Website
-        </span>
-        {% endif %}
-      </div>
-
-      <!-- Lead Priority -->
-      {% if lead_status %}
-      <div>
-        {% if lead_status.priority.value == "high" %}
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Prioritas: HIGH</span>
-        {% elif lead_status.priority.value == "medium" %}
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Prioritas: MEDIUM</span>
-        {% else %}
-        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">Prioritas: LOW</span>
-        {% endif %}
-      </div>
-      {% endif %}
-
-      <!-- Matched Portfolio -->
-      {% if matched_portfolio %}
-      <div class="pt-2 border-t border-slate-100">
-        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Demo Portfolio Cocok</p>
-        <p class="text-xs font-semibold text-slate-800">{{ matched_portfolio.title }}</p>
-        <a href="{{ matched_portfolio.demo_url }}" target="_blank" class="text-[11px] text-blue-600 hover:underline break-all">{{ matched_portfolio.demo_url }}</a>
-      </div>
-      {% endif %}
-
-      <!-- Recent Activity -->
-      {% if activities %}
-      <div class="pt-2 border-t border-slate-100">
-        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Riwayat Terakhir</p>
-        <div class="space-y-1.5 max-h-32 overflow-y-auto">
-          {% for act in activities %}
-          <div class="text-[10px] text-slate-500 leading-snug">
-            <span class="font-mono text-slate-400">{{ act.created_at.strftime('%d/%m %H:%M') }}</span>
-            — <span class="font-medium text-slate-600">{{ act.action.replace('_', ' ').title() }}</span>
-            {% if act.detail %}<br><span class="text-slate-400 ml-12">{{ act.detail[:80] }}</span>{% endif %}
+            {% if not business.has_website %}
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-300">
+              Belum Ada Web
+            </span>
+            {% else %}
+            <span class="text-[10px] font-medium px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+              Ada Web
+            </span>
+            {% endif %}
           </div>
-          {% endfor %}
+
+          <h2 class="text-base font-bold text-slate-900 leading-tight">{{ business.business_name }}</h2>
+          <p class="text-xs text-slate-500 mt-1">{{ business.address|default('Alamat tidak tersedia') }}</p>
         </div>
-      </div>
-      {% endif %}
-    </div>
 
-    <!-- CENTER: WA Message Editor -->
-    <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
-      <div>
-        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Preview Pesan WhatsApp</p>
-        <textarea id="wa-message-editor"
-                  rows="12"
-                  class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition resize-none leading-relaxed"
-                  >{{ pitch_text }}</textarea>
+        <div class="grid grid-cols-2 gap-2 text-xs py-2 px-2.5 rounded-lg bg-slate-50 border border-slate-100">
+          <div>
+            <span class="text-[10px] text-slate-400 font-medium block">Rating Google</span>
+            <span class="font-bold text-slate-800">★ {{ business.rating_avg|default('0.0') }} ({{ business.total_review }} ulasan)</span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 font-medium block">Nomor WhatsApp</span>
+            <span class="font-mono text-slate-900 font-bold">{{ business.phone or '-' }}</span>
+          </div>
+        </div>
+
+        {% if business.gmaps_url %}
+        <a href="{{ business.gmaps_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1.5 text-xs text-blue-600 hover:underline font-semibold">
+          <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>Buka di Google Maps</span>
+        </a>
+        {% endif %}
       </div>
 
-      <!-- Quick Note Chips -->
-      <div>
-        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Catatan Cepat</p>
-        <div id="quick-note-feedback" class="mb-1.5"></div>
+      <!-- Quick Note Chips & Custom Note Card -->
+      <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Catatan Prospek</h3>
+        <div id="quick-note-feedback"></div>
         <div class="flex flex-wrap gap-1.5">
           {% for chip in quick_note_chips %}
           <button type="button"
@@ -150,72 +233,219 @@
           </button>
           {% endfor %}
         </div>
+        <div>
+          <input type="text" id="custom-note-input" placeholder="Tuliskan catatan tambahan..."
+                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+        </div>
       </div>
 
-      <!-- Custom Note Input -->
-      <div>
-        <input type="text" id="custom-note-input" placeholder="Atau ketik catatan sendiri..."
-               class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+      <!-- Recent Activities Card -->
+      {% if activities %}
+      <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-2.5">
+        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Riwayat Aktivitas Lead</h3>
+        <div class="space-y-2 max-h-40 overflow-y-auto">
+          {% for act in activities %}
+          <div class="text-[11px] border-l-2 border-slate-300 pl-2.5 py-0.5 space-y-0.5">
+            <div class="flex items-center justify-between text-[10px] text-slate-400">
+              <span>{{ act.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+              <span class="font-semibold text-slate-600">{{ act.created_by or 'Sistem' }}</span>
+            </div>
+            <p class="font-medium text-slate-800">{{ act.action.replace('_', ' ').title() }}</p>
+            {% if act.detail %}<p class="text-slate-600 text-[10px] leading-relaxed">{{ act.detail }}</p>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+
+
+    <!-- RIGHT: Dedicated WhatsApp Studio & Demo Matcher (7 cols) -->
+    <div class="lg:col-span-7 space-y-4">
+      <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6 space-y-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 flex items-center space-x-2">
+              <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <span>WhatsApp Outreach Studio &amp; Demo Matcher</span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Pilih portofolio yang cocok dan sesuaikan pesan sebelum dikirim.
+            </p>
+          </div>
+          <span class="text-[10px] font-semibold px-2.5 py-1 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+            Speed-Dial Active
+          </span>
+        </div>
+
+        <!-- 1. Portfolio Demo Selector -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label for="portfolio_select" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+              1. Pilih Portofolio / Demo Web yang Ditawarkan
+            </label>
+            <a href="/settings/profile" target="_blank" class="text-[10px] text-blue-600 hover:underline font-semibold">
+              + Kelola Portofolio
+            </a>
+          </div>
+
+          <select id="portfolio_select" 
+                  onchange="onPortfolioChange()"
+                  class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+            {% for p in portfolios %}
+            <option value="{{ p.id }}" 
+                    data-title="{{ p.title }}" 
+                    data-url="{{ p.demo_url }}" 
+                    data-snippet="{{ p.pitch_snippet|default('') }}"
+                    data-image="{{ p.image_url|default('') }}"
+                    {% if matched_portfolio and matched_portfolio.id == p.id %}selected{% endif %}>
+              {% if matched_portfolio and matched_portfolio.id == p.id %}[Rekomendasi Cocok] {% endif %}{{ p.title }} — {{ p.demo_url }}
+            </option>
+            {% endfor %}
+          </select>
+
+          <!-- Mockup Image Preview Card -->
+          <div id="portfolio-info-badge" class="p-3 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs space-y-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-start space-x-2">
+                <svg class="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                <div class="text-[11px] text-emerald-900 overflow-hidden">
+                  <span class="font-bold block" id="selected-portfolio-name">{{ matched_portfolio.title if matched_portfolio else 'Website Profesional' }}</span>
+                  <span class="text-emerald-700 block truncate font-mono text-[10px]" id="selected-portfolio-url">{{ matched_portfolio.demo_url if matched_portfolio else 'https://juangdev.my.id' }}</span>
+                </div>
+              </div>
+              <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white shrink-0">
+                Portofolio Aktif
+              </span>
+            </div>
+
+            <!-- Visual Mockup Image Card -->
+            <div id="portfolio-mockup-card" class="{% if not (matched_portfolio and matched_portfolio.image_url) %}hidden{% endif %} pt-2.5 border-t border-emerald-200/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+              <div class="flex items-center space-x-2.5">
+                <a id="mockup-img-link" href="{{ matched_portfolio.image_url if matched_portfolio else '#' }}" target="_blank" rel="noopener noreferrer" class="block shrink-0 rounded-lg overflow-hidden border border-emerald-300 shadow-sm hover:opacity-85 transition group">
+                  <img id="mockup-img-preview" src="{{ matched_portfolio.image_url if matched_portfolio else '' }}" alt="Mockup Preview" class="w-14 h-11 object-cover bg-white">
+                </a>
+                <div>
+                  <span class="text-[11px] font-bold text-emerald-950 block">Mockup Desain Web</span>
+                  <span class="text-[10px] text-emerald-700 block">Siap dilampirkan ke pesan prospek</span>
+                </div>
+              </div>
+              <div class="flex items-center space-x-1.5 shrink-0 w-full sm:w-auto justify-end">
+                <a id="btn-view-mockup" href="{{ matched_portfolio.image_url if matched_portfolio else '#' }}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-white hover:bg-emerald-100 text-emerald-900 font-semibold text-[10px] border border-emerald-300 shadow-xs transition">
+                  Buka
+                </a>
+                <button type="button" onclick="copyMockupLink()" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[10px] shadow-xs transition flex items-center space-x-1">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                  <span>Salin Link Mockup</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Template Preset Variation -->
+        <div class="space-y-1.5 pt-1">
+          <label for="template_variant" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+            2. Gaya Template Pesan
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {% for key, t in pitch_templates.items() %}
+            <button type="button" 
+                    id="btn-template-{{ key }}"
+                    onclick="selectTemplateVariant('{{ key }}')" 
+                    class="template-btn text-left p-2.5 rounded-lg border {% if key == 'direct_demo' %}border-slate-900 bg-slate-900 text-white{% else %}border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100{% endif %} transition text-[11px]">
+              <span class="font-bold block">{{ t.name }}</span>
+            </button>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- 3. Interactive Pitch Editor -->
+        <div class="space-y-1.5 pt-1">
+          <div class="flex items-center justify-between">
+            <label for="live_pitch_textarea" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+              3. Edit Teks Pesan WhatsApp
+            </label>
+            <span class="text-[10px] text-slate-400 font-mono" id="char-counter">0 karakter</span>
+          </div>
+
+          <textarea id="live_pitch_textarea" 
+                    rows="8" 
+                    oninput="onPitchTextChange()"
+                    class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-3 text-slate-900 font-sans focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition leading-relaxed">{{ pitch_text }}</textarea>
+          
+          <!-- Quick Insert Helpers -->
+          <div class="flex flex-wrap items-center gap-1 text-[11px] text-slate-500 pt-1">
+            <span class="text-[10px] font-medium text-slate-400 mr-1">Sisipkan:</span>
+            <button type="button" onclick="insertPlaceholder('{{ business.business_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Usaha</button>
+            <button type="button" onclick="insertPlaceholder(document.getElementById('selected-portfolio-url').textContent)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Link Demo Web</button>
+            <button type="button" onclick="insertPlaceholder('{{ website_url }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Web Resmi</button>
+            <button type="button" onclick="insertPlaceholder('{{ company_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Agensi</button>
+            <button type="button" onclick="resetToTemplate()" class="ml-auto text-blue-600 hover:underline text-[10px] font-semibold">Reset ke Awal</button>
+          </div>
+        </div>
+
+        <!-- 4. Action Buttons -->
+        <div class="pt-3 border-t border-slate-100 space-y-3">
+          <form method="POST" action="/outreach/{{ business.id }}/mark-sent" id="outreach-send-form" class="space-y-2">
+            <input type="hidden" name="search" value="{{ search }}">
+            <input type="hidden" name="category" value="{{ category }}">
+            <input type="hidden" name="crawl_run_id" value="{{ crawl_run_id }}">
+            <input type="hidden" name="has_website" value="{{ has_website }}">
+            <input type="hidden" name="contact_status" value="{{ contact_status }}">
+            <input type="hidden" name="priority" value="{{ priority }}">
+            <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
+            <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
+            <input type="hidden" name="current_index" value="{{ current_index }}">
+            <input type="hidden" name="quick_note" id="send-quick-note" value="">
+            <input type="hidden" name="custom_note" id="send-custom-note" value="">
+
+            <div class="flex flex-col sm:flex-row gap-2.5">
+              <button type="submit"
+                      onclick="prepareSend()"
+                      class="flex-1 flex items-center justify-center space-x-2 py-3 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition cursor-pointer">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                </svg>
+                <span>Kirim WA &amp; Lanjut ke Lead Berikutnya &rarr;</span>
+              </button>
+            </div>
+          </form>
+
+          <div class="flex items-center justify-between pt-2">
+            <!-- Skip Button -->
+            <form method="POST" action="/outreach/{{ business.id }}/skip">
+              <input type="hidden" name="search" value="{{ search }}">
+              <input type="hidden" name="category" value="{{ category }}">
+              <input type="hidden" name="crawl_run_id" value="{{ crawl_run_id }}">
+              <input type="hidden" name="has_website" value="{{ has_website }}">
+              <input type="hidden" name="contact_status" value="{{ contact_status }}">
+              <input type="hidden" name="priority" value="{{ priority }}">
+              <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
+              <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
+              <input type="hidden" name="current_index" value="{{ current_index }}">
+              <input type="hidden" name="skip_reason" id="skip-reason" value="">
+
+              <button type="submit"
+                      onclick="document.getElementById('skip-reason').value = document.getElementById('custom-note-input').value;"
+                      class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition cursor-pointer">
+                Lewati Lead Ini &rarr;
+              </button>
+            </form>
+
+            <a href="/leads/{{ business.id }}" target="_blank" class="text-xs text-slate-500 hover:text-slate-900 hover:underline">
+              Buka Detail Terpisah &rarr;
+            </a>
+          </div>
+
+          <p class="text-[10px] text-slate-400 text-center">Nomor Tujuan: <span class="font-mono text-slate-700 font-bold">+{{ target_phone_wa }}</span> (Otomatis diformat 62)</p>
+        </div>
+
       </div>
     </div>
 
-    <!-- RIGHT: Action Panel -->
-    <div class="space-y-4">
-      <!-- Main Send Action -->
-      <form method="POST" action="/outreach/{{ business.id }}/mark-sent" id="outreach-send-form">
-        <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
-        <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
-        <input type="hidden" name="current_index" value="{{ current_index }}">
-        <input type="hidden" name="quick_note" id="send-quick-note" value="">
-        <input type="hidden" name="custom_note" id="send-custom-note" value="">
-
-        <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
-          <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Aksi Utama</p>
-
-          <!-- Send WA & Next Button -->
-          <button type="submit"
-                  onclick="prepareSend()"
-                  class="w-full flex items-center justify-center space-x-2 px-4 py-3 text-sm font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 transition shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-            <span>Kirim WA & Lanjut</span>
-          </button>
-
-          <p class="text-[10px] text-slate-400 text-center">Tab WhatsApp Web akan terbuka. Status berubah otomatis.</p>
-        </div>
-      </form>
-
-      <!-- Skip Action -->
-      <form method="POST" action="/outreach/{{ business.id }}/skip">
-        <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
-        <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
-        <input type="hidden" name="current_index" value="{{ current_index }}">
-        <input type="hidden" name="skip_reason" id="skip-reason" value="">
-
-        <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
-          <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Lewati</p>
-          <button type="submit"
-                  onclick="document.getElementById('skip-reason').value = document.getElementById('custom-note-input').value;"
-                  class="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-xs font-semibold rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-            <span>Lewati Lead Ini</span>
-          </button>
-        </div>
-      </form>
-
-      <!-- Direct Link to Detail -->
-      <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5">
-        <a href="/leads/{{ business.id }}" target="_blank"
-           class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-xs font-semibold rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-          <span>Buka Detail Lengkap</span>
-        </a>
-      </div>
-
-      <!-- Back to Leads -->
-      <a href="/leads" class="block text-center text-xs text-slate-500 hover:text-slate-700 transition mt-2">
-        Kembali ke Tabel Leads
-      </a>
-    </div>
   </div>
   {% endif %}
 
@@ -224,14 +454,142 @@
 
 {% block scripts %}
 <script>
+  const PITCH_TEMPLATES_DATA = {
+    {% for key, t in pitch_templates.items() %}
+    "{{ key }}": {{ t.template | tojson }},
+    {% endfor %}
+  };
+
+  const BUSINESS_DATA = {
+    name: {{ (business.business_name if business else "") | tojson }},
+    category: {{ (business.category if business else "") | tojson }},
+    phone: {{ (target_phone_wa if business else "") | tojson }},
+    company_name: {{ company_name | tojson }},
+    contact_person: {{ contact_person | tojson }},
+    website_url: {{ website_url | tojson }}
+  };
+
+  let currentVariant = 'direct_demo';
+
+  function getSelectedPortfolio() {
+    const sel = document.getElementById('portfolio_select');
+    if (!sel) return {};
+    const opt = sel.options[sel.selectedIndex];
+    return {
+      title: opt.getAttribute('data-title') || '',
+      url: opt.getAttribute('data-url') || '',
+      snippet: opt.getAttribute('data-snippet') || '',
+      image: opt.getAttribute('data-image') || ''
+    };
+  }
+
+  function renderTemplateMessage(templateStr) {
+    const port = getSelectedPortfolio();
+    let text = templateStr;
+    text = text.replaceAll('{business_name}', BUSINESS_DATA.name);
+    text = text.replaceAll('{portfolio_name}', port.title || 'Website Profesional');
+    text = text.replaceAll('{portfolio_url}', port.url || BUSINESS_DATA.website_url);
+    text = text.replaceAll('{pitch_snippet}', port.snippet || '');
+    text = text.replaceAll('{company_name}', BUSINESS_DATA.company_name);
+    text = text.replaceAll('{contact_person}', BUSINESS_DATA.contact_person);
+    text = text.replaceAll('{website_url}', BUSINESS_DATA.website_url);
+    return text;
+  }
+
+  function updateCharCount(text) {
+    const el = document.getElementById('char-counter');
+    if (el) el.textContent = text.length + ' karakter';
+  }
+
+  function onPortfolioChange() {
+    const port = getSelectedPortfolio();
+    const nameEl = document.getElementById('selected-portfolio-name');
+    const urlEl = document.getElementById('selected-portfolio-url');
+    if (nameEl) nameEl.textContent = port.title;
+    if (urlEl) urlEl.textContent = port.url;
+
+    const mockupCard = document.getElementById('portfolio-mockup-card');
+    const mockupImg = document.getElementById('mockup-img-preview');
+    const mockupLink = document.getElementById('mockup-img-link');
+    const btnViewMockup = document.getElementById('btn-view-mockup');
+
+    if (port.image && port.image.trim()) {
+      if (mockupCard) mockupCard.classList.remove('hidden');
+      if (mockupImg) mockupImg.src = port.image;
+      if (mockupLink) mockupLink.href = port.image;
+      if (btnViewMockup) btnViewMockup.href = port.image;
+    } else {
+      if (mockupCard) mockupCard.classList.add('hidden');
+    }
+
+    const rawTemplate = PITCH_TEMPLATES_DATA[currentVariant] || PITCH_TEMPLATES_DATA['direct_demo'];
+    const newText = renderTemplateMessage(rawTemplate);
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (textarea) textarea.value = newText;
+    updateCharCount(newText);
+  }
+
+  function selectTemplateVariant(variantKey) {
+    currentVariant = variantKey;
+    document.querySelectorAll('.template-btn').forEach(btn => {
+      btn.classList.remove('border-slate-900', 'bg-slate-900', 'text-white');
+      btn.classList.add('border-slate-200', 'bg-slate-50', 'text-slate-700');
+    });
+
+    const activeBtn = document.getElementById('btn-template-' + variantKey);
+    if (activeBtn) {
+      activeBtn.classList.remove('border-slate-200', 'bg-slate-50', 'text-slate-700');
+      activeBtn.classList.add('border-slate-900', 'bg-slate-900', 'text-white');
+    }
+
+    const rawTemplate = PITCH_TEMPLATES_DATA[variantKey] || PITCH_TEMPLATES_DATA['direct_demo'];
+    const newText = renderTemplateMessage(rawTemplate);
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (textarea) textarea.value = newText;
+    updateCharCount(newText);
+  }
+
+  function onPitchTextChange() {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (textarea) updateCharCount(textarea.value);
+  }
+
+  function insertPlaceholder(str) {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    textarea.value = val.substring(0, start) + str + val.substring(end);
+    textarea.selectionStart = textarea.selectionEnd = start + str.length;
+    textarea.focus();
+    onPitchTextChange();
+  }
+
+  function resetToTemplate() {
+    onPortfolioChange();
+  }
+
+  function copyMockupLink() {
+    const port = getSelectedPortfolio();
+    if (!port.image || !port.image.trim()) {
+      alert("Belum ada file gambar mockup untuk portofolio ini.");
+      return;
+    }
+    const fullUrl = port.image.startsWith("http") ? port.image : window.location.origin + port.image;
+    navigator.clipboard.writeText(fullUrl).then(() => {
+      alert("Link mockup gambar berhasil disalin ke clipboard:\n" + fullUrl);
+    }).catch(() => {
+      prompt("Salin link mockup:", fullUrl);
+    });
+  }
+
   function prepareSend() {
-    // Copy custom note to hidden form field
     const customNote = document.getElementById('custom-note-input');
     document.getElementById('send-custom-note').value = customNote ? customNote.value : '';
 
-    // Open WhatsApp in new tab
-    const messageEl = document.getElementById('wa-message-editor');
-    const phone = '{{ target_phone_wa }}';
+    const messageEl = document.getElementById('live_pitch_textarea');
+    const phone = BUSINESS_DATA.phone;
     if (phone && messageEl) {
       const encodedText = encodeURIComponent(messageEl.value);
       window.open('https://wa.me/' + phone + '?text=' + encodedText, '_blank');
@@ -251,8 +609,12 @@
       setTimeout(() => { feedbackEl.innerHTML = ''; }, 3000);
     });
 
-    // Also set as quick note for send form
     document.getElementById('send-quick-note').value = noteText;
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const textarea = document.getElementById('live_pitch_textarea');
+    if (textarea) updateCharCount(textarea.value);
+  });
 </script>
 {% endblock %}
