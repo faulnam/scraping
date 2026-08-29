@@ -2,7 +2,8 @@
 Outreach Speed-Dial Router: Batch WhatsApp outreach mode for rapid lead contact.
 Enables Admin to send WA messages to multiple leads sequentially without
 returning to the table after each send.
-Supports rich keyword search, category, session, and status filters with full queue (no artificial 50 limit).
+Automatically defaults to Uncontacted leads ('belum_dihubungi') so previous progress is saved
+and resuming starts exactly on the next uncontacted lead.
 """
 from datetime import datetime
 from typing import Optional, List, Dict, Any
@@ -12,6 +13,8 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, asc, or_
+import json
+from pathlib import Path
 
 from app.deps import get_db
 from app import models
@@ -20,10 +23,37 @@ from app.routers.leads import (
     match_portfolio_for_business,
     build_personalized_wa_link,
     PITCH_TEMPLATES,
+    DEFAULT_OFFICIAL_WEBSITE,
 )
 
 router = APIRouter(tags=["outreach"])
 templates = Jinja2Templates(directory="app/templates")
+
+# File to store outreach progress per user
+PROGRESS_FILE = Path(__file__).parents[2] / "data" / "outreach_progress.json"
+
+def _load_progress(user_id: int) -> int | None:
+    """Load the saved next index for the given user. Returns None if not set."""
+    if not PROGRESS_FILE.is_file():
+        return None
+    try:
+        data = json.loads(PROGRESS_FILE.read_text())
+        return data.get(str(user_id))
+    except Exception:
+        return None
+
+def _save_progress(user_id: int, index: int) -> None:
+    """Save the next index for the given user to the progress file."""
+    data = {}
+    if PROGRESS_FILE.is_file():
+        try:
+            data = json.loads(PROGRESS_FILE.read_text())
+        except Exception:
+            data = {}
+    data[str(user_id)] = index
+    # Ensure directory exists
+    PROGRESS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    PROGRESS_FILE.write_text(json.dumps(data))
 
 # Quick note chip presets
 QUICK_NOTE_CHIPS = [
@@ -44,7 +74,7 @@ def _build_outreach_queue(
     category: Optional[str] = None,
     crawl_run_id: Optional[str] = None,
     has_website: Optional[str] = None,
-    contact_status: Optional[str] = None,
+    contact_status: Optional[str] = "belum_dihubungi",
     priority: Optional[str] = None,
     filter_mode: Optional[str] = None,
     lead_ids: Optional[str] = None
@@ -97,9 +127,17 @@ def _build_outreach_queue(
         elif has_website == "false":
             query = query.filter(models.Business.has_website == False)  # noqa: E712
 
-        # 6. Contact Status filter
-        if contact_status and contact_status.strip() and contact_status.strip() != "all":
-            query = query.filter(models.LeadStatus.contact_status == contact_status.strip())
+        # 6. Contact Status filter: Default to 'belum_dihubungi' so sent leads automatically drop off
+        active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
+        if active_contact_status == "belum_dihubungi":
+            query = query.filter(
+                or_(
+                    models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
+                    models.LeadStatus.contact_status.is_(None)
+                )
+            )
+        elif active_contact_status != "all":
+            query = query.filter(models.LeadStatus.contact_status == active_contact_status.strip())
 
         # 7. Priority filter
         if priority and priority.strip() and priority.strip() != "all":
@@ -129,13 +167,6 @@ def _build_outreach_queue(
                     models.LeadStatus.contact_status.is_(None)
                 )
             )
-        elif filter_mode == "not_contacted":
-            query = query.filter(
-                or_(
-                    models.LeadStatus.contact_status == models.ContactStatus.BELUM_DIHUBUNGI,
-                    models.LeadStatus.contact_status.is_(None)
-                )
-            )
 
     # Only include leads with valid phone numbers for WhatsApp outreach
     query = query.filter(
@@ -146,7 +177,7 @@ def _build_outreach_queue(
     query = query.order_by(
         desc(models.LeadStatus.priority),
         desc(models.Business.rating_avg),
-        desc(models.Business.scraped_at)
+        desc(models.Business.id)
     )
 
     # No artificial limit — retrieve the full queue!
@@ -160,7 +191,7 @@ async def outreach_view(
     category: Optional[str] = None,
     crawl_run_id: Optional[str] = None,
     has_website: Optional[str] = None,
-    contact_status: Optional[str] = None,
+    contact_status: Optional[str] = "belum_dihubungi",
     priority: Optional[str] = None,
     filter_mode: Optional[str] = None,
     lead_ids: Optional[str] = None,
@@ -170,6 +201,11 @@ async def outreach_view(
     """Render Outreach Speed-Dial Mode page with full filter bar, unlimited queue, and portfolio attachment studio."""
     user = getattr(request.state, "current_user", None)
     user_id = user.id if user else None
+    # Load saved progress if no explicit index provided in query params
+    if "current_index" not in request.query_params and user_id is not None:
+        saved_index = _load_progress(user_id)
+        if saved_index is not None:
+            current_index = saved_index
 
     # Available categories for dropdown filter
     cat_query = db.query(models.Business.category)
@@ -183,6 +219,9 @@ async def outreach_view(
         cr_query = cr_query.filter(models.CrawlRun.user_id == user_id)
     available_crawl_runs = cr_query.order_by(models.CrawlRun.id.desc()).all()
 
+    # Active contact status: default to 'belum_dihubungi'
+    active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
+
     # Build queue
     queue = _build_outreach_queue(
         db,
@@ -191,7 +230,7 @@ async def outreach_view(
         category=category,
         crawl_run_id=crawl_run_id,
         has_website=has_website,
-        contact_status=contact_status,
+        contact_status=active_contact_status,
         priority=priority,
         filter_mode=filter_mode,
         lead_ids=lead_ids
@@ -213,7 +252,7 @@ async def outreach_view(
         "category": category or "all",
         "crawl_run_id": crawl_run_id or "all",
         "has_website": has_website or "all",
-        "contact_status": contact_status or "all",
+        "contact_status": active_contact_status,
         "priority": priority or "all",
         "filter_mode": filter_mode or "",
         "lead_ids": lead_ids or "",
@@ -223,7 +262,9 @@ async def outreach_view(
         "pitch_templates": PITCH_TEMPLATES,
         "company_name": company_name,
         "contact_person": contact_person,
-        "website_url": website_url,
+        "website_url": website_url or DEFAULT_OFFICIAL_WEBSITE,
+        # Ensure official website link is always included in the pitch text
+        "official_website": DEFAULT_OFFICIAL_WEBSITE
         "quick_note_chips": QUICK_NOTE_CHIPS,
     }
 
@@ -252,18 +293,21 @@ async def outreach_view(
         portfolio=matched_portfolio,
         company_name=company_name,
         contact_person=contact_person,
-        website_url=website_url
+        website_url=website_url or DEFAULT_OFFICIAL_WEBSITE
     )
 
     # Build pitch text for display
     pitch_text = wa_template
+    # Append official website link if not already present
+    if DEFAULT_OFFICIAL_WEBSITE not in pitch_text:
+        pitch_text += f"\n{DEFAULT_OFFICIAL_WEBSITE}"
     pitch_text = pitch_text.replace("{business_name}", current_lead.business_name or "")
     pitch_text = pitch_text.replace("{portfolio_name}", matched_portfolio.title if matched_portfolio else "Website Profesional")
-    pitch_text = pitch_text.replace("{portfolio_url}", matched_portfolio.demo_url if matched_portfolio else "https://juangdev.my.id")
+    pitch_text = pitch_text.replace("{portfolio_url}", matched_portfolio.demo_url if matched_portfolio else DEFAULT_OFFICIAL_WEBSITE)
     pitch_text = pitch_text.replace("{pitch_snippet}", matched_portfolio.pitch_snippet if matched_portfolio and matched_portfolio.pitch_snippet else "")
     pitch_text = pitch_text.replace("{company_name}", company_name)
     pitch_text = pitch_text.replace("{contact_person}", contact_person)
-    pitch_text = pitch_text.replace("{website_url}", website_url)
+    pitch_text = pitch_text.replace("{website_url}", website_url or DEFAULT_OFFICIAL_WEBSITE)
 
     # Standardize phone for WA
     clean_digits = "".join([c for c in (current_lead.phone or "") if c.isdigit()])
@@ -308,7 +352,7 @@ async def mark_sent_and_next(
     category: Optional[str] = Form("all"),
     crawl_run_id: Optional[str] = Form("all"),
     has_website: Optional[str] = Form("all"),
-    contact_status: Optional[str] = Form("all"),
+    contact_status: Optional[str] = Form("belum_dihubungi"),
     priority: Optional[str] = Form("all"),
     filter_mode: Optional[str] = Form(""),
     lead_ids: Optional[str] = Form(""),
@@ -318,7 +362,7 @@ async def mark_sent_and_next(
     db: Session = Depends(get_db)
 ):
     """
-    Mark current lead as 'Sudah Dihubungi', log activity, and redirect to next lead preserving all filter queries.
+    Mark current lead as 'Sudah Dihubungi' (Sudah Di-WA), log activity, and advance queue.
     """
     user = getattr(request.state, "current_user", None)
     user_id = user.id if user else None
@@ -363,14 +407,21 @@ async def mark_sent_and_next(
         db.add(activity)
         db.commit()
 
-    next_index = current_index + 1
+    active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
+    
+    # If filtering uncontacted leads, the current lead leaves the queue, so next lead is at current_index
+    if active_contact_status == "belum_dihubungi":
+        next_index = current_index
+    else:
+        next_index = current_index + 1
+
     params = {
         "current_index": next_index,
         "search": search or "",
         "category": category or "all",
         "crawl_run_id": crawl_run_id or "all",
         "has_website": has_website or "all",
-        "contact_status": contact_status or "all",
+        "contact_status": active_contact_status,
         "priority": priority or "all",
         "filter_mode": filter_mode or "",
         "lead_ids": lead_ids or "",
@@ -387,7 +438,7 @@ async def skip_lead(
     category: Optional[str] = Form("all"),
     crawl_run_id: Optional[str] = Form("all"),
     has_website: Optional[str] = Form("all"),
-    contact_status: Optional[str] = Form("all"),
+    contact_status: Optional[str] = Form("belum_dihubungi"),
     priority: Optional[str] = Form("all"),
     filter_mode: Optional[str] = Form(""),
     lead_ids: Optional[str] = Form(""),
@@ -395,7 +446,7 @@ async def skip_lead(
     skip_reason: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
-    """Skip current lead and move to next lead in the queue."""
+    """Skip current lead and move to next lead in the queue without marking sent."""
     user = getattr(request.state, "current_user", None)
     username = user.full_name or user.username if user else "Admin"
 
@@ -411,14 +462,18 @@ async def skip_lead(
         db.add(activity)
         db.commit()
 
+    active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
     next_index = current_index + 1
+        # Save progress for next session
+        if user_id is not None:
+            _save_progress(user_id, next_index)
     params = {
         "current_index": next_index,
         "search": search or "",
         "category": category or "all",
         "crawl_run_id": crawl_run_id or "all",
         "has_website": has_website or "all",
-        "contact_status": contact_status or "all",
+        "contact_status": active_contact_status,
         "priority": priority or "all",
         "filter_mode": filter_mode or "",
         "lead_ids": lead_ids or "",

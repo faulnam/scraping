@@ -58,16 +58,23 @@ async def auth_middleware(request: Request, call_next):
         # Standard browser navigation -> redirect to /login
         return RedirectResponse(url=f"/login?next={path}", status_code=303)
     
-    # Inject user object into request.state for templates
+    # Query user object and expunge from session so attributes are safe in templates
     db = SessionLocal()
     try:
         user = db.query(models.User).filter(
             models.User.id == user_id,
             models.User.is_active == True  # noqa: E712
         ).first()
+        if user:
+            # Refresh to load all fields into memory and expunge
+            _ = (user.id, user.username, user.full_name, user.role, user.is_admin, user.is_active)
+            db.expunge(user)
         request.state.current_user = user
-    except Exception:
+        request.state.user_id = user_id
+    except Exception as e:
+        print(f"[Auth Middleware] Error loading user {user_id}: {e}")
         request.state.current_user = None
+        request.state.user_id = None
     finally:
         db.close()
     

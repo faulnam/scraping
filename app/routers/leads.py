@@ -18,13 +18,15 @@ from app.places_api.mapper import normalize_phone_number, normalize_phone_to_wha
 router = APIRouter(tags=["leads"])
 templates = Jinja2Templates(directory="app/templates")
 
+DEFAULT_OFFICIAL_WEBSITE = "https://juangdev.my.id"
+
 DEFAULT_WA_TEMPLATE = (
     "Halo {business_name}, perkenalkan saya {contact_person} dari {company_name}.\n\n"
     "Kami melihat profil bisnis Anda di Google Maps dengan reputasi yang sangat baik. "
     "{pitch_snippet}\n\n"
-    "Anda bisa langsung melihat contoh portfolio/demo web kami di sini:\n"
-    "Demo Portofolio: {portfolio_url}\n"
-    "Web Resmi Kami: {website_url}\n\n"
+    "Berikut portofolio dan website resmi kami yang dapat Anda lihat:\n"
+    "• Portofolio Demo: {portfolio_url}\n"
+    "• Website Resmi Kami: https://juangdev.my.id\n\n"
     "Apakah ada waktu luang untuk kami buatkan preview website khusus bagi {business_name}?"
 )
 
@@ -37,8 +39,8 @@ PITCH_TEMPLATES = {
             "Kami melihat profil bisnis Anda di Google Maps memiliki reputasi yang sangat baik. "
             "{pitch_snippet}\n\n"
             "Berikut contoh referensi website yang kami rancang khusus untuk industri Anda:\n"
-            "Demo Portofolio: {portfolio_url}\n"
-            "Web Resmi: {website_url}\n\n"
+            "• Portofolio: {portfolio_url}\n"
+            "• Website Resmi Kami: https://juangdev.my.id\n\n"
             "Apakah boleh kami presentasikan preview singkat untuk {business_name}?"
         )
     },
@@ -48,9 +50,9 @@ PITCH_TEMPLATES = {
         "template": (
             "Halo {business_name}, salam sukses dari tim {company_name}.\n\n"
             "Banyak calon pelanggan mencari layanan di Google. Untuk meningkatkan kredibilitas & omset {business_name}, kami sudah siapkan sistem website siap pakai.\n\n"
-            "Lihat contoh sistem demonya di:\n"
-            "Demo Portofolio: {portfolio_url}\n"
-            "Layanan & Web Resmi: {website_url}\n\n"
+            "Lihat referensi layanan & portofolio kami:\n"
+            "• Portofolio: {portfolio_url}\n"
+            "• Website Resmi & Layanan Lengkap: https://juangdev.my.id\n\n"
             "Boleh kami diskusikan penawaran singkatnya via WhatsApp?"
         )
     },
@@ -60,8 +62,8 @@ PITCH_TEMPLATES = {
         "template": (
             "Halo kak di {business_name}, salam dari tim {company_name}.\n\n"
             "Izin share referensi desain website modern yang pas banget untuk {business_name}:\n"
-            "Demo Portofolio: {portfolio_url}\n"
-            "Web Resmi Kami: {website_url}\n\n"
+            "• Portofolio: {portfolio_url}\n"
+            "• Website Resmi Kami: https://juangdev.my.id\n\n"
             "Barangkali sedang ada rencana pembuatan website resmi, boleh kami bantu ya kak!"
         )
     }
@@ -76,14 +78,14 @@ def get_profile_data(db: Session, user_id: Optional[int] = None):
     profile = query.first()
 
     if not profile:
-        # If demo user with no profile, return clean empty defaults
+        # If demo user with no profile, return clean defaults with official website
         if user_id:
-            return "", "", "", DEFAULT_WA_TEMPLATE
+            return "", "", "https://juangdev.my.id", DEFAULT_WA_TEMPLATE
         return "JuangDev Solutions", "Tim Konsultan Web", "https://juangdev.my.id", DEFAULT_WA_TEMPLATE
 
     company_name = profile.company_name or ""
     contact_person = profile.contact_person or ""
-    website_url = getattr(profile, "website_url", None) or ""
+    website_url = getattr(profile, "website_url", None) or "https://juangdev.my.id"
     wa_template = profile.default_wa_template if profile.default_wa_template and profile.default_wa_template.strip() else DEFAULT_WA_TEMPLATE
     return company_name, contact_person, website_url, wa_template
 
