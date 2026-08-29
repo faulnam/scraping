@@ -38,7 +38,29 @@ def init_db():
     except Exception:
         pass
 
-    # Seed default portfolio presets if table is empty
+    # Safe migration: Add role column to users if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'admin'"))
+            conn.commit()
+    except Exception:
+        pass
+
+    # Safe migration: Add next_followup_at and followup_note to lead_status
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE lead_status ADD COLUMN next_followup_at DATETIME NULL"))
+            conn.commit()
+    except Exception:
+        pass
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE lead_status ADD COLUMN followup_note VARCHAR(255) NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
+    # Seed default data
     db = SessionLocal()
     try:
         from app.auth import hash_password
@@ -48,16 +70,32 @@ def init_db():
         if user_count == 0:
             default_admin = models.User(
                 username="admin",
-                password_hash=hash_password("admin123"),
+                password_hash=hash_password("qwertyu111"),
                 full_name="Administrator LeadMaps",
                 is_active=True,
-                is_admin=True
+                is_admin=True,
+                role="admin"
             )
             db.add(default_admin)
             db.commit()
-            print("[Database] Default Admin user created: 'admin' / 'admin123'")
+            print("[Database] Default Admin user created: 'admin' / 'qwertyu111'")
 
-        # 2. Seed Default API Keys from .env
+        # 2. Seed Admin Demo User if not exists
+        demo_user = db.query(models.User).filter(models.User.username == "demo").first()
+        if not demo_user:
+            demo_user = models.User(
+                username="demo",
+                password_hash=hash_password("demo123"),
+                full_name="Admin Demo",
+                is_active=True,
+                is_admin=False,
+                role="admin_demo"
+            )
+            db.add(demo_user)
+            db.commit()
+            print("[Database] Admin Demo user created: 'demo' / 'demo123'")
+
+        # 3. Seed Default API Keys from .env
         api_key_count = db.query(models.ApiKeyConfig).count()
         if api_key_count == 0:
             initial_keys = []
@@ -90,7 +128,7 @@ def init_db():
                 db.commit()
                 print(f"[Database] Seeded {len(initial_keys)} API keys from configuration.")
 
-        # 3. Seed Default Portfolios
+        # 4. Seed Default Portfolios
         count = db.query(models.PortfolioItem).count()
         if count == 0:
             default_portfolios = [
@@ -144,5 +182,6 @@ def init_db():
         db.rollback()
     finally:
         db.close()
+
 
 

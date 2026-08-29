@@ -23,8 +23,8 @@ DEFAULT_WA_TEMPLATE = (
     "Kami melihat profil bisnis Anda di Google Maps dengan reputasi yang sangat baik. "
     "{pitch_snippet}\n\n"
     "Anda bisa langsung melihat contoh portfolio/demo web kami di sini:\n"
-    "👉 Demo Portofolio: {portfolio_url}\n"
-    "🌐 Web Resmi Kami: {website_url}\n\n"
+    "Demo Portofolio: {portfolio_url}\n"
+    "Web Resmi Kami: {website_url}\n\n"
     "Apakah ada waktu luang untuk kami buatkan preview website khusus bagi {business_name}?"
 )
 
@@ -37,8 +37,8 @@ PITCH_TEMPLATES = {
             "Kami melihat profil bisnis Anda di Google Maps memiliki reputasi yang sangat baik. "
             "{pitch_snippet}\n\n"
             "Berikut contoh referensi website yang kami rancang khusus untuk industri Anda:\n"
-            "👉 Demo Portofolio: {portfolio_url}\n"
-            "🌐 Web Resmi: {website_url}\n\n"
+            "Demo Portofolio: {portfolio_url}\n"
+            "Web Resmi: {website_url}\n\n"
             "Apakah boleh kami presentasikan preview singkat untuk {business_name}?"
         )
     },
@@ -49,8 +49,8 @@ PITCH_TEMPLATES = {
             "Halo {business_name}, salam sukses dari tim {company_name}.\n\n"
             "Banyak calon pelanggan mencari layanan di Google. Untuk meningkatkan kredibilitas & omset {business_name}, kami sudah siapkan sistem website siap pakai.\n\n"
             "Lihat contoh sistem demonya di:\n"
-            "👉 Demo Portofolio: {portfolio_url}\n"
-            "🌐 Layanan & Web Resmi: {website_url}\n\n"
+            "Demo Portofolio: {portfolio_url}\n"
+            "Layanan & Web Resmi: {website_url}\n\n"
             "Boleh kami diskusikan penawaran singkatnya via WhatsApp?"
         )
     },
@@ -58,10 +58,10 @@ PITCH_TEMPLATES = {
         "id": "casual",
         "name": "Santai & Bersahabat",
         "template": (
-            "Halo kak di {business_name}, salam dari tim {company_name} 😊\n\n"
+            "Halo kak di {business_name}, salam dari tim {company_name}.\n\n"
             "Izin share referensi desain website modern yang pas banget untuk {business_name}:\n"
-            "👉 Demo Portofolio: {portfolio_url}\n"
-            "🌐 Web Resmi Kami: {website_url}\n\n"
+            "Demo Portofolio: {portfolio_url}\n"
+            "Web Resmi Kami: {website_url}\n\n"
             "Barangkali sedang ada rencana pembuatan website resmi, boleh kami bantu ya kak!"
         )
     }
@@ -535,10 +535,12 @@ async def update_lead_status(
     contact_status: models.ContactStatus = Form(...),
     notes: Optional[str] = Form(None),
     assigned_to: Optional[str] = Form(None),
+    next_followup_at: Optional[str] = Form(None),
+    followup_note: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     """
-    Update contact status, notes, and sales assignee for a lead via HTMX.
+    Update contact status, notes, follow-up schedule, and sales assignee for a lead via HTMX.
     """
     business = db.query(models.Business).filter(models.Business.id == business_id).first()
     if not business:
@@ -546,6 +548,10 @@ async def update_lead_status(
 
     lead_status = business.lead_status
     now = datetime.utcnow()
+    user = getattr(request.state, "current_user", None)
+    username = user.full_name or user.username if user else "Admin"
+
+    old_status = lead_status.contact_status.value if lead_status else "belum_dihubungi"
 
     if not lead_status:
         lead_status = models.LeadStatus(
@@ -563,9 +569,32 @@ async def update_lead_status(
         lead_status.assigned_to = assigned_to
         lead_status.updated_at = now
 
+    # Follow-up scheduling
+    if next_followup_at and next_followup_at.strip():
+        try:
+            lead_status.next_followup_at = datetime.fromisoformat(next_followup_at.strip())
+        except (ValueError, TypeError):
+            pass
+    else:
+        lead_status.next_followup_at = None
+
+    if followup_note is not None:
+        lead_status.followup_note = followup_note.strip() if followup_note.strip() else None
+
     # Update last contacted time if transitioning away from 'belum_dihubungi'
     if contact_status != models.ContactStatus.BELUM_DIHUBUNGI:
         lead_status.last_contacted_at = now
+
+    # Log activity
+    new_status = contact_status.value
+    activity = models.ActivityLog(
+        business_id=business.id,
+        action="status_changed",
+        detail=f"Status diubah dari '{old_status.replace('_',' ').title()}' menjadi '{new_status.replace('_',' ').title()}'" + (f". Catatan: {notes.strip()[:100]}" if notes and notes.strip() else ""),
+        created_by=username,
+        created_at=now
+    )
+    db.add(activity)
 
     db.commit()
     db.refresh(lead_status)
@@ -576,7 +605,7 @@ async def update_lead_status(
         <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
         <span>Status kontak berhasil diperbarui menjadi: <strong>{contact_status.value.replace('_', ' ').title()}</strong></span>
       </div>
-      <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-xs">✕</button>
+      <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-xs">&#x2715;</button>
     </div>
     """
     return HTMLResponse(content=response_html)
@@ -598,6 +627,10 @@ async def quick_update_status(
 
     lead_status = business.lead_status
     now = datetime.utcnow()
+    user = getattr(request.state, "current_user", None)
+    username = user.full_name or user.username if user else "Admin"
+
+    old_status = lead_status.contact_status.value if lead_status else "belum_dihubungi"
 
     if not lead_status:
         lead_status = models.LeadStatus(
@@ -613,6 +646,16 @@ async def quick_update_status(
 
     if contact_status != models.ContactStatus.BELUM_DIHUBUNGI:
         lead_status.last_contacted_at = now
+
+    # Log activity
+    activity = models.ActivityLog(
+        business_id=business.id,
+        action="status_changed",
+        detail=f"Status diubah dari '{old_status.replace('_',' ').title()}' menjadi '{contact_status.value.replace('_',' ').title()}' (quick update)",
+        created_by=username,
+        created_at=now
+    )
+    db.add(activity)
 
     db.commit()
     db.refresh(lead_status)
@@ -654,4 +697,106 @@ async def quick_update_status(
     </div>
     """
     return HTMLResponse(content=cell_html)
+
+
+# ==============================================================================
+# Bulk Action Endpoints
+# ==============================================================================
+
+@router.post("/leads/bulk/status", response_class=HTMLResponse)
+async def bulk_update_status(
+    request: Request,
+    lead_ids: str = Form(...),
+    contact_status: models.ContactStatus = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Bulk update contact status for multiple leads at once."""
+    id_list = [int(x) for x in lead_ids.split(",") if x.strip().isdigit()]
+    if not id_list:
+        return HTMLResponse('<span class="text-xs text-rose-600">Tidak ada lead yang dipilih.</span>')
+
+    now = datetime.utcnow()
+    user = getattr(request.state, "current_user", None)
+    username = user.full_name or user.username if user else "Admin"
+    updated = 0
+
+    for bid in id_list:
+        business = db.query(models.Business).filter(models.Business.id == bid).first()
+        if not business:
+            continue
+
+        lead_status = business.lead_status
+        if not lead_status:
+            lead_status = models.LeadStatus(
+                business_id=business.id,
+                contact_status=contact_status,
+                priority=models.LeadPriority.LOW,
+                updated_at=now
+            )
+            db.add(lead_status)
+        else:
+            lead_status.contact_status = contact_status
+            lead_status.updated_at = now
+
+        if contact_status != models.ContactStatus.BELUM_DIHUBUNGI:
+            lead_status.last_contacted_at = now
+
+        activity = models.ActivityLog(
+            business_id=business.id,
+            action="bulk_status_changed",
+            detail=f"Status diubah menjadi '{contact_status.value.replace('_',' ').title()}' (bulk action)",
+            created_by=username,
+            created_at=now
+        )
+        db.add(activity)
+        updated += 1
+
+    db.commit()
+
+    response_html = f"""
+    <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center justify-between animate-fade-in">
+      <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        <span>{updated} lead berhasil diperbarui menjadi: <strong>{contact_status.value.replace('_', ' ').title()}</strong></span>
+      </div>
+      <button type="button" onclick="this.parentElement.remove()" class="text-emerald-600 hover:text-emerald-900 text-xs">&#x2715;</button>
+    </div>
+    """
+    resp = HTMLResponse(content=response_html)
+    resp.headers["HX-Trigger"] = "refreshLeadsTable"
+    return resp
+
+
+@router.post("/leads/bulk/delete", response_class=HTMLResponse)
+async def bulk_delete_leads(
+    request: Request,
+    lead_ids: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    """Bulk delete (archive) multiple leads."""
+    id_list = [int(x) for x in lead_ids.split(",") if x.strip().isdigit()]
+    if not id_list:
+        return HTMLResponse('<span class="text-xs text-rose-600">Tidak ada lead yang dipilih.</span>')
+
+    deleted = 0
+    for bid in id_list:
+        business = db.query(models.Business).filter(models.Business.id == bid).first()
+        if business:
+            db.delete(business)
+            deleted += 1
+
+    db.commit()
+
+    response_html = f"""
+    <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center justify-between animate-fade-in">
+      <div class="flex items-center space-x-2">
+        <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        <span>{deleted} lead berhasil dihapus.</span>
+      </div>
+      <button type="button" onclick="this.parentElement.remove()" class="text-amber-600 hover:text-amber-900 text-xs">&#x2715;</button>
+    </div>
+    """
+    resp = HTMLResponse(content=response_html)
+    resp.headers["HX-Trigger"] = "refreshLeadsTable"
+    return resp
 

@@ -1,0 +1,258 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Outreach Mode — LeadMaps BI{% endblock %}
+{% block page_title %}Outreach Speed-Dial{% endblock %}
+{% block page_subtitle %}Kirim pesan WhatsApp ke banyak lead secara berurutan{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto space-y-5">
+
+  {% if queue_empty %}
+  <!-- Empty State -->
+  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
+    <svg class="w-12 h-12 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+    </svg>
+    <h3 class="text-sm font-bold text-slate-800 mb-1">Tidak Ada Lead dalam Antrean</h3>
+    <p class="text-xs text-slate-500 mb-4">Semua lead untuk filter "{{ filter_mode }}" sudah diproses atau tidak ditemukan.</p>
+    <a href="/leads" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
+      Kembali ke Tabel Leads
+    </a>
+  </div>
+
+  {% elif current_index >= total_queue %}
+  <!-- All Done State -->
+  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-8 text-center">
+    <svg class="w-12 h-12 mx-auto text-emerald-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+    </svg>
+    <h3 class="text-sm font-bold text-slate-800 mb-1">Outreach Selesai</h3>
+    <p class="text-xs text-slate-500 mb-4">
+      Semua {{ total_queue }} lead dalam antrean telah diproses.
+    </p>
+    <div class="flex items-center justify-center space-x-3">
+      <a href="/leads" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
+        Kembali ke Tabel Leads
+      </a>
+      <a href="/outreach?filter_mode={{ filter_mode }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
+        Mulai Ulang
+      </a>
+    </div>
+  </div>
+
+  {% else %}
+  <!-- Progress Bar -->
+  <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-xs font-semibold text-slate-700">Progress Outreach</span>
+      <span class="text-xs font-bold text-slate-900">Lead {{ current_index + 1 }} dari {{ total_queue }}</span>
+    </div>
+    <div class="w-full bg-slate-100 rounded-full h-2">
+      <div class="bg-slate-800 h-2 rounded-full transition-all duration-500" style="width: {{ ((current_index) / total_queue * 100) | round(1) }}%"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+    <!-- LEFT: Lead Info Panel -->
+    <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
+      <div>
+        <h3 class="text-sm font-bold text-slate-900 leading-tight">{{ business.business_name }}</h3>
+        <p class="text-[11px] text-slate-500 mt-0.5">{{ business.category or "Usaha" }}</p>
+      </div>
+
+      <div class="space-y-2.5 text-xs text-slate-600">
+        <div class="flex items-start space-x-2">
+          <svg class="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          <span>{{ business.address or "-" }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          <span>{{ business.phone or "Tidak tersedia" }}</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+          <span>{{ "%.1f" | format(business.rating_avg | float) if business.rating_avg else "0.0" }} ({{ business.total_review }} ulasan)</span>
+        </div>
+      </div>
+
+      <!-- Website Status -->
+      <div class="pt-2 border-t border-slate-100">
+        {% if not business.has_website %}
+        <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          Belum Punya Website — Target Utama
+        </span>
+        {% else %}
+        <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+          Sudah Punya Website
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Lead Priority -->
+      {% if lead_status %}
+      <div>
+        {% if lead_status.priority.value == "high" %}
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">Prioritas: HIGH</span>
+        {% elif lead_status.priority.value == "medium" %}
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Prioritas: MEDIUM</span>
+        {% else %}
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200">Prioritas: LOW</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Matched Portfolio -->
+      {% if matched_portfolio %}
+      <div class="pt-2 border-t border-slate-100">
+        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Demo Portfolio Cocok</p>
+        <p class="text-xs font-semibold text-slate-800">{{ matched_portfolio.title }}</p>
+        <a href="{{ matched_portfolio.demo_url }}" target="_blank" class="text-[11px] text-blue-600 hover:underline break-all">{{ matched_portfolio.demo_url }}</a>
+      </div>
+      {% endif %}
+
+      <!-- Recent Activity -->
+      {% if activities %}
+      <div class="pt-2 border-t border-slate-100">
+        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Riwayat Terakhir</p>
+        <div class="space-y-1.5 max-h-32 overflow-y-auto">
+          {% for act in activities %}
+          <div class="text-[10px] text-slate-500 leading-snug">
+            <span class="font-mono text-slate-400">{{ act.created_at.strftime('%d/%m %H:%M') }}</span>
+            — <span class="font-medium text-slate-600">{{ act.action.replace('_', ' ').title() }}</span>
+            {% if act.detail %}<br><span class="text-slate-400 ml-12">{{ act.detail[:80] }}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CENTER: WA Message Editor -->
+    <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-4">
+      <div>
+        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Preview Pesan WhatsApp</p>
+        <textarea id="wa-message-editor"
+                  rows="12"
+                  class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition resize-none leading-relaxed"
+                  >{{ pitch_text }}</textarea>
+      </div>
+
+      <!-- Quick Note Chips -->
+      <div>
+        <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Catatan Cepat</p>
+        <div id="quick-note-feedback" class="mb-1.5"></div>
+        <div class="flex flex-wrap gap-1.5">
+          {% for chip in quick_note_chips %}
+          <button type="button"
+                  onclick="addQuickNote({{ business.id }}, '{{ chip.value }}')"
+                  class="px-2.5 py-1 text-[10px] font-medium rounded-md border border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 hover:border-slate-300 transition cursor-pointer">
+            {{ chip.label }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Custom Note Input -->
+      <div>
+        <input type="text" id="custom-note-input" placeholder="Atau ketik catatan sendiri..."
+               class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+      </div>
+    </div>
+
+    <!-- RIGHT: Action Panel -->
+    <div class="space-y-4">
+      <!-- Main Send Action -->
+      <form method="POST" action="/outreach/{{ business.id }}/mark-sent" id="outreach-send-form">
+        <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
+        <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
+        <input type="hidden" name="current_index" value="{{ current_index }}">
+        <input type="hidden" name="quick_note" id="send-quick-note" value="">
+        <input type="hidden" name="custom_note" id="send-custom-note" value="">
+
+        <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
+          <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Aksi Utama</p>
+
+          <!-- Send WA & Next Button -->
+          <button type="submit"
+                  onclick="prepareSend()"
+                  class="w-full flex items-center justify-center space-x-2 px-4 py-3 text-sm font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 active:bg-emerald-800 transition shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+            <span>Kirim WA & Lanjut</span>
+          </button>
+
+          <p class="text-[10px] text-slate-400 text-center">Tab WhatsApp Web akan terbuka. Status berubah otomatis.</p>
+        </div>
+      </form>
+
+      <!-- Skip Action -->
+      <form method="POST" action="/outreach/{{ business.id }}/skip">
+        <input type="hidden" name="filter_mode" value="{{ filter_mode }}">
+        <input type="hidden" name="lead_ids" value="{{ lead_ids }}">
+        <input type="hidden" name="current_index" value="{{ current_index }}">
+        <input type="hidden" name="skip_reason" id="skip-reason" value="">
+
+        <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5 space-y-3">
+          <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Lewati</p>
+          <button type="submit"
+                  onclick="document.getElementById('skip-reason').value = document.getElementById('custom-note-input').value;"
+                  class="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-xs font-semibold rounded-lg bg-white text-slate-600 border border-slate-300 hover:bg-slate-50 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+            <span>Lewati Lead Ini</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Direct Link to Detail -->
+      <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-5">
+        <a href="/leads/{{ business.id }}" target="_blank"
+           class="w-full flex items-center justify-center space-x-2 px-4 py-2 text-xs font-semibold rounded-lg bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          <span>Buka Detail Lengkap</span>
+        </a>
+      </div>
+
+      <!-- Back to Leads -->
+      <a href="/leads" class="block text-center text-xs text-slate-500 hover:text-slate-700 transition mt-2">
+        Kembali ke Tabel Leads
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function prepareSend() {
+    // Copy custom note to hidden form field
+    const customNote = document.getElementById('custom-note-input');
+    document.getElementById('send-custom-note').value = customNote ? customNote.value : '';
+
+    // Open WhatsApp in new tab
+    const messageEl = document.getElementById('wa-message-editor');
+    const phone = '{{ target_phone_wa }}';
+    if (phone && messageEl) {
+      const encodedText = encodeURIComponent(messageEl.value);
+      window.open('https://wa.me/' + phone + '?text=' + encodedText, '_blank');
+    }
+  }
+
+  function addQuickNote(businessId, noteText) {
+    const feedbackEl = document.getElementById('quick-note-feedback');
+    fetch('/outreach/' + businessId + '/quick-note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'HX-Request': 'true' },
+      body: 'note=' + encodeURIComponent(noteText)
+    })
+    .then(res => res.text())
+    .then(html => {
+      feedbackEl.innerHTML = html;
+      setTimeout(() => { feedbackEl.innerHTML = ''; }, 3000);
+    });
+
+    // Also set as quick note for send form
+    document.getElementById('send-quick-note').value = noteText;
+  }
+</script>
+{% endblock %}

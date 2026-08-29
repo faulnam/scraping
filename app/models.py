@@ -104,6 +104,8 @@ class LeadStatus(Base):
     notes = Column(Text, nullable=True)
     last_contacted_at = Column(DateTime, nullable=True)
     assigned_to = Column(String(255), nullable=True)
+    next_followup_at = Column(DateTime, nullable=True)
+    followup_note = Column(String(255), nullable=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
@@ -144,6 +146,7 @@ class User(Base):
     full_name = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
     is_admin = Column(Boolean, default=True, nullable=False)
+    role = Column(String(20), default="admin", nullable=False)  # "admin" or "admin_demo"
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     last_login_at = Column(DateTime, nullable=True)
 
@@ -163,5 +166,31 @@ class ApiKeyConfig(Base):
     last_used_at = Column(DateTime, nullable=True)
     last_error_message = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class ActivityLog(Base):
+    """Timeline of all interactions and status changes per lead."""
+    __tablename__ = "activity_logs"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    business_id = Column(BigInteger, ForeignKey("businesses.id", ondelete="CASCADE"), nullable=False, index=True)
+    action = Column(String(100), nullable=False)  # e.g. "status_changed", "wa_sent", "note_added"
+    detail = Column(Text, nullable=True)
+    created_by = Column(String(100), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    business = relationship("Business", backref="activity_logs")
+
+
+class DemoToken(Base):
+    """Tracks crawl token usage for Admin Demo users (max 3 per 24h window)."""
+    __tablename__ = "demo_tokens"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    tokens_used = Column(Integer, default=0, nullable=False)
+    window_start = Column(DateTime, nullable=False)
+    max_tokens = Column(Integer, default=3, nullable=False)
 
 

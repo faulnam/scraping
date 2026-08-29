@@ -6,9 +6,10 @@ from contextlib import asynccontextmanager
 import os
 
 from app.config import get_settings
-from app.database import init_db
+from app.database import init_db, SessionLocal
 from app.auth import SESSION_COOKIE_NAME, verify_session_token
-from app.routers import auth, dashboard, leads, history, export, settings as settings_router
+from app.routers import auth, dashboard, leads, history, export, settings as settings_router, outreach
+from app import models
 
 settings = get_settings()
 templates = Jinja2Templates(directory="app/templates")
@@ -43,7 +44,7 @@ async def auth_middleware(request: Request, call_next):
     if any(path.startswith(prefix) for prefix in PUBLIC_PREFIXES):
         return await call_next(request)
     
-    # Check session token
+    # Check session token and inject user into request.state
     token = request.cookies.get(SESSION_COOKIE_NAME)
     user_id = verify_session_token(token) if token else None
     
@@ -56,6 +57,19 @@ async def auth_middleware(request: Request, call_next):
         
         # Standard browser navigation -> redirect to /login
         return RedirectResponse(url=f"/login?next={path}", status_code=303)
+    
+    # Inject user object into request.state for templates
+    db = SessionLocal()
+    try:
+        user = db.query(models.User).filter(
+            models.User.id == user_id,
+            models.User.is_active == True  # noqa: E712
+        ).first()
+        request.state.current_user = user
+    except Exception:
+        request.state.current_user = None
+    finally:
+        db.close()
     
     response = await call_next(request)
     return response
@@ -72,3 +86,4 @@ app.include_router(leads.router)
 app.include_router(history.router)
 app.include_router(export.router)
 app.include_router(settings_router.router)
+app.include_router(outreach.router)

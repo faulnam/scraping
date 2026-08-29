@@ -47,6 +47,14 @@
           <span>Peta & Analisis Leads</span>
         </a>
 
+        <a href="/outreach" 
+           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'outreach' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+          </svg>
+          <span>Outreach Mode</span>
+        </a>
+
         <a href="/history" 
            class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'history' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
           <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,12 +73,14 @@
       </nav>
     </div>
 
-    <!-- Group 2: KONFIGURASI -->
+    <!-- Group 2: KONFIGURASI (hidden for admin_demo where not needed) -->
     <div>
       <div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
         KONFIGURASI & ADMIN
       </div>
       <nav class="space-y-1">
+        {% set user_role = request.state.current_user.role if request.state.current_user else 'admin' %}
+        {% if user_role != 'admin_demo' %}
         <a href="/settings/api-keys" 
            class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'api_keys' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
           <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,6 +88,7 @@
           </svg>
           <span>Manajemen API Key</span>
         </a>
+        {% endif %}
 
         <a href="/settings/profile" 
            class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'profile' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
@@ -96,11 +107,19 @@
     <div class="flex items-center justify-between px-2">
       <div class="flex items-center space-x-2">
         <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white uppercase">
-          A
+          {% if request.state.current_user %}{{ request.state.current_user.username[0] | upper }}{% else %}A{% endif %}
         </div>
         <div class="overflow-hidden">
-          <p class="text-xs font-semibold text-white leading-tight">Admin</p>
-          <p class="text-[10px] text-slate-400">Online</p>
+          <p class="text-xs font-semibold text-white leading-tight">
+            {% if request.state.current_user %}{{ request.state.current_user.full_name or request.state.current_user.username }}{% else %}Admin{% endif %}
+          </p>
+          <p class="text-[10px] text-slate-400">
+            {% if request.state.current_user and request.state.current_user.role == 'admin_demo' %}
+              Demo
+            {% else %}
+              Admin
+            {% endif %}
+          </p>
         </div>
       </div>
       <a href="/logout" 
