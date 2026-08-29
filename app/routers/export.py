@@ -1,10 +1,11 @@
 """
 Export Router: Export filtered leads dataset to CSV and Excel via pandas & openpyxl.
+Isolated per user: Exports only leads belonging to current user.
 """
 from datetime import datetime
 import io
 from typing import Optional, Dict, Any, List
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.orm import Session
 import pandas as pd
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/export", tags=["export"])
 
 def _build_leads_export_dataframe(
     db: Session,
+    user_id: Optional[int] = None,
     crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
@@ -26,9 +28,10 @@ def _build_leads_export_dataframe(
     sort_by: str = "date",
     sort_order: str = "desc"
 ) -> pd.DataFrame:
-    """Query MySQL and construct a pandas DataFrame ready for CSV/Excel export."""
+    """Query MySQL and construct a pandas DataFrame ready for CSV/Excel export, isolated by user_id."""
     query = _get_filtered_leads_query(
         db,
+        user_id=user_id,
         crawl_run_id=crawl_run_id,
         search=search,
         category=category,
@@ -95,9 +98,9 @@ def _build_leads_export_dataframe(
     return pd.DataFrame(rows)
 
 
-
 @router.get("/leads.csv")
 async def export_leads_csv(
+    request: Request,
     crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
@@ -112,8 +115,12 @@ async def export_leads_csv(
     """
     Export filtered leads dataset to CSV format with UTF-8 BOM encoding for Excel compatibility.
     """
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
     df = _build_leads_export_dataframe(
         db,
+        user_id=user_id,
         crawl_run_id=crawl_run_id,
         search=search,
         category=category,
@@ -140,6 +147,7 @@ async def export_leads_csv(
 
 @router.get("/leads.xlsx")
 async def export_leads_excel(
+    request: Request,
     crawl_run_id: Optional[str] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
@@ -154,8 +162,12 @@ async def export_leads_excel(
     """
     Export filtered leads dataset to Excel XLSX spreadsheet using pandas & openpyxl.
     """
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
     df = _build_leads_export_dataframe(
         db,
+        user_id=user_id,
         crawl_run_id=crawl_run_id,
         search=search,
         category=category,

@@ -36,6 +36,7 @@ class CrawlRun(Base):
     __tablename__ = "crawl_runs"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     location_query = Column(String(255), nullable=False)
     category_query = Column(String(255), nullable=False)
     province = Column(String(100), nullable=True)
@@ -49,14 +50,16 @@ class CrawlRun(Base):
 
     # Relationships
     businesses = relationship("Business", back_populates="crawl_run", cascade="all, delete-orphan")
+    user = relationship("User", backref="crawl_runs")
 
 
 class Business(Base):
     __tablename__ = "businesses"
 
     id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     crawl_run_id = Column(BigInteger, ForeignKey("crawl_runs.id", ondelete="CASCADE"), nullable=False)
-    google_place_id = Column(String(255), unique=True, nullable=False, index=True)
+    google_place_id = Column(String(255), nullable=False, index=True)
     location_query = Column(String(255), nullable=False)
     category = Column(String(255), nullable=True)
     business_name = Column(String(500), nullable=False)
@@ -79,10 +82,13 @@ class Business(Base):
     # Relationships
     crawl_run = relationship("CrawlRun", back_populates="businesses")
     lead_status = relationship("LeadStatus", back_populates="business", uselist=False)
+    user = relationship("User", backref="businesses")
 
     __table_args__ = (
+        Index("idx_biz_user_place", "user_id", "google_place_id"),
         Index("idx_biz_location_category", "location_query", "category"),
     )
+
 
 
 class LeadStatus(Base):

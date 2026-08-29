@@ -192,6 +192,7 @@ def _parse_float(val: Optional[Any], default: Optional[float] = None) -> Optiona
 
 def _get_filtered_leads_query(
     db: Session,
+    user_id: Optional[int] = None,
     crawl_run_id: Optional[Any] = None,
     search: Optional[str] = None,
     category: Optional[str] = None,
@@ -202,8 +203,12 @@ def _get_filtered_leads_query(
     sort_by: str = "date",
     sort_order: str = "desc"
 ):
-    """Construct filtered and sorted SQLAlchemy query for businesses joined with lead_status."""
+    """Construct filtered and sorted SQLAlchemy query for businesses joined with lead_status, isolated by user_id."""
     query = db.query(models.Business).outerjoin(models.LeadStatus, models.Business.id == models.LeadStatus.business_id)
+
+    # Multi-user data isolation
+    if user_id:
+        query = query.filter(models.Business.user_id == user_id)
 
     # Crawl Run Session filter
     parsed_cr_id = _parse_int(crawl_run_id)
@@ -290,6 +295,9 @@ async def leads_list_view(
     Render the Leads Management page with interactive Leaflet map & dynamic table.
     Supports partial rendering for HTMX requests and specific CrawlRun session filtering.
     """
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
     parsed_cr_id = _parse_int(crawl_run_id)
     parsed_min_rating = _parse_float(min_rating, default=0.0) or 0.0
     parsed_page = max(1, _parse_int(page, default=1) or 1)
@@ -297,6 +305,7 @@ async def leads_list_view(
 
     query = _get_filtered_leads_query(
         db,
+        user_id=user_id,
         crawl_run_id=parsed_cr_id,
         search=search,
         category=category,
@@ -366,13 +375,22 @@ async def leads_list_view(
             "status": b.lead_status.contact_status.value if b.lead_status else "belum_dihubungi"
         })
 
-    # Available categories for dropdown filter
-    available_categories = [c[0] for c in db.query(models.Business.category).distinct().all() if c[0]]
+    # Available categories for dropdown filter (isolated by user_id)
+    cat_query = db.query(models.Business.category)
+    if user_id:
+        cat_query = cat_query.filter(models.Business.user_id == user_id)
+    available_categories = [c[0] for c in cat_query.distinct().all() if c[0]]
 
-    # Available crawl runs for session filter
-    available_crawl_runs = db.query(models.CrawlRun).filter(models.CrawlRun.total_businesses > 0).order_by(models.CrawlRun.id.desc()).all()
+    # Available crawl runs for session filter (isolated by user_id)
+    cr_query = db.query(models.CrawlRun).filter(models.CrawlRun.total_businesses > 0)
+    if user_id:
+        cr_query = cr_query.filter(models.CrawlRun.user_id == user_id)
+    available_crawl_runs = cr_query.order_by(models.CrawlRun.id.desc()).all()
 
-    active_crawl_run = db.query(models.CrawlRun).filter(models.CrawlRun.id == parsed_cr_id).first() if parsed_cr_id else None
+    cr_active_query = db.query(models.CrawlRun).filter(models.CrawlRun.id == parsed_cr_id)
+    if user_id:
+        cr_active_query = cr_active_query.filter(models.CrawlRun.user_id == user_id)
+    active_crawl_run = cr_active_query.first() if parsed_cr_id else None
 
     context = {
         "request": request,
@@ -458,7 +476,13 @@ async def lead_detail_view(
     Render full detailed view for a single lead business.
     Includes Places API data, status history, portfolio demo selector, and dynamic WhatsApp studio.
     """
-    business = db.query(models.Business).filter(models.Business.id == business_id).first()
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    biz_query = db.query(models.Business).filter(models.Business.id == business_id)
+    if user_id:
+        biz_query = biz_query.filter(models.Business.user_id == user_id)
+    business = biz_query.first()
     if not business:
         raise HTTPException(status_code=404, detail="Lead tidak ditemukan")
 
@@ -503,6 +527,21 @@ async def lead_detail_view(
     else:
         target_phone_wa = ""
 
+    # Query activity logs for this lead
+    activities = db.query(models.ActivityLog).filter(
+        models.ActivityLog.business_id == business.id
+    ).order_by(desc(models.ActivityLog.created_at)).limit(20).all()
+
+    quick_note_chips = [
+        {"label": "Nomor Tidak Aktif", "value": "Nomor tidak aktif / tidak bisa dihubungi"},
+        {"label": "Respon Positif", "value": "Prospek merespon positif, tertarik dengan penawaran"},
+        {"label": "Minta Proposal", "value": "Prospek meminta dikirimkan proposal/penawaran harga"},
+        {"label": "Sudah Punya Vendor", "value": "Sudah memiliki vendor web / tidak memerlukan saat ini"},
+        {"label": "Minta Dihubungi Lagi", "value": "Prospek meminta dihubungi lagi di lain waktu"},
+        {"label": "Nomor Salah", "value": "Nomor telepon salah / bukan milik usaha ini"},
+        {"label": "Tidak Ada Respons", "value": "Pesan terkirim, belum ada respons"},
+    ]
+
     return templates.TemplateResponse(
         request=request,
         name="lead_detail.html",
@@ -523,8 +562,11 @@ async def lead_detail_view(
             "opening_hours_list": opening_hours_list,
             "contact_status_enum": models.ContactStatus,
             "lead_priority_enum": models.LeadPriority,
+            "activities": activities,
+            "quick_note_chips": quick_note_chips,
         }
     )
+
 
 
 

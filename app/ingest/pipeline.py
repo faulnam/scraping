@@ -70,18 +70,19 @@ async def run_ingest_pipeline(
     province: Optional[str] = None,
     city: Optional[str] = None,
     max_results: Optional[int] = None,  # None = Unlimited / Ambil Hingga Habis
+    user_id: Optional[int] = None,
     db: Optional[Session] = None,
     client: Optional[PlacesApiClient] = None
 ) -> CrawlRun:
     """
     Main ingestion execution:
-    1. Records new CrawlRun session in MySQL.
+    1. Records new CrawlRun session in MySQL with user_id.
     2. Searches places via PlacesApiClient iteratively (pagination looping until exhausted or max_results reached).
-    3. Checks MySQL for existing place_ids:
+    3. Checks MySQL for existing place_ids belonging to this user:
        - If scraped < 30 days ago: Uses cached data, skips details API call (Cost Saving Rule).
        - If new / expired: Calls Place Details (Enterprise field mask).
     4. Cleans and normalizes dataset using pandas (phone numbers, WA links, nulls).
-    5. Saves/updates businesses in MySQL.
+    5. Saves/updates businesses in MySQL under user_id.
     6. Computes auto-priority and creates or preserves LeadStatus records.
     7. Summarizes results and API usage on CrawlRun record.
     """
@@ -95,6 +96,7 @@ async def run_ingest_pipeline(
 
     # 1. Initialize CrawlRun record
     crawl_run = CrawlRun(
+        user_id=user_id,
         location_query=location_query,
         category_query=category_query,
         province=province,
@@ -182,8 +184,11 @@ async def run_ingest_pipeline(
             if not place_id:
                 continue
 
-            # 2. Dedup check against MySQL (30-day cache rule)
-            existing_biz = db.query(Business).filter(Business.google_place_id == place_id).first()
+            # 2. Dedup check against MySQL for this specific user (30-day cache rule)
+            existing_query = db.query(Business).filter(Business.google_place_id == place_id)
+            if user_id:
+                existing_query = existing_query.filter(Business.user_id == user_id)
+            existing_biz = existing_query.first()
 
             if existing_biz and existing_biz.scraped_at and existing_biz.scraped_at >= cache_threshold:
                 # Cache HIT: skip API details call to save cost
@@ -275,6 +280,7 @@ async def run_ingest_pipeline(
 
             if biz and not is_cached:
                 # Update existing business record
+                biz.user_id = user_id or biz.user_id
                 biz.business_name = _clean_val(row.get("business_name")) or biz.business_name
                 biz.category = _clean_val(row.get("category")) or biz.category
                 biz.address = _clean_val(row.get("address")) or biz.address
@@ -294,8 +300,9 @@ async def run_ingest_pipeline(
                 biz.longitude = lng_val
                 biz.scraped_at = now
             elif not biz:
-                # Insert brand new Business record
+                # Insert brand new Business record under current user
                 biz = Business(
+                    user_id=user_id,
                     crawl_run_id=crawl_run.id,
                     google_place_id=place_id,
                     location_query=location_query,

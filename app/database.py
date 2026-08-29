@@ -60,15 +60,31 @@ def init_db():
     except Exception:
         pass
 
+    # Safe migration: Add user_id column to crawl_runs if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE crawl_runs ADD COLUMN user_id BIGINT NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
+    # Safe migration: Add user_id column to businesses if it doesn't exist
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE businesses ADD COLUMN user_id BIGINT NULL"))
+            conn.commit()
+    except Exception:
+        pass
+
     # Seed default data
     db = SessionLocal()
     try:
         from app.auth import hash_password
 
-        # 1. Seed Admin User
-        user_count = db.query(models.User).count()
-        if user_count == 0:
-            default_admin = models.User(
+        # 1. Seed or Update Admin User
+        admin_user = db.query(models.User).filter(models.User.username == "admin").first()
+        if not admin_user:
+            admin_user = models.User(
                 username="admin",
                 password_hash=hash_password("qwertyu111"),
                 full_name="Administrator LeadMaps",
@@ -76,9 +92,16 @@ def init_db():
                 is_admin=True,
                 role="admin"
             )
-            db.add(default_admin)
+            db.add(admin_user)
             db.commit()
+            db.refresh(admin_user)
             print("[Database] Default Admin user created: 'admin' / 'qwertyu111'")
+        else:
+            # Sync password if updated in seed
+            admin_user.password_hash = hash_password("qwertyu111")
+            admin_user.role = "admin"
+            db.commit()
+            print("[Database] Admin user password synced to: 'qwertyu111'")
 
         # 2. Seed Admin Demo User if not exists
         demo_user = db.query(models.User).filter(models.User.username == "demo").first()
@@ -94,6 +117,13 @@ def init_db():
             db.add(demo_user)
             db.commit()
             print("[Database] Admin Demo user created: 'demo' / 'demo123'")
+
+        # 3. Associate any unassigned crawl_runs and businesses to admin
+        if admin_user:
+            db.query(models.CrawlRun).filter(models.CrawlRun.user_id.is_(None)).update({"user_id": admin_user.id})
+            db.query(models.Business).filter(models.Business.user_id.is_(None)).update({"user_id": admin_user.id})
+            db.commit()
+
 
         # 3. Seed Default API Keys from .env
         api_key_count = db.query(models.ApiKeyConfig).count()

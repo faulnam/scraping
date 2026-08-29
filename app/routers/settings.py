@@ -359,13 +359,13 @@ async def test_api_key(
                     key.status = "active"
                     key.last_error_message = None
                     db.commit()
-                    return HTMLResponse(f"<span class='text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-200'>✅ Valid! Sisa: {remaining} search ({plan})</span>")
+                    return HTMLResponse(f"<span class='text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-200'>Valid. Sisa: {remaining} search ({plan})</span>")
                 else:
                     err_msg = f"HTTP {resp.status_code}: {resp.text}"
                     key.status = "exhausted" if resp.status_code in (401, 429) else "error"
                     key.last_error_message = err_msg[:200]
                     db.commit()
-                    return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>❌ Gagal: {resp.status_code}</span>")
+                    return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>Gagal: HTTP {resp.status_code}</span>")
         else:
             # Google Places API test
             url = f"https://places.googleapis.com/v1/places:searchText"
@@ -377,14 +377,15 @@ async def test_api_key(
                     key.status = "active"
                     key.last_error_message = None
                     db.commit()
-                    return HTMLResponse("<span class='text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-200'>✅ Valid Google Places API Key</span>")
+                    return HTMLResponse("<span class='text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-1 rounded border border-emerald-200'>Valid Google Places API Key</span>")
                 else:
                     key.status = "error"
                     key.last_error_message = f"HTTP {resp.status_code}"
                     db.commit()
-                    return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>❌ Gagal: HTTP {resp.status_code}</span>")
+                    return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>Gagal: HTTP {resp.status_code}</span>")
     except Exception as e:
-        return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>⚠️ Error: {str(e)[:40]}</span>")
+        return HTMLResponse(f"<span class='text-[11px] text-rose-600 font-semibold bg-rose-50 px-2 py-1 rounded border border-rose-200'>Error: {str(e)[:40]}</span>")
+
 
 
 # ==============================================================================

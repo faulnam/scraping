@@ -38,14 +38,18 @@ QUICK_NOTE_CHIPS = [
 
 def _build_outreach_queue(
     db: Session,
+    user_id: Optional[int] = None,
     filter_mode: str = "new_high",
     lead_ids: Optional[str] = None,
     limit: int = 50
 ) -> List[models.Business]:
-    """Build a queue of leads for outreach based on filter mode."""
+    """Build a queue of leads for outreach based on filter mode and isolated by user_id."""
     query = db.query(models.Business).outerjoin(
         models.LeadStatus, models.Business.id == models.LeadStatus.business_id
     )
+
+    if user_id:
+        query = query.filter(models.Business.user_id == user_id)
 
     if lead_ids:
         # Specific lead IDs from bulk selection
@@ -109,8 +113,11 @@ async def outreach_view(
     current_index: int = 0,
     db: Session = Depends(get_db)
 ):
-    """Render Outreach Speed-Dial Mode page."""
-    queue = _build_outreach_queue(db, filter_mode=filter_mode, lead_ids=lead_ids)
+    """Render Outreach Speed-Dial Mode page with user isolation."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    queue = _build_outreach_queue(db, user_id=user_id, filter_mode=filter_mode, lead_ids=lead_ids)
     total_queue = len(queue)
 
     if total_queue == 0:

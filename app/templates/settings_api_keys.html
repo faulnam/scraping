@@ -15,8 +15,8 @@
         <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">API Key Siap Pakai</p>
         <p class="text-2xl font-bold text-slate-900 mt-1">{{ total_active_keys }} <span class="text-xs font-normal text-slate-500">/ {{ keys|length }} key</span></p>
       </div>
-      <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg">
-        🔑
+      <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
       </div>
     </div>
 
@@ -26,8 +26,8 @@
         <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Pool Kuota Gratis</p>
         <p class="text-2xl font-bold text-emerald-600 mt-1">{{ total_quota_limit }} <span class="text-xs font-normal text-slate-500">pencarian/bln</span></p>
       </div>
-      <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
-        ⚡
+      <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
       </div>
     </div>
 
@@ -37,19 +37,19 @@
         <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Total Request Terpakai</p>
         <p class="text-2xl font-bold text-indigo-600 mt-1">{{ total_requests_used }} <span class="text-xs font-normal text-slate-500">panggilan API</span></p>
       </div>
-      <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
-        📊
+      <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
       </div>
     </div>
   </div>
 
   <!-- How Auto-Fallback Works Alert -->
-  <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 text-blue-950 text-xs shadow-sm flex items-start space-x-3">
-    <span class="text-xl shrink-0 mt-0.5">💡</span>
+  <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs shadow-sm flex items-start space-x-3">
+    <svg class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
     <div class="leading-relaxed">
-      <strong class="font-bold text-blue-900">Cara Kerja Auto-Fallback Multi-API:</strong>
-      <p class="mt-0.5 text-blue-800">
-        Sistem selalu menggunakan <strong>API Key dengan Prioritas #1</strong> sebagai jalur utama. Saat kuota API Key #1 habis (HTTP 429 atau limit kuota bulanan tercapai), pipeline secara otomatis beralih (*switch*) ke <strong>API Key #2 (Cadangan)</strong> secara instan tanpa menghentikan proses scraping. Anda dapat mendaftarkan 2 atau lebih akun SerpApi (misal 250 kuota + 250 kuota = 500 pencarian gratis!).
+      <strong class="font-bold text-slate-900">Cara Kerja Auto-Fallback Multi-API:</strong>
+      <p class="mt-0.5 text-slate-600">
+        Sistem selalu menggunakan <strong>API Key dengan Prioritas #1</strong> sebagai jalur utama. Saat kuota API Key #1 habis (HTTP 429 atau limit kuota bulanan tercapai), pipeline secara otomatis beralih (*switch*) ke <strong>API Key #2 (Cadangan)</strong> secara instan tanpa menghentikan proses scraping. Anda dapat mendaftarkan 2 atau lebih akun SerpApi untuk memperbesar kapasitas pencarian.
       </p>
     </div>
   </div>
@@ -57,36 +57,36 @@
   <!-- Feedback Notifications -->
   {% if request.query_params.get('added') %}
   <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
-    <span>✅ API Key baru berhasil didaftarkan ke dalam sistem!</span>
-    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
+    <span>API Key baru berhasil didaftarkan ke dalam sistem.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">&#x2715;</button>
   </div>
   {% endif %}
 
   {% if request.query_params.get('toggled') %}
   <div class="p-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-800 text-xs font-medium flex items-center justify-between">
-    <span>🔄 Status aktif API Key berhasil diperbarui!</span>
-    <button type="button" onclick="this.parentElement.remove()" class="text-blue-700 hover:text-blue-950 font-bold">✕</button>
+    <span>Status aktif API Key berhasil diperbarui.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-blue-700 hover:text-blue-950 font-bold">&#x2715;</button>
   </div>
   {% endif %}
 
   {% if request.query_params.get('primary_set') %}
   <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs font-medium flex items-center justify-between">
-    <span>⭐ API Key berhasil dijadikan Prioritas #1 (Jalur Utama)!</span>
-    <button type="button" onclick="this.parentElement.remove()" class="text-indigo-700 hover:text-indigo-950 font-bold">✕</button>
+    <span>API Key berhasil dijadikan Prioritas #1 (Jalur Utama).</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-indigo-700 hover:text-indigo-950 font-bold">&#x2715;</button>
   </div>
   {% endif %}
 
   {% if request.query_params.get('status_reset') %}
   <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center justify-between">
-    <span>✅ Status API Key berhasil di-reset menjadi Aktif.</span>
-    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">✕</button>
+    <span>Status API Key berhasil di-reset menjadi Aktif.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-emerald-700 hover:text-emerald-950 font-bold">&#x2715;</button>
   </div>
   {% endif %}
 
   {% if request.query_params.get('deleted') %}
   <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 text-xs font-medium flex items-center justify-between">
-    <span>🗑️ API Key berhasil dihapus dari sistem.</span>
-    <button type="button" onclick="this.parentElement.remove()" class="text-slate-600 hover:text-slate-900 font-bold">✕</button>
+    <span>API Key berhasil dihapus dari sistem.</span>
+    <button type="button" onclick="this.parentElement.remove()" class="text-slate-600 hover:text-slate-900 font-bold">&#x2715;</button>
   </div>
   {% endif %}
 
@@ -136,7 +136,7 @@
             <td class="px-5 py-3.5 whitespace-nowrap">
               {% if k.priority == 1 %}
               <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-100 text-blue-800 border border-blue-200 shadow-xs">
-                ⭐ #1 Utama
+                #1 Utama
               </span>
               {% else %}
               <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
@@ -169,19 +169,19 @@
             <td class="px-5 py-3.5 whitespace-nowrap">
               {% if not k.is_active %}
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-300">
-                  ⚪ Dinonaktifkan
+                  Dinonaktifkan
                 </span>
               {% elif k.status == 'active' %}
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  🟢 Siap / Aktif
+                  Siap / Aktif
                 </span>
               {% elif k.status == 'exhausted' %}
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200" title="{{ k.last_error_message }}">
-                  🔴 Kuota Habis
+                  Kuota Habis
                 </span>
               {% else %}
                 <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="{{ k.last_error_message }}">
-                  ⚠️ Error
+                  Error
                 </span>
               {% endif %}
             </td>
@@ -209,7 +209,7 @@
                         hx-indicator="#test-spinner-{{ k.id }}"
                         class="p-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded border border-slate-200 text-xs transition"
                         title="Uji Validitas & Sisa Kuota API">
-                  ⚡ Test
+                  Test
                 </button>
 
                 <!-- Set Primary Button -->
@@ -218,7 +218,7 @@
                   <button type="submit" 
                           class="p-1.5 text-indigo-600 hover:bg-indigo-50 rounded border border-indigo-200 text-xs transition"
                           title="Jadikan Jalur Utama (Prioritas #1)">
-                    ⭐ Jadikan #1
+                    Jadikan #1
                   </button>
                 </form>
                 {% endif %}
@@ -229,7 +229,7 @@
                   <button type="submit" 
                           class="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded border border-emerald-200 text-xs transition"
                           title="Reset Status ke Aktif">
-                    🔄 Reset
+                    Reset
                   </button>
                 </form>
                 {% endif %}
@@ -248,7 +248,7 @@
                   <button type="submit" 
                           class="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded border border-rose-200 text-xs transition"
                           title="Hapus API Key">
-                    🗑️
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                   </button>
                 </form>
 
@@ -282,7 +282,7 @@
     <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/90" style="padding: 1rem 1.5rem; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; background-color: #f8fafc;">
       <div class="flex items-center space-x-2.5">
         <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-sm" style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: #dbeafe; color: #1d4ed8; display: flex; align-items: center; justify-content: center;">
-          🔑
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
         </div>
         <div>
           <h3 class="font-bold text-slate-900 text-sm" style="font-weight: 700; color: #0f172a; font-size: 0.875rem; line-height: 1.25rem;">Tambah API Key Baru ke Pool</h3>
@@ -294,7 +294,7 @@
               class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 transition font-bold"
               style="width: 2rem; height: 2rem; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: #94a3b8; cursor: pointer; border: none; background: transparent;"
               aria-label="Tutup Modal">
-        ✕
+        &#x2715;
       </button>
     </div>
 
