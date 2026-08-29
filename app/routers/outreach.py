@@ -264,7 +264,7 @@ async def outreach_view(
         "contact_person": contact_person,
         "website_url": website_url or DEFAULT_OFFICIAL_WEBSITE,
         # Ensure official website link is always included in the pitch text
-        "official_website": DEFAULT_OFFICIAL_WEBSITE
+        "official_website": DEFAULT_OFFICIAL_WEBSITE,
         "quick_note_chips": QUICK_NOTE_CHIPS,
     }
 
@@ -415,6 +415,10 @@ async def mark_sent_and_next(
     else:
         next_index = current_index + 1
 
+    # Save progress for next session
+    if user_id is not None:
+        _save_progress(user_id, next_index)
+
     params = {
         "current_index": next_index,
         "search": search or "",
@@ -448,6 +452,7 @@ async def skip_lead(
 ):
     """Skip current lead and move to next lead in the queue without marking sent."""
     user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
     username = user.full_name or user.username if user else "Admin"
 
     if skip_reason and skip_reason.strip():
@@ -464,9 +469,9 @@ async def skip_lead(
 
     active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
     next_index = current_index + 1
-        # Save progress for next session
-        if user_id is not None:
-            _save_progress(user_id, next_index)
+    # Save progress for next session
+    if user_id is not None:
+        _save_progress(user_id, next_index)
     params = {
         "current_index": next_index,
         "search": search or "",

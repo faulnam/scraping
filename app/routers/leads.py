@@ -180,6 +180,10 @@ def build_personalized_wa_link(
     message = message.replace("{contact_person}", contact_person)
     message = message.replace("{website_url}", website_url)
 
+    # Always include official website link in the message
+    if DEFAULT_OFFICIAL_WEBSITE not in message:
+        message += f"\n\nKunjungi website resmi kami: {DEFAULT_OFFICIAL_WEBSITE}"
+
     encoded_text = urllib.parse.quote(message)
     return f"https://wa.me/{phone_digits}?text={encoded_text}"
 
