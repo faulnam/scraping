@@ -284,6 +284,15 @@ async def outreach_view(
     current_lead = queue[current_index]
 
     matched_portfolio = match_portfolio_for_business(current_lead, db, user_id=user_id)
+    base_url = str(request.base_url).rstrip("/")
+
+    # Resolve full image URL if available
+    portfolio_image_url = ""
+    if matched_portfolio and matched_portfolio.image_url:
+        if matched_portfolio.image_url.startswith("http"):
+            portfolio_image_url = matched_portfolio.image_url
+        else:
+            portfolio_image_url = f"{base_url}{matched_portfolio.image_url}"
 
     # Build WA link
     wa_link = build_personalized_wa_link(
@@ -293,7 +302,8 @@ async def outreach_view(
         portfolio=matched_portfolio,
         company_name=company_name,
         contact_person=contact_person,
-        website_url=website_url or DEFAULT_OFFICIAL_WEBSITE
+        website_url=website_url or DEFAULT_OFFICIAL_WEBSITE,
+        base_url=base_url
     )
 
     # Build pitch text for display
@@ -308,6 +318,8 @@ async def outreach_view(
     pitch_text = pitch_text.replace("{company_name}", company_name)
     pitch_text = pitch_text.replace("{contact_person}", contact_person)
     pitch_text = pitch_text.replace("{website_url}", website_url or DEFAULT_OFFICIAL_WEBSITE)
+    pitch_text = pitch_text.replace("{image_url}", portfolio_image_url)
+    pitch_text = pitch_text.replace("{mockup_url}", portfolio_image_url)
 
     # Standardize phone for WA
     clean_digits = "".join([c for c in (current_lead.phone or "") if c.isdigit()])

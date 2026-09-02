@@ -282,9 +282,13 @@
                 <a id="btn-view-mockup" href="{{ matched_portfolio.image_url if matched_portfolio else '#' }}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded bg-white hover:bg-emerald-100 text-emerald-900 font-semibold text-[10px] border border-emerald-300 shadow-xs transition">
                   Buka
                 </a>
-                <button type="button" onclick="copyMockupLink()" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[10px] shadow-xs transition flex items-center space-x-1">
+                <button type="button" onclick="insertMockupImageLink()" class="px-2.5 py-1 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-semibold text-[10px] border border-emerald-300 shadow-xs transition flex items-center space-x-1 cursor-pointer" title="Sisipkan link mockup ini langsung ke dalam teks chat WhatsApp">
+                  <svg class="w-3 h-3 text-emerald-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                  <span>+ Ke Chat</span>
+                </button>
+                <button type="button" onclick="copyMockupLink()" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-[10px] shadow-xs transition flex items-center space-x-1 cursor-pointer">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                  <span>Salin Link Mockup</span>
+                  <span>Salin Link</span>
                 </button>
               </div>
             </div>
@@ -310,10 +314,10 @@
         </div>
 
         <!-- 3. Interactive Pitch Editor -->
-        <div class="space-y-1.5 pt-2">
+        <div class="space-y-1.5 pt-1">
           <div class="flex items-center justify-between">
             <label for="live_pitch_textarea" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
-              3. Edit Teks Pesan WhatsApp (Bisa Dikustomisasi Bebas)
+              3. Edit Teks Pesan WhatsApp
             </label>
             <span class="text-[10px] text-slate-400 font-mono" id="char-counter">0 karakter</span>
           </div>
@@ -328,6 +332,7 @@
             <span class="text-[10px] font-medium text-slate-400 mr-1">Sisipkan:</span>
             <button type="button" onclick="insertPlaceholder('{{ business.business_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Usaha</button>
             <button type="button" onclick="insertPlaceholder(document.getElementById('selected-portfolio-url').textContent)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Link Demo Web</button>
+            <button type="button" onclick="insertMockupImageLink()" class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[10px] font-semibold border border-emerald-200">🖼️ Link Mockup</button>
             <button type="button" onclick="insertPlaceholder(WEBSITE_URL)" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Web Resmi JuangDev</button>
             <button type="button" onclick="insertPlaceholder('{{ company_name }}')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px]">Nama Agensi</button>
             <button type="button" onclick="resetToTemplate()" class="ml-auto text-blue-600 hover:underline text-[10px] font-semibold">Reset ke Awal</button>
@@ -453,9 +458,22 @@
     msg = msg.replace(/{pitch_snippet}/g, port.snippet);
     msg = msg.replace(/{company_name}/g, COMPANY_NAME);
     msg = msg.replace(/{contact_person}/g, CONTACT_PERSON);
-    msg = msg.replace(/{image_url}/g, port.image);
-    msg = msg.replace(/{mockup_url}/g, port.image);
+
+    const fullImageUrl = port.image ? (port.image.startsWith('http') ? port.image : window.location.origin + port.image) : '';
+    msg = msg.replace(/{image_url}/g, fullImageUrl);
+    msg = msg.replace(/{mockup_url}/g, fullImageUrl);
     return msg;
+  }
+
+  function insertMockupImageLink() {
+    const port = getSelectedPortfolio();
+    if (!port.image || !port.image.trim()) {
+      alert("Belum ada file gambar mockup untuk portofolio ini.");
+      return;
+    }
+    const fullUrl = port.image.startsWith("http") ? port.image : window.location.origin + port.image;
+    const insertText = `\n• Preview Mockup: ${fullUrl}`;
+    insertPlaceholder(insertText);
   }
 
   function updateWaButtonHref(text) {

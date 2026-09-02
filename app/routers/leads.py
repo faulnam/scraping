@@ -145,9 +145,10 @@ def build_personalized_wa_link(
     portfolio: Optional[models.PortfolioItem] = None,
     company_name: str = "JuangDev Solutions",
     contact_person: str = "Tim Konsultan Web",
-    website_url: str = "https://juangdev.my.id"
+    website_url: str = "https://juangdev.my.id",
+    base_url: Optional[str] = None
 ) -> Optional[str]:
-    """Generate wa.me link with URL-encoded personalized message & targeted portfolio demo URL and official website."""
+    """Generate wa.me link with URL-encoded personalized message & targeted portfolio demo URL, mockup image URL, and official website."""
     if not phone:
         return None
     
@@ -172,6 +173,12 @@ def build_personalized_wa_link(
     portfolio_url = portfolio.demo_url if portfolio else "https://juangdev.my.id"
     pitch_snippet = portfolio.pitch_snippet if portfolio and portfolio.pitch_snippet else ""
 
+    raw_img = portfolio.image_url if portfolio and portfolio.image_url else ""
+    if raw_img and not raw_img.startswith("http") and base_url:
+        img_url = f"{base_url.rstrip('/')}{raw_img}"
+    else:
+        img_url = raw_img
+
     message = template.replace("{business_name}", safe_name)
     message = message.replace("{portfolio_name}", portfolio_title)
     message = message.replace("{portfolio_url}", portfolio_url)
@@ -179,6 +186,8 @@ def build_personalized_wa_link(
     message = message.replace("{company_name}", company_name)
     message = message.replace("{contact_person}", contact_person)
     message = message.replace("{website_url}", website_url)
+    message = message.replace("{image_url}", img_url)
+    message = message.replace("{mockup_url}", img_url)
 
     # Always include official website link in the message
     if DEFAULT_OFFICIAL_WEBSITE not in message:

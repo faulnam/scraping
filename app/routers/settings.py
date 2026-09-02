@@ -219,6 +219,59 @@ async def add_portfolio_item(
     return RedirectResponse(url="/settings/profile?portfolio_added=1", status_code=303)
 
 
+@router.post("/settings/portfolios/{portfolio_id}/edit", response_class=HTMLResponse)
+async def edit_portfolio_item(
+    request: Request,
+    portfolio_id: int,
+    title: str = Form(...),
+    category_keywords: Optional[str] = Form(""),
+    demo_url: str = Form(...),
+    pitch_snippet: Optional[str] = Form(""),
+    image_url: Optional[str] = Form(None),
+    image_file: Optional[UploadFile] = File(None),
+    is_default: Optional[bool] = Form(False),
+    remove_image: Optional[bool] = Form(False),
+    db: Session = Depends(get_db)
+):
+    """Edit an existing Portfolio item (title, demo_url, keywords, pitch snippet, image, default flag) isolated by user."""
+    user = getattr(request.state, "current_user", None)
+    user_id = user.id if user else None
+
+    item_query = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id)
+    if user_id:
+        item_query = item_query.filter(models.PortfolioItem.user_id == user_id)
+    item = item_query.first()
+
+    if not item:
+        return RedirectResponse(url="/settings/profile?portfolio_error=Portofolio+tidak+ditemukan", status_code=303)
+
+    if is_default:
+        def_query = db.query(models.PortfolioItem)
+        if user_id:
+            def_query = def_query.filter(models.PortfolioItem.user_id == user_id)
+        def_query.update({models.PortfolioItem.is_default: False})
+        item.is_default = True
+    else:
+        item.is_default = False
+
+    item.title = title.strip()
+    item.category_keywords = category_keywords.strip() if category_keywords else ""
+    item.demo_url = demo_url.strip()
+    item.pitch_snippet = pitch_snippet.strip() if pitch_snippet else ""
+
+    if remove_image:
+        item.image_url = None
+    elif image_file and image_file.filename:
+        uploaded_path = await _save_portfolio_image(image_file)
+        if uploaded_path:
+            item.image_url = uploaded_path
+    elif image_url is not None and image_url.strip():
+        item.image_url = image_url.strip()
+
+    db.commit()
+    return RedirectResponse(url="/settings/profile?portfolio_updated=1", status_code=303)
+
+
 @router.post("/settings/portfolios/{portfolio_id}/update-image", response_class=HTMLResponse)
 async def update_portfolio_image(
     request: Request,
