@@ -89,15 +89,16 @@
           </select>
         </div>
 
+        <input type="hidden" name="current_index" value="0">
       </div>
 
       <!-- Action Buttons & Quick Filter Presets -->
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
         <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
           <span class="text-slate-400 font-medium mr-1">Preset Cepat:</span>
-          <a href="/outreach?filter_mode=new_high" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">Prioritas Tinggi</a>
-          <a href="/outreach?filter_mode=followup_today" class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold border border-amber-200 transition">Follow-up Hari Ini</a>
-          <a href="/outreach?has_website=false" class="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition">Belum Punya Website</a>
+          <a href="/outreach?filter_mode=new_high&current_index=0" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">Prioritas Tinggi</a>
+          <a href="/outreach?filter_mode=followup_today&current_index=0" class="px-2.5 py-1 rounded bg-amber-50 hover:bg-amber-100 text-amber-800 font-semibold border border-amber-200 transition">Follow-up Hari Ini</a>
+          <a href="/outreach?has_website=false&current_index=0" class="px-2.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold border border-emerald-200 transition">Belum Punya Website</a>
         </div>
 
         <div class="flex items-center space-x-2">
@@ -105,7 +106,7 @@
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             <span>Terapkan Filter</span>
           </button>
-          <a href="/outreach" class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition text-center">
+          <a href="/outreach?current_index=0" class="px-3.5 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition text-center">
             Reset
           </a>
         </div>
@@ -125,7 +126,7 @@
       Tidak ada lead dengan nomor telepon yang sesuai dengan kombinasi filter di atas. Coba ubah kata kunci atau reset filter.
     </p>
     <div class="pt-2">
-      <a href="/outreach" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
+      <a href="/outreach?current_index=0" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
         Lihat Semua Antrean
       </a>
     </div>
@@ -145,8 +146,8 @@
       <a href="/leads" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition">
         Kembali ke Tabel Leads
       </a>
-      <a href="/outreach?search={{ search }}&category={{ category }}&has_website={{ has_website }}" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
-        Mulai Ulang Antrean
+      <a href="/outreach?search={{ search }}&category={{ category }}&crawl_run_id={{ crawl_run_id }}&has_website={{ has_website }}&contact_status={{ contact_status }}&priority={{ priority }}&current_index=0" class="inline-flex items-center px-4 py-2 text-xs font-semibold rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 transition">
+        Mulai Ulang Antrean dari Awal (#1)
       </a>
     </div>
   </div>
@@ -154,9 +155,35 @@
   {% else %}
   <!-- Progress Header Bar -->
   <div class="bg-white border border-slate-200 shadow-sm rounded-xl p-4">
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-xs font-semibold text-slate-700">Progres Outreach Antrean</span>
-      <span class="text-xs font-bold text-slate-900">Lead {{ current_index + 1 }} dari {{ total_queue }}</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+      <div class="flex items-center space-x-2">
+        <span class="text-xs font-semibold text-slate-700">Progres Outreach Antrean:</span>
+        <span class="text-xs font-bold text-slate-900">Lead {{ current_index + 1 }} dari {{ total_queue }}</span>
+        {% if current_index > 0 %}
+        <a href="/outreach?search={{ search }}&category={{ category }}&crawl_run_id={{ crawl_run_id }}&has_website={{ has_website }}&contact_status={{ contact_status }}&priority={{ priority }}&filter_mode={{ filter_mode }}&lead_ids={{ lead_ids }}&current_index=0"
+           class="text-[11px] text-blue-600 hover:underline font-semibold bg-blue-50 px-2 py-0.5 rounded border border-blue-200 ml-1.5"
+           title="Kembali ke lead urutan pertama">
+          ⏮ Ke Lead #1
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- Prev / Next Navigation buttons -->
+      <div class="flex items-center space-x-1.5">
+        {% if current_index > 0 %}
+        <a href="/outreach?search={{ search }}&category={{ category }}&crawl_run_id={{ crawl_run_id }}&has_website={{ has_website }}&contact_status={{ contact_status }}&priority={{ priority }}&filter_mode={{ filter_mode }}&lead_ids={{ lead_ids }}&current_index={{ current_index - 1 }}"
+           class="px-2.5 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition flex items-center space-x-1">
+          <span>&larr; Sebelumnya</span>
+        </a>
+        {% endif %}
+
+        {% if current_index < total_queue - 1 %}
+        <a href="/outreach?search={{ search }}&category={{ category }}&crawl_run_id={{ crawl_run_id }}&has_website={{ has_website }}&contact_status={{ contact_status }}&priority={{ priority }}&filter_mode={{ filter_mode }}&lead_ids={{ lead_ids }}&current_index={{ current_index + 1 }}"
+           class="px-2.5 py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition flex items-center space-x-1">
+          <span>Selanjutnya &rarr;</span>
+        </a>
+        {% endif %}
+      </div>
     </div>
     <div class="w-full bg-slate-100 rounded-full h-2">
       <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: {{ ((current_index + 1) / total_queue * 100) | round(1) }}%"></div>
