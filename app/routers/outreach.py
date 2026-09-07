@@ -29,32 +29,6 @@ from app.routers.leads import (
 router = APIRouter(tags=["outreach"])
 templates = Jinja2Templates(directory="app/templates")
 
-# File to store outreach progress per user
-PROGRESS_FILE = Path(__file__).parents[2] / "data" / "outreach_progress.json"
-
-def _load_progress(user_id: int) -> int | None:
-    """Load the saved next index for the given user. Returns None if not set."""
-    if not PROGRESS_FILE.is_file():
-        return None
-    try:
-        data = json.loads(PROGRESS_FILE.read_text())
-        return data.get(str(user_id))
-    except Exception:
-        return None
-
-def _save_progress(user_id: int, index: int) -> None:
-    """Save the next index for the given user to the progress file."""
-    data = {}
-    if PROGRESS_FILE.is_file():
-        try:
-            data = json.loads(PROGRESS_FILE.read_text())
-        except Exception:
-            data = {}
-    data[str(user_id)] = index
-    # Ensure directory exists
-    PROGRESS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    PROGRESS_FILE.write_text(json.dumps(data))
-
 # Quick note chip presets
 QUICK_NOTE_CHIPS = [
     {"label": "Nomor Tidak Aktif", "value": "Nomor tidak aktif / tidak bisa dihubungi"},
@@ -201,11 +175,6 @@ async def outreach_view(
     """Render Outreach Speed-Dial Mode page with full filter bar, unlimited queue, and portfolio attachment studio."""
     user = getattr(request.state, "current_user", None)
     user_id = user.id if user else None
-    # Load saved progress if no explicit index provided in query params
-    if "current_index" not in request.query_params and user_id is not None:
-        saved_index = _load_progress(user_id)
-        if saved_index is not None:
-            current_index = saved_index
 
     # Available categories for dropdown filter
     cat_query = db.query(models.Business.category)
@@ -427,10 +396,6 @@ async def mark_sent_and_next(
     else:
         next_index = current_index + 1
 
-    # Save progress for next session
-    if user_id is not None:
-        _save_progress(user_id, next_index)
-
     params = {
         "current_index": next_index,
         "search": search or "",
@@ -481,9 +446,6 @@ async def skip_lead(
 
     active_contact_status = contact_status if (contact_status and contact_status.strip()) else "belum_dihubungi"
     next_index = current_index + 1
-    # Save progress for next session
-    if user_id is not None:
-        _save_progress(user_id, next_index)
     params = {
         "current_index": next_index,
         "search": search or "",

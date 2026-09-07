@@ -278,27 +278,29 @@ async def run_ingest_pipeline(
             lng_raw = row.get("longitude")
             lng_val = float(lng_raw) if pd.notna(lng_raw) and lng_raw is not None else None
 
-            if biz and not is_cached:
-                # Update existing business record
+            if biz:
                 biz.user_id = user_id or biz.user_id
-                biz.business_name = _clean_val(row.get("business_name")) or biz.business_name
-                biz.category = _clean_val(row.get("category")) or biz.category
-                biz.address = _clean_val(row.get("address")) or biz.address
-                biz.location_query = location_query
-                biz.province = province or biz.province
-                biz.city = city or biz.city
-                biz.phone = _clean_val(row.get("phone"))
-                biz.whatsapp_link = _clean_val(row.get("whatsapp_link"))
-                biz.website = _clean_val(row.get("website"))
-                biz.has_website = has_web
-                biz.rating_avg = rating_val
-                biz.total_review = review_val
-                biz.opening_hours = _clean_val(row.get("opening_hours"))
-                biz.business_status = _clean_val(row.get("business_status"))
-                biz.gmaps_url = _clean_val(row.get("gmaps_url"))
-                biz.latitude = lat_val
-                biz.longitude = lng_val
+                biz.crawl_run_id = crawl_run.id
                 biz.scraped_at = now
+                if not is_cached:
+                    # Update existing business record with fresh API details
+                    biz.business_name = _clean_val(row.get("business_name")) or biz.business_name
+                    biz.category = _clean_val(row.get("category")) or biz.category
+                    biz.address = _clean_val(row.get("address")) or biz.address
+                    biz.location_query = location_query
+                    biz.province = province or biz.province
+                    biz.city = city or biz.city
+                    biz.phone = _clean_val(row.get("phone"))
+                    biz.whatsapp_link = _clean_val(row.get("whatsapp_link"))
+                    biz.website = _clean_val(row.get("website"))
+                    biz.has_website = has_web
+                    biz.rating_avg = rating_val
+                    biz.total_review = review_val
+                    biz.opening_hours = _clean_val(row.get("opening_hours"))
+                    biz.business_status = _clean_val(row.get("business_status"))
+                    biz.gmaps_url = _clean_val(row.get("gmaps_url"))
+                    biz.latitude = lat_val
+                    biz.longitude = lng_val
             elif not biz:
                 # Insert brand new Business record under current user
                 biz = Business(
