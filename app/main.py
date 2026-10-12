@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.database import init_db, SessionLocal
 from app.auth import SESSION_COOKIE_NAME, verify_session_token
 from app.routers import auth, dashboard, leads, history, export, settings as settings_router, outreach
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from app import models
 
 settings = get_settings()
@@ -32,6 +33,9 @@ app = FastAPI(
     debug=settings.DEBUG,
     lifespan=lifespan
 )
+
+# Enable Proxy Headers for Nginx Reverse Proxy (HTTPS scheme detection)
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # Authentication Guard Middleware
 PUBLIC_PREFIXES = ("/landing", "/login", "/logout", "/static", "/favicon.ico")

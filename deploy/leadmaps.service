@@ -8,7 +8,7 @@ User=root
 WorkingDirectory=/www/wwwroot/scraping.juangdev.my.id
 Environment="PATH=/www/wwwroot/scraping.juangdev.my.id/venv/bin"
 EnvironmentFile=/www/wwwroot/scraping.juangdev.my.id/.env
-ExecStart=/www/wwwroot/scraping.juangdev.my.id/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2
+ExecStart=/www/wwwroot/scraping.juangdev.my.id/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 2 --proxy-headers --forwarded-allow-ips='*'
 
 Restart=always
 RestartSec=5

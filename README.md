@@ -168,6 +168,14 @@ sudo apt install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d domainanda.com
 ```
 
+#### 5. Cara Update ke Versi Terbaru (Setelah `git push` dari Local)
+Setiap kali Anda selesai melakukan `git push` dari komputer lokal, jalankan perintah berikut di terminal server (SSH / Terminal aaPanel):
+```bash
+cd /www/wwwroot/scraping.juangdev.my.id
+git pull origin main
+sudo systemctl restart leadmaps.service
+```
+
 ---
 
 ## 📁 Struktur Folder Project

@@ -13,8 +13,8 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Neo Brutalism Core Stylesheet -->
-  <link rel="stylesheet" href="{{ url_for('static', path='css/neo_brutalism.css') }}?v=2.0.2">
+  <!-- Neo Brutalism Core Stylesheet (Relative Path to prevent HTTPS Mixed Content) -->
+  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.2">
 
   <style>
     /* Neo Brutalism Utility Inlines */

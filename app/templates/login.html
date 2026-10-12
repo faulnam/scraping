@@ -13,13 +13,31 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Neo Brutalism Core Stylesheet -->
-  <link rel="stylesheet" href="{{ url_for('static', path='css/neo_brutalism.css') }}?v=2.0.0">
+  <!-- Neo Brutalism Core Stylesheet (Relative Path to prevent HTTPS Mixed Content) -->
+  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.2">
 
   <style>
-    .neo-shadow { box-shadow: 4px 4px 0px #000000; }
-    .neo-shadow-lg { box-shadow: 7px 7px 0px #000000; }
-    .neo-border { border: 2.5px solid #000000; }
+    .neo-shadow { box-shadow: 4px 4px 0px #000000 !important; }
+    .neo-shadow-lg { box-shadow: 8px 8px 0px #000000 !important; }
+    .neo-border { border: 2.5px solid #000000 !important; }
+    .neo-card {
+      border: 2.5px solid #000000 !important;
+      border-radius: 16px !important;
+      box-shadow: 8px 8px 0px #000000 !important;
+    }
+    .neo-input {
+      border: 2.5px solid #000000 !important;
+      border-radius: 10px !important;
+      box-shadow: 3px 3px 0px #000000 !important;
+      background-color: #ffffff !important;
+      color: #000000 !important;
+    }
+    .neo-btn-primary {
+      background-color: #2563EB !important;
+      color: #ffffff !important;
+      border: 2.5px solid #000000 !important;
+      box-shadow: 4px 4px 0px #000000 !important;
+    }
   </style>
 </head>
 <body class="min-h-screen bg-[#FFFDF5] text-black antialiased flex flex-col justify-between p-4 sm:p-6 selection:bg-[#2563EB] selection:text-white">
@@ -44,7 +62,7 @@
   <div class="w-full max-w-md mx-auto my-auto">
     
     <!-- Neo-Brutalist Main Card -->
-    <div class="neo-card bg-white p-6 sm:p-8 neo-shadow-lg relative overflow-hidden">
+    <div class="neo-card bg-white p-6 sm:p-8 neo-shadow-lg relative overflow-hidden border-[2.5px] border-black rounded-2xl shadow-[8px_8px_0px_#000]">
       
       <!-- Top Color Accent Bar -->
       <div class="bg-[#2563EB] text-white -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 p-4 border-b-[2.5px] border-black flex items-center justify-between mb-6">
@@ -108,7 +126,7 @@
                  required 
                  autocomplete="username"
                  placeholder="Masukkan username Anda"
-                 class="neo-input w-full px-3.5 py-2.5 text-sm font-bold text-black placeholder:text-slate-400">
+                 class="neo-input w-full px-3.5 py-2.5 text-sm font-bold text-black bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] focus:bg-[#FFFDF0] focus:outline-none placeholder:text-slate-400">
         </div>
 
         <!-- Password Input -->
@@ -124,12 +142,12 @@
                  required 
                  autocomplete="current-password"
                  placeholder="••••••••"
-                 class="neo-input w-full px-3.5 py-2.5 text-sm font-bold text-black placeholder:text-slate-400">
+                 class="neo-input w-full px-3.5 py-2.5 text-sm font-bold text-black bg-white border-2 border-black rounded-xl shadow-[3px_3px_0px_#000] focus:bg-[#FFFDF0] focus:outline-none placeholder:text-slate-400">
         </div>
 
         <!-- Submit Button -->
         <button type="submit" 
-                class="neo-btn neo-btn-primary w-full py-3 text-sm sm:text-base font-black neo-shadow mt-2 flex items-center justify-center space-x-2">
+                class="neo-btn neo-btn-primary w-full py-3 text-sm sm:text-base font-black neo-shadow mt-2 flex items-center justify-center space-x-2 bg-[#2563EB] text-white border-[2.5px] border-black rounded-xl shadow-[4px_4px_0px_#000] hover:bg-[#1D4ED8] hover:shadow-[6px_6px_0px_#000] active:translate-x-0.5 active:translate-y-0.5 transition-all">
           <span>Masuk Sekarang</span>
           <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
