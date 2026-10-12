@@ -5,9 +5,9 @@
 {% block page_subtitle %}Log Lengkap Sesi Fetching & Monitoring Penggunaan API{% endblock %}
 
 {% block header_actions %}
-<a href="/" class="btn-primary flex items-center space-x-1.5 py-1.5 px-3.5 text-xs font-semibold">
-  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-  <span>Mulai Crawl Baru</span>
+<a href="/" class="neo-btn neo-btn-primary flex items-center space-x-1 py-1.5 px-2.5 sm:px-3.5 text-xs font-black whitespace-nowrap shadow-[2px_2px_0px_#000]">
+  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"></path></svg>
+  <span class="hidden sm:inline">Mulai </span><span>Crawl Baru</span>
 </a>
 {% endblock %}
 
@@ -62,22 +62,25 @@
 
 
   <!-- 2. Cost Control & Cache Advice Card -->
-  <div class="card bg-slate-900 text-white border-0 shadow-md rounded-xl p-5">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div class="space-y-1">
+  <div class="neo-card neo-card-mint p-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div class="space-y-1.5">
         <div class="flex items-center space-x-2">
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-          <h3 class="text-xs font-bold text-white tracking-wide uppercase">
-            SISTEM PROTEKSI KUOTA & DEDUP CACHE OTOMATIS (30 HARI)
+          <div class="w-7 h-7 rounded-lg bg-black text-[#34D399] flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+          </div>
+          <h3 class="text-xs sm:text-sm font-black text-black tracking-wide uppercase">
+            Sistem Proteksi Kuota & Dedup Cache Otomatis (30 Hari)
           </h3>
         </div>
-        <p class="text-xs text-slate-300 max-w-3xl leading-relaxed">
-          Sistem secara otomatis memeriksa <code class="text-emerald-400 bg-slate-800 px-1.5 py-0.5 rounded font-mono text-[11px]">google_place_id</code> di MySQL. 
+        <p class="text-xs sm:text-sm text-black font-semibold max-w-3xl leading-relaxed">
+          Sistem secara otomatis memeriksa <code class="bg-black text-[#60A5FA] px-2 py-0.5 rounded font-mono text-[11px] font-bold">google_place_id</code> di MySQL. 
           Jika usaha sudah pernah diambil dalam kurun waktu <strong>&lt; 30 hari</strong>, pemanggilan detail dihemat menggunakan cache lokal.
         </p>
       </div>
-      <a href="/guide" class="inline-flex items-center space-x-1 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white transition shrink-0 border border-slate-700">
-        <span>Panduan Lengkap &rarr;</span>
+      <a href="/guide" class="neo-btn neo-btn-white px-4 py-2.5 text-xs font-black text-black shrink-0 flex items-center space-x-1.5">
+        <span>Panduan Lengkap</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
       </a>
     </div>
   </div>

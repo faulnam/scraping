@@ -158,7 +158,19 @@ def _get_agenda_stats(db: Session, user_id: Optional[int] = None) -> Dict[str, i
     }
 
 
+@router.get("/landing", response_class=HTMLResponse)
+async def landing_view(request: Request):
+    """Render the public Neo-Brutalism landing page."""
+    user = getattr(request.state, "current_user", None)
+    return templates.TemplateResponse(
+        request=request,
+        name="landing.html",
+        context={"current_user": user}
+    )
+
+
 @router.get("/", response_class=HTMLResponse)
+@router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_view(
     request: Request,
     province: Optional[str] = None,
@@ -167,10 +179,18 @@ async def dashboard_view(
     time_range: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    """Render the main business intelligence dashboard overview with user isolation."""
+    """Render the landing page for guests or main business intelligence dashboard for authenticated users."""
     user = getattr(request.state, "current_user", None)
-    user_id = user.id if user else None
+    
+    # If visitor is not authenticated, display the Neo-Brutalism landing page
+    if not user:
+        return templates.TemplateResponse(
+            request=request,
+            name="landing.html",
+            context={"current_user": None}
+        )
 
+    user_id = user.id
     stats = _get_dashboard_stats(db, user_id=user_id, province=province, city=city, category=category, time_range=time_range)
     agenda = _get_agenda_stats(db, user_id=user_id)
 

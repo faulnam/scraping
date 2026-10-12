@@ -19,8 +19,8 @@ def test_auth_flow():
     client = TestClient(app, follow_redirects=False)
 
     # 1. Accessing protected route without cookie -> should redirect to /login
-    resp = client.get("/")
-    print(f"1. Unauthenticated GET / -> Status: {resp.status_code}, Location: {resp.headers.get('location')}")
+    resp = client.get("/dashboard")
+    print(f"1. Unauthenticated GET /dashboard -> Status: {resp.status_code}, Location: {resp.headers.get('location')}")
     assert resp.status_code == 303
     assert "/login" in resp.headers.get("location", "")
 
@@ -31,8 +31,8 @@ def test_auth_flow():
     assert "Username atau kata sandi tidak valid" in resp.text
 
     # 3. Login with correct admin credentials -> should redirect and set cookie
-    resp = client.post("/login", data={"username": "admin", "password": "admin123", "next": "/"})
-    print(f"3. Login with 'admin'/'admin123' -> Status: {resp.status_code}, Location: {resp.headers.get('location')}")
+    resp = client.post("/login", data={"username": "admin", "password": "qwertyu111", "next": "/"})
+    print(f"3. Login with 'admin'/'qwertyu111' -> Status: {resp.status_code}, Location: {resp.headers.get('location')}")
     assert resp.status_code == 303
     assert resp.headers.get("location") == "/"
     assert SESSION_COOKIE_NAME in resp.cookies

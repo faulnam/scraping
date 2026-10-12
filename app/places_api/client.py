@@ -257,11 +257,11 @@ class PlacesApiClient:
                         await asyncio.sleep(1.0 * attempt)
 
                 if key_failed_exhausted:
-                    print(f"⚠️ [SerpApi Auto-Fallback] Beralih otomatis dari Key '{key_label}' ke API Key berikutnya...")
+                    print(f"[FALLBACK] [SerpApi Auto-Fallback] Beralih otomatis dari Key '{key_label}' ke API Key berikutnya...")
                     continue  # Try next key in loop
 
             # If all SerpApi keys failed
-            print("❌ [SerpApi Alert] Semua API key SerpApi telah dicoba dan tidak ada yang berhasil.")
+            print("[ALERT] [SerpApi Alert] Semua API key SerpApi telah dicoba dan tidak ada yang berhasil.")
             return {"places": [], "nextPageToken": None, "has_next_page": False, "api_requests_used": 0, "error": "Semua API key SerpApi habis atau tidak valid."}
 
         # 3. Official Google Places API (New) Mode

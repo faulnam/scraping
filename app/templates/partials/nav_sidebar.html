@@ -1,121 +1,145 @@
-<!-- Fixed Sidebar Navigation (Width 240px / w-60) with Mobile Drawer Support -->
-<aside id="app-sidebar" class="w-60 bg-sidebar text-slate-300 flex flex-col fixed inset-y-0 left-0 z-30 shadow-xl select-none transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+<!-- Neo-Brutalist Sidebar Navigation (Width 256px / w-64) with Mobile Drawer Support -->
+<aside id="app-sidebar" class="w-64 max-w-[85vw] bg-white text-black flex flex-col fixed inset-y-0 left-0 z-[70] border-r-[2.5px] border-black select-none transform -translate-x-full lg:translate-x-0 transition-transform duration-200 ease-in-out shadow-[6px_0px_0px_rgba(0,0,0,0.12)]">
   
   <!-- Brand Header -->
-  <div class="h-16 flex items-center justify-between px-5 border-b border-slate-800">
-    <div class="flex items-center space-x-3 overflow-hidden">
-      <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm shrink-0">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+  <div class="h-16 shrink-0 flex items-center justify-between px-5 border-b-[2.5px] border-black bg-[#FFFDF5]">
+    <a href="/" class="flex items-center space-x-2.5 overflow-hidden group">
+      <div class="w-9 h-9 rounded-xl bg-[#2563EB] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_#000] shrink-0 group-hover:rotate-6 transition-transform">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
         </svg>
       </div>
       <div class="overflow-hidden">
-        <div class="font-bold text-white text-sm tracking-tight leading-tight">LeadMaps BI</div>
-        <div class="text-[10px] text-slate-400 font-normal truncate">Market Intelligence System</div>
+        <div class="font-black text-black text-sm tracking-tight leading-tight">LeadMaps BI</div>
+        <div class="text-[10px] text-slate-800 font-bold uppercase tracking-wider">Scraper & Outreach</div>
       </div>
-    </div>
+    </a>
 
     <!-- Mobile Close Button -->
-    <button type="button" onclick="toggleSidebar()" class="lg:hidden text-slate-400 hover:text-white p-1 focus:outline-none" aria-label="Tutup Menu">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <button type="button" onclick="toggleSidebar()" class="lg:hidden text-black hover:bg-slate-100 p-1.5 rounded-lg border-2 border-black focus:outline-none" aria-label="Tutup Menu">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
   </div>
 
   <!-- Navigation Groups -->
-  <div class="flex-1 overflow-y-auto py-5 px-3 space-y-6">
+  <div class="flex-1 overflow-y-auto py-5 px-3.5 space-y-5 bg-[#FFFDF5]">
+    
     <!-- Group 1: NAVIGASI UTAMA -->
     <div>
-      <div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-        NAVIGASI UTAMA
+      <div class="px-2 text-[10px] font-black uppercase tracking-wider text-black mb-2 flex items-center justify-between">
+        <span>NAVIGASI UTAMA</span>
+        <span class="w-2 h-2 rounded-full bg-[#2563EB] border border-black inline-block"></span>
       </div>
-      <nav class="space-y-1">
+      <nav class="space-y-1.5">
+        
+        <!-- Dashboard Ringkasan -->
         <a href="/" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'dashboard' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'dashboard' %}bg-[#2563EB] text-white border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
           </svg>
           <span>Dashboard Ringkasan</span>
         </a>
 
+        <!-- Peta & Analisis Leads -->
         <a href="/leads" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'leads' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'leads' %}bg-[#34D399] text-black border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
           </svg>
           <span>Peta & Analisis Leads</span>
         </a>
 
+        <!-- Outreach Mode -->
         <a href="/outreach" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'outreach' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'outreach' %}bg-[#FF6B6B] text-black border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
           </svg>
           <span>Outreach Mode</span>
+          <span class="ml-auto neo-badge neo-badge-blue text-[9px] px-1.5 py-0.5">WA</span>
         </a>
 
+        <!-- Riwayat Crawling -->
         <a href="/history" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'history' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'history' %}bg-[#C4B5FD] text-black border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span>Riwayat Crawling</span>
         </a>
 
+        <!-- Metodologi & Panduan -->
         <a href="/guide" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'guide' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'guide' %}bg-[#38BDF8] text-black border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
           </svg>
           <span>Metodologi & Panduan</span>
         </a>
+
       </nav>
     </div>
 
-    <!-- Group 2: KONFIGURASI (hidden for admin_demo where not needed) -->
+    <!-- Group 2: KONFIGURASI -->
     <div>
-      <div class="px-3 text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
-        KONFIGURASI & ADMIN
+      <div class="px-2 text-[10px] font-black uppercase tracking-wider text-black mb-2 flex items-center justify-between">
+        <span>KONFIGURASI</span>
+        <span class="w-2 h-2 rounded-full bg-[#34D399] border border-black inline-block"></span>
       </div>
-      <nav class="space-y-1">
+      <nav class="space-y-1.5">
         {% set user_role = request.state.current_user.role if request.state.current_user else 'admin' %}
         {% if user_role != 'admin_demo' %}
         <a href="/settings/api-keys" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'api_keys' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'api_keys' %}bg-[#2563EB] text-white border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
           </svg>
           <span>Manajemen API Key</span>
         </a>
         {% endif %}
 
         <a href="/settings/profile" 
-           class="flex items-center px-3 py-2 text-xs rounded-lg transition-colors {% if active_page == 'profile' %}bg-sidebarActive text-white font-semibold{% else %}text-slate-300 hover:bg-sidebarActive hover:text-white{% endif %}">
-          <svg class="w-4 h-4 mr-2.5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+           class="flex items-center px-3 py-2.5 text-xs rounded-xl font-black transition-all {% if active_page == 'profile' %}bg-[#2563EB] text-white border-2 border-black shadow-[3px_3px_0px_#000]{% else %}text-slate-800 hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[3px_3px_0px_#000]{% endif %}">
+          <svg class="w-4 h-4 mr-2.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
           </svg>
           <span>Profil Bisnis & Akun</span>
         </a>
       </nav>
     </div>
+
+    <!-- Quick Link: Back to Landing Page -->
+    <div class="pt-2">
+      <a href="/landing" 
+         class="neo-btn neo-btn-white w-full py-2 text-xs font-black flex items-center justify-center text-black">
+        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"></path>
+        </svg>
+        <span>Lihat Landing Page</span>
+      </a>
+    </div>
+
   </div>
 
   <!-- Sidebar Footer with User & Logout -->
-  <div class="p-3 border-t border-slate-800 bg-[#070A11]">
-    <div class="flex items-center justify-between px-1.5">
+  <div class="shrink-0 p-3.5 pb-6 sm:pb-3.5 border-t-[2.5px] border-black bg-white">
+    <div class="flex items-center justify-between px-1">
       <div class="flex items-center space-x-2.5 overflow-hidden">
-        <div class="w-7 h-7 rounded-lg {% if request.state.current_user and request.state.current_user.role == 'admin_demo' %}bg-amber-600{% else %}bg-blue-600{% endif %} flex items-center justify-center text-xs font-bold text-white uppercase shrink-0 shadow-sm">
+        <div class="w-8 h-8 rounded-xl {% if request.state.current_user and request.state.current_user.role == 'admin_demo' %}bg-[#2563EB] text-white{% else %}bg-[#34D399] text-black{% endif %} border-2 border-black flex items-center justify-center text-xs font-black uppercase shrink-0 shadow-[2px_2px_0px_#000]">
           {% if request.state.current_user %}{{ request.state.current_user.username[0] | upper }}{% else %}A{% endif %}
         </div>
         <div class="overflow-hidden">
-          <p class="text-xs font-bold text-white leading-tight truncate">
+          <p class="text-xs font-black text-black leading-tight truncate">
             {% if request.state.current_user %}{{ request.state.current_user.full_name or request.state.current_user.username }}{% else %}Administrator{% endif %}
           </p>
-          <p class="text-[10px] {% if request.state.current_user and request.state.current_user.role == 'admin_demo' %}text-amber-400 font-semibold{% else %}text-slate-400{% endif %} leading-tight mt-0.5">
+          <p class="text-[10px] font-bold text-slate-700 leading-tight mt-0.5">
             {% if request.state.current_user and request.state.current_user.role == 'admin_demo' %}
-              Akun Demo (3 Token)
+              Akun Demo
             {% else %}
               Akun Admin Utama
             {% endif %}
@@ -124,9 +148,10 @@
       </div>
       <a href="/logout" 
          title="Keluar dari Akun"
-         class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-900 transition text-xs font-semibold shrink-0">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+         class="neo-btn neo-btn-coral p-1.5 rounded-lg text-black text-xs font-black shrink-0 shadow-[2px_2px_0px_#000]"
+         aria-label="Logout">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
         </svg>
       </a>
     </div>

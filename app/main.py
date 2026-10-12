@@ -34,50 +34,53 @@ app = FastAPI(
 )
 
 # Authentication Guard Middleware
-PUBLIC_PREFIXES = ("/login", "/logout", "/static", "/favicon.ico")
+PUBLIC_PREFIXES = ("/landing", "/login", "/logout", "/static", "/favicon.ico")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
     path = request.url.path
     
-    # Allow public endpoints
-    if any(path.startswith(prefix) for prefix in PUBLIC_PREFIXES):
-        return await call_next(request)
-    
     # Check session token and inject user into request.state
     token = request.cookies.get(SESSION_COOKIE_NAME)
     user_id = verify_session_token(token) if token else None
+
+    # Load user into request.state if authenticated
+    user = None
+    if user_id:
+        db = SessionLocal()
+        try:
+            user = db.query(models.User).filter(
+                models.User.id == user_id,
+                models.User.is_active == True  # noqa: E712
+            ).first()
+            if user:
+                _ = (user.id, user.username, user.full_name, user.role, user.is_admin, user.is_active)
+                db.expunge(user)
+        except Exception as e:
+            print(f"[Auth Middleware] Error loading user {user_id}: {e}")
+            user = None
+        finally:
+            db.close()
     
-    if not user_id:
-        # Check if HTMX request
+    request.state.current_user = user
+    request.state.user_id = user.id if user else None
+
+    # Allow public endpoints
+    if any(path.startswith(prefix) for prefix in PUBLIC_PREFIXES):
+        return await call_next(request)
+
+    # Allow root endpoint "/" (renders landing page if unauthenticated, dashboard if authenticated)
+    if path == "/":
+        return await call_next(request)
+    
+    # Protected endpoints require authentication
+    if not user:
         if request.headers.get("hx-request"):
             resp = HTMLResponse(content="", status_code=200)
             resp.headers["HX-Redirect"] = f"/login?next={path}"
             return resp
-        
-        # Standard browser navigation -> redirect to /login
         return RedirectResponse(url=f"/login?next={path}", status_code=303)
-    
-    # Query user object and expunge from session so attributes are safe in templates
-    db = SessionLocal()
-    try:
-        user = db.query(models.User).filter(
-            models.User.id == user_id,
-            models.User.is_active == True  # noqa: E712
-        ).first()
-        if user:
-            # Refresh to load all fields into memory and expunge
-            _ = (user.id, user.username, user.full_name, user.role, user.is_admin, user.is_active)
-            db.expunge(user)
-        request.state.current_user = user
-        request.state.user_id = user_id
-    except Exception as e:
-        print(f"[Auth Middleware] Error loading user {user_id}: {e}")
-        request.state.current_user = None
-        request.state.user_id = None
-    finally:
-        db.close()
-    
+
     response = await call_next(request)
     return response
 

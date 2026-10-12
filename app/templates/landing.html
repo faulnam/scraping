@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeadMaps BI &mdash; Business Lead Scraper & Market Intelligence</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Neo Brutalism Core Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', path='css/neo_brutalism.css') }}?v=2.0.2">
+
+  <style>
+    /* Neo Brutalism Utility Inlines */
+    .neo-shadow {
+      box-shadow: 4px 4px 0px #000000;
+    }
+    .neo-shadow-lg {
+      box-shadow: 7px 7px 0px #000000;
+    }
+    .neo-border {
+      border: 2.5px solid #000000;
+    }
+    .neo-border-3 {
+      border: 3px solid #000000;
+    }
+    .tab-active {
+      background-color: #2563EB !important;
+      color: #FFFFFF !important;
+      font-weight: 800 !important;
+    }
+  </style>
+</head>
+<body class="min-h-full bg-[#FFFDF5] text-black antialiased selection:bg-[#2563EB] selection:text-white">
+
+  <!-- ==================== TOP NAVIGATION BAR ==================== -->
+  <header class="hidden md:block sticky top-0 z-50 bg-[#FFFDF5] border-b-[2.5px] border-black px-4 sm:px-8 py-3.5 backdrop-blur-md bg-opacity-95">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="/" class="flex items-center space-x-3 text-decoration-none group">
+        <div class="w-10 h-10 rounded-xl bg-[#2563EB] neo-border neo-shadow flex items-center justify-center font-black text-white group-hover:rotate-6 transition-transform">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="font-black text-xl tracking-tight leading-none text-black">LeadMaps BI</div>
+          <div class="text-[11px] font-bold text-black uppercase tracking-wider mt-0.5">Scraper & Outreach Studio</div>
+        </div>
+      </a>
+
+
+      <!-- Desktop Navigation Links with Blue Hover Neo-Brutalism -->
+      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
+        <a href="#beranda" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+          Beranda
+        </a>
+        <a href="#simulator" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+          Simulator Demo
+        </a>
+        <a href="#fitur" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+          Fitur Unggulan
+        </a>
+        <a href="#cara-kerja" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+          Cara Kerja
+        </a>
+        <a href="/guide" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+          Panduan
+        </a>
+      </nav>
+
+      <!-- Right Action / Login Button -->
+      <div class="flex items-center space-x-3">
+        {% if current_user %}
+        <a href="/" class="neo-btn neo-btn-primary px-4 sm:px-5 py-2 text-xs sm:text-sm font-black flex items-center space-x-1.5">
+          <span>Buka Dashboard</span>
+          <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+        <a href="/logout" class="neo-btn neo-btn-white px-3 py-2 text-xs font-bold text-black">
+          Keluar
+        </a>
+        {% else %}
+        <a href="/login" class="neo-btn neo-btn-white px-3.5 py-2 text-xs sm:text-sm font-extrabold hidden sm:inline-flex">
+          Akun Demo
+        </a>
+        <a href="/login" class="neo-btn neo-btn-primary px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black tracking-tight flex items-center space-x-1.5">
+          <span>Masuk ke Dashboard</span>
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== HERO SECTION ==================== -->
+  <section id="beranda" class="relative pt-6 pb-14 sm:pt-20 sm:pb-24 px-4 sm:px-8 overflow-hidden">
+    
+    <!-- Floating Neo-Brutalist Decorative SVG Shapes (Hidden on Mobile) -->
+    <div class="hidden md:block absolute top-10 left-8 neo-deco-shape select-none text-[#2563EB] animate-bounce duration-1000">
+      <svg class="w-8 h-8" fill="currentColor" stroke="black" stroke-width="2" viewBox="0 0 24 24">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+    </div>
+    <div class="hidden md:block absolute top-24 right-12 neo-deco-shape select-none text-[#34D399]">
+      <svg class="w-9 h-9" fill="currentColor" stroke="black" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 2l2.4 7.2h7.6l-6 4.8 2.4 7.2-6.4-4.8-6.4 4.8 2.4-7.2-6-4.8h7.6z"></path>
+      </svg>
+    </div>
+    <div class="hidden md:block absolute bottom-10 left-16 neo-deco-shape select-none text-[#FF6B6B]">
+      <svg class="w-7 h-7" fill="currentColor" stroke="black" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="4" y="4" width="16" height="16" rx="3" transform="rotate(45 12 12)"></rect>
+      </svg>
+    </div>
+    <div class="hidden md:block absolute bottom-16 right-20 neo-deco-shape select-none text-[#38BDF8]">
+      <svg class="w-7 h-7" fill="currentColor" stroke="black" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"></circle>
+      </svg>
+    </div>
+
+    <div class="max-w-5xl mx-auto text-center relative z-10">
+      
+
+
+      <!-- Main Headline -->
+      <h1 class="text-3xl sm:text-5xl md:text-6xl font-black text-black leading-[1.15] tracking-tight max-w-4xl mx-auto mb-6">
+        Temukan Ribuan Bisnis Lokal <br class="hidden sm:inline">
+        <span class="bg-[#2563EB] text-white px-3 py-1 neo-border neo-shadow inline-block mt-1 sm:mt-2 rotate-[-1deg]">
+          Tanpa Website
+        </span> 
+        di Google Maps!
+      </h1>
+
+      <!-- Mission Statement (Why This Helps People) -->
+      <p class="text-sm sm:text-lg text-slate-900 font-semibold max-w-3xl mx-auto leading-relaxed mb-8">
+        Bantu UMKM lokal (Klinik, Resto, Kafe, Salon, Bengkel) bertransformasi ke ranah digital.
+        <strong>LeadMaps BI</strong> secara otomatis memanen data bisnis berating tinggi yang belum memiliki website, 
+        mencocokkan portofolio demo web siap saji, dan menyiapkan draf penawaran WhatsApp dalam 1 klik.
+      </p>
+
+      <!-- CTA Buttons Stack -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-10">
+        <a href="/login" class="neo-btn neo-btn-primary px-8 py-3.5 text-base sm:text-lg font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
+          <span>Mulai Cari Prospek Sekarang &mdash; Gratis</span>
+          <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
+        <a href="#cara-kerja" class="neo-btn neo-btn-white px-6 py-3.5 text-sm sm:text-base font-extrabold w-full sm:w-auto flex items-center justify-center space-x-1.5">
+          <span>Lihat Cara Kerja</span>
+          <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+          </svg>
+        </a>
+      </div>
+
+      <!-- Neo-Brutalism Badges Pill Carousel with Clean SVG Icons -->
+      <div class="flex flex-wrap items-center justify-center gap-2.5 max-w-3xl mx-auto pt-2">
+        <span class="neo-badge neo-badge-white flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>Google Maps Places Live</span>
+        </span>
+
+        <span class="neo-badge neo-badge-mint flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="2" x2="12" y2="6"></line>
+            <line x1="12" y1="18" x2="12" y2="22"></line>
+            <line x1="2" y1="12" x2="6" y2="12"></line>
+            <line x1="18" y1="12" x2="22" y2="12"></line>
+          </svg>
+          <span>No-Website Hunter</span>
+        </span>
+
+        <span class="neo-badge neo-badge-blue flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            <rect x="9" y="9" width="6" height="6"></rect>
+          </svg>
+          <span>Auto Demo Matcher</span>
+        </span>
+
+        <span class="neo-badge neo-badge-purple flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <span>1-Klik WA Web Outreach</span>
+        </span>
+
+        <span class="neo-badge neo-badge-cyan flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <span>CRM Funnel Sales</span>
+        </span>
+
+        <span class="neo-badge neo-badge-coral flex items-center space-x-1.5">
+          <svg class="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+          </svg>
+          <span>Export CSV & Excel</span>
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== INTERACTIVE DEMO SIMULATOR CARD ==================== -->
+  <section id="simulator" class="px-4 sm:px-8 pb-20">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="neo-card bg-white p-5 sm:p-8 neo-shadow-lg relative overflow-hidden">
+        
+        <!-- Header Mockup Window Controls -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-5 border-b-[2.5px] border-black gap-4 mb-6">
+          <div class="flex items-center space-x-2">
+            <span class="w-3.5 h-3.5 rounded-full bg-[#FF6B6B] border-2 border-black inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-[#2563EB] border-2 border-black inline-block"></span>
+            <span class="w-3.5 h-3.5 rounded-full bg-[#34D399] border-2 border-black inline-block"></span>
+            <span class="font-extrabold text-xs ml-2 uppercase tracking-wider text-black">Simulator Live Output</span>
+          </div>
+
+          <!-- Neo Tab Controls -->
+          <div class="inline-flex rounded-xl neo-border overflow-hidden bg-white">
+            <button type="button" id="tab-btn-1" class="px-3 sm:px-4 py-1.5 text-xs font-bold border-r-2 border-black tab-active" onclick="switchSimulatorTab(1)">
+              Tab 1: Hasil Scraping
+            </button>
+            <button type="button" id="tab-btn-2" class="px-3 sm:px-4 py-1.5 text-xs font-bold border-r-2 border-black bg-white hover:bg-slate-100" onclick="switchSimulatorTab(2)">
+              Tab 2: Filter Prioritas
+            </button>
+            <button type="button" id="tab-btn-3" class="px-3 sm:px-4 py-1.5 text-xs font-bold bg-white hover:bg-slate-100" onclick="switchSimulatorTab(3)">
+              Tab 3: Template WA
+            </button>
+          </div>
+        </div>
+
+        <!-- ==================== TAB 1 CONTENT: HASIL SCRAPING ==================== -->
+        <div id="sim-tab-1" class="space-y-6 animate-fade-in">
+          <!-- Search Bar Simulator -->
+          <div>
+            <div class="neo-input flex items-center px-4 py-3 bg-[#FFFDF5]">
+              <svg class="w-5 h-5 text-black mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+              <span class="font-bold text-xs sm:text-sm text-black">
+                Pencarian: "Klinik Gigi & Dental" &bull; Lokasi: "Kota Bandung, Jawa Barat"
+              </span>
+              <span class="ml-auto neo-badge neo-badge-blue hidden sm:inline-flex text-[10px]">
+                Ditemukan 10 Usaha
+              </span>
+            </div>
+          </div>
+
+          <!-- Simulated Scraped Lead Card -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Left: Business Info Card -->
+            <div class="md:col-span-2 neo-border rounded-xl p-5 bg-[#FFFDF5] neo-shadow flex flex-col justify-between">
+              <div>
+                <div class="flex items-start justify-between gap-3 mb-2">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-[#2563EB] border-2 border-black flex items-center justify-center shrink-0">
+                      <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="font-black text-lg text-black leading-tight">
+                        Dental Prima Care Bandung
+                      </h3>
+                      <p class="text-xs text-slate-700 font-medium mt-0.5">
+                        Jl. R.E. Martadinata No. 88, Riau, Kota Bandung
+                      </p>
+                    </div>
+                  </div>
+                  <span class="neo-badge neo-badge-coral font-black text-[10px]">
+                    HIGH PRIORITY
+                  </span>
+                </div>
+
+                <!-- Metrics Row -->
+                <div class="flex flex-wrap items-center gap-2 my-3">
+                  <span class="neo-badge neo-badge-white flex items-center space-x-1">
+                    <svg class="w-3 h-3 text-amber-500 fill-current" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                    </svg>
+                    <span>4.9 / 5.0 (148 Ulasan)</span>
+                  </span>
+                  <span class="neo-badge neo-badge-mint flex items-center space-x-1">
+                    <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>BELUM ADA WEBSITE</span>
+                  </span>
+                  <span class="neo-badge neo-badge-cyan flex items-center space-x-1">
+                    <svg class="w-3 h-3 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                    </svg>
+                    <span>+62 812-2345-XXXX</span>
+                  </span>
+                </div>
+
+                <div class="p-3 bg-white neo-border rounded-lg text-xs font-semibold text-slate-800 mb-3 flex items-start space-x-2">
+                  <svg class="w-4 h-4 text-black shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                  </svg>
+                  <div>
+                    <span class="text-black font-extrabold">Analisis Peluang:</span> Usaha ini memiliki reputasi pasien sangat tinggi tapi belum memiliki website untuk reservasi jadwal konsultasi online. Sangat potensial ditawari pembuatan landing page dokter gigi!
+                  </div>
+                </div>
+              </div>
+
+              <!-- Matched Demo -->
+              <div class="pt-3 border-t-2 border-black flex items-center justify-between flex-wrap gap-2">
+                <div class="text-xs font-bold text-black flex items-center space-x-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#2563EB] border border-black inline-block"></span>
+                  <span>Demo Otomatis: <u>dental-care-demo.vercel.app</u></span>
+                </div>
+                <a href="/login" class="neo-btn neo-btn-accent px-4 py-2 text-xs font-black flex items-center space-x-1">
+                  <span>Hubungi via WhatsApp</span>
+                  <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Right: Interactive Component Card -->
+            <div class="neo-card-blue bg-[#2563EB] text-white p-5 flex flex-col justify-between">
+              <div>
+                <div class="neo-badge neo-badge-white mb-3">
+                  Status Follow-Up
+                </div>
+                <h4 class="font-black text-base text-white mb-1">Pipeline Sales</h4>
+                <p class="text-xs font-bold text-blue-100 mb-4">
+                  Kelola prospek dari kontak pertama hingga kesepakatan (Deal Client).
+                </p>
+
+                <!-- Mini Progress / Pipeline -->
+                <div class="space-y-2">
+                  <div class="flex justify-between text-[11px] font-bold text-white">
+                    <span>Tingkat Konversi</span>
+                    <span>78%</span>
+                  </div>
+                  <div class="w-full bg-white neo-border rounded-full h-3.5 overflow-hidden">
+                    <div class="bg-[#34D399] h-full border-r-2 border-black" style="width: 78%"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-4 border-t-2 border-black text-center">
+                <a href="/login" class="neo-btn neo-btn-dark w-full py-2.5 text-xs font-black">
+                  Masuk ke Studio Outreach
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================== TAB 2 CONTENT: FILTER PRIORITAS ==================== -->
+        <div id="sim-tab-2" class="space-y-6 animate-fade-in hidden">
+          <!-- Filter Criteria Simulator Bar -->
+          <div>
+            <div class="neo-input flex items-center px-4 py-3 bg-[#FFFDF5]">
+              <svg class="w-5 h-5 text-black mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+              </svg>
+              <span class="font-bold text-xs sm:text-sm text-black">
+                Filter Otomatis: Tanpa Website = YA &bull; Min. Rating = 4.5+ &bull; Status = Belum Kontak
+              </span>
+              <span class="ml-auto neo-badge neo-badge-mint hidden sm:inline-flex text-[10px]">
+                8 Lolos Prioritas Tinggi
+              </span>
+            </div>
+          </div>
+
+          <!-- Scoring Breakdown Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Left: Scoring Matrix Breakdown -->
+            <div class="md:col-span-2 neo-border rounded-xl p-5 bg-[#FFFDF5] neo-shadow flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b-2 border-black mb-4">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-7 h-7 rounded-lg bg-[#38BDF8] border-2 border-black flex items-center justify-center font-black text-xs text-black">
+                      <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-black text-sm text-black">Algoritma Lead Scoring Otomatis</h4>
+                      <p class="text-[11px] font-semibold text-slate-700">Audit kelayakan prospek berbasis data Maps</p>
+                    </div>
+                  </div>
+                  <span class="neo-badge neo-badge-coral font-black text-xs">
+                    SKOR: 95 / 100 (HIGH)
+                  </span>
+                </div>
+
+                <!-- 3 Criteria Cards -->
+                <div class="space-y-2.5 mb-4">
+                  <div class="p-2.5 rounded-lg bg-white neo-border flex items-start justify-between gap-3 text-xs">
+                    <div>
+                      <div class="font-black text-black flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#34D399] border border-black inline-block"></span>
+                        <span>1. Tidak Ada Website Resmi (Bobot 50%)</span>
+                      </div>
+                      <p class="text-[11px] text-slate-700 font-medium mt-0.5">
+                        Klinik kehilangan ratusan pencarian organik per bulan di Google karena ketiadaan landing page.
+                      </p>
+                    </div>
+                    <span class="neo-badge neo-badge-mint text-[10px] font-black shrink-0">+50 Poin</span>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-white neo-border flex items-start justify-between gap-3 text-xs">
+                    <div>
+                      <div class="font-black text-black flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#34D399] border border-black inline-block"></span>
+                        <span>2. Reputasi Tinggi & Banyak Ulasan (Bobot 30%)</span>
+                      </div>
+                      <p class="text-[11px] text-slate-700 font-medium mt-0.5">
+                        Rating 4.9 dengan 148 ulasan membuktikan klinik aktif, ramai pasien, dan memiliki budget operasional.
+                      </p>
+                    </div>
+                    <span class="neo-badge neo-badge-mint text-[10px] font-black shrink-0">+30 Poin</span>
+                  </div>
+
+                  <div class="p-2.5 rounded-lg bg-white neo-border flex items-start justify-between gap-3 text-xs">
+                    <div>
+                      <div class="font-black text-black flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-[#34D399] border border-black inline-block"></span>
+                        <span>3. Nomor Kontak WhatsApp Terverifikasi (Bobot 20%)</span>
+                      </div>
+                      <p class="text-[11px] text-slate-700 font-medium mt-0.5">
+                        Nomor valid terdeteksi untuk direct outreach tanpa perantara sulit.
+                      </p>
+                    </div>
+                    <span class="neo-badge neo-badge-cyan text-[10px] font-black shrink-0">+15 Poin</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="pt-3 border-t-2 border-black flex items-center justify-between flex-wrap gap-2">
+                <span class="text-xs font-bold text-black flex items-center space-x-1.5">
+                  <span class="w-2 h-2 rounded-full bg-[#34D399] animate-pulse"></span>
+                  <span>Rekomendasi: <strong>Prioritas Hubungi Pertama</strong></span>
+                </span>
+                <button type="button" onclick="switchSimulatorTab(3)" class="neo-btn neo-btn-primary px-4 py-2 text-xs font-black flex items-center space-x-1.5">
+                  <span>Lanjut Buat Template WA</span>
+                  <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Smart Filter Benefit Card -->
+            <div class="neo-card-mint p-5 flex flex-col justify-between">
+              <div>
+                <div class="neo-badge neo-badge-white mb-3">
+                  Filter Efisiensi
+                </div>
+                <h4 class="font-black text-base text-black mb-1">Anti Buang Waktu</h4>
+                <p class="text-xs font-bold text-black mb-4">
+                  Jangan habiskan waktu menghubungi bisnis yang sudah punya web atau tidak aktif.
+                </p>
+
+                <!-- Filter Stats Breakdown -->
+                <div class="p-3 bg-white neo-border rounded-xl space-y-2 text-xs font-bold text-black">
+                  <div class="flex justify-between items-center">
+                    <span>Total Scraped:</span>
+                    <span>10 Listing</span>
+                  </div>
+                  <div class="flex justify-between items-center text-emerald-800">
+                    <span>Lolos Kriteria:</span>
+                    <span>8 Bisnis (80%)</span>
+                  </div>
+                  <div class="flex justify-between items-center text-slate-600 border-t border-slate-200 pt-1">
+                    <span>Sudah Ada Web:</span>
+                    <span>2 Dieliminasi</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-4 border-t-2 border-black text-center">
+                <a href="/login" class="neo-btn neo-btn-dark w-full py-2.5 text-xs font-black">
+                  Coba Filter di Dashboard
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ==================== TAB 3 CONTENT: TEMPLATE WA ==================== -->
+        <div id="sim-tab-3" class="space-y-6 animate-fade-in hidden">
+          <!-- Outreach Target Bar -->
+          <div>
+            <div class="neo-input flex items-center px-4 py-3 bg-[#FFFDF5]">
+              <svg class="w-5 h-5 text-black mr-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+              </svg>
+              <span class="font-bold text-xs sm:text-sm text-black">
+                Target: Dental Prima Care Bandung &bull; WhatsApp: +62 812-2345-XXXX &bull; PIC: Owner / Manajemen
+              </span>
+              <span class="ml-auto neo-badge neo-badge-coral hidden sm:inline-flex text-[10px]">
+                Draf Terpersonalisasi
+              </span>
+            </div>
+          </div>
+
+          <!-- WhatsApp Chat Preview Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+            
+            <!-- Left: Mockup Chat WhatsApp -->
+            <div class="md:col-span-2 neo-border rounded-xl p-5 bg-[#FFFDF5] neo-shadow flex flex-col justify-between">
+              <div>
+                <!-- Simulated WhatsApp Header -->
+                <div class="flex items-center justify-between pb-3 border-b-2 border-black mb-3">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-[#34D399] border-2 border-black flex items-center justify-center font-black text-xs text-black">
+                      DP
+                    </div>
+                    <div>
+                      <h4 class="font-black text-xs sm:text-sm text-black">Dental Prima Care Bandung</h4>
+                      <p class="text-[10px] text-emerald-700 font-bold">Online &bull; WhatsApp Business</p>
+                    </div>
+                  </div>
+                  <span class="neo-badge neo-badge-blue text-[10px] font-black">
+                    Template: Value Pitch
+                  </span>
+                </div>
+
+                <!-- Chat Bubble Mockup -->
+                <div class="p-4 rounded-xl bg-white neo-border neo-shadow text-xs text-black space-y-2 mb-3 leading-relaxed font-medium">
+                  <p>
+                    Halo Tim <strong>Dental Prima Care Bandung</strong>!
+                  </p>
+                  <p>
+                    Saya perhatikan klinik Anda memiliki reputasi sangat luar biasa di Google Maps (<strong>Rating 4.9 dari 148 ulasan pasien</strong>), selamat ya atas dedikasinya!
+                  </p>
+                  <p>
+                    Namun kami perhatikan saat ini Dental Prima Care belum memiliki website resmi untuk reservasi jadwal dokter gigi secara online.
+                  </p>
+                  <div class="p-2.5 rounded-lg bg-[#DBEAFE] neo-border text-xs font-bold text-black">
+                    Kami sudah siapkan prototype demo web klinik siap pakai: <br>
+                    <span class="text-blue-700 underline font-mono text-[11px]">https://dental-care-demo.vercel.app</span>
+                  </div>
+                  <p class="text-[11px] text-slate-700">
+                    Apakah berkenan jika kami kirimkan mockup desain & rincian fiturnya? Terima kasih banyak!
+                  </p>
+                </div>
+              </div>
+
+              <!-- Action Bar -->
+              <div class="pt-3 border-t-2 border-black flex items-center justify-between flex-wrap gap-2">
+                <span class="text-xs font-bold text-black flex items-center space-x-1.5">
+                  <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                  </svg>
+                  <span>1 Klik Buka Chat WhatsApp Langsung</span>
+                </span>
+                <a href="/login" class="neo-btn neo-btn-accent px-4 py-2 text-xs font-black flex items-center space-x-1.5">
+                  <span>Kirim Pesan WhatsApp</span>
+                  <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <!-- Right: Outreach Advantage Card -->
+            <div class="neo-card-coral p-5 flex flex-col justify-between">
+              <div>
+                <div class="neo-badge neo-badge-white mb-3">
+                  Outreach Studio
+                </div>
+                <h4 class="font-black text-base text-black mb-1">Konversi Tinggi</h4>
+                <p class="text-xs font-bold text-black mb-4">
+                  Bukan pesan spam blast. Pesan menyebut nama usaha asli, mengapresiasi rating riil, dan menawarkan demo relevan.
+                </p>
+
+                <!-- Value Highlights -->
+                <div class="p-3 bg-white neo-border rounded-xl space-y-2 text-xs font-bold text-black">
+                  <div class="flex items-center space-x-1.5 text-black">
+                    <span class="w-2 h-2 rounded-full bg-[#34D399] border border-black inline-block"></span>
+                    <span>Nama Usaha Dinamis</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 text-black">
+                    <span class="w-2 h-2 rounded-full bg-[#2563EB] border border-black inline-block"></span>
+                    <span>Link Demo Web Otomatis</span>
+                  </div>
+                  <div class="flex items-center space-x-1.5 text-black">
+                    <span class="w-2 h-2 rounded-full bg-[#38BDF8] border border-black inline-block"></span>
+                    <span>Etika Bisnis Ramah & Kredibel</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-6 pt-4 border-t-2 border-black text-center">
+                <a href="/login" class="neo-btn neo-btn-dark w-full py-2.5 text-xs font-black">
+                  Mulai Outreach di LeadMaps
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== KENAPA INI MEMBANTU BANYAK ORANG ==================== -->
+  <section class="py-16 sm:py-20 px-4 sm:px-8 bg-white border-y-[2.5px] border-black">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <span class="neo-badge neo-badge-purple mb-3 flex items-center mx-auto space-x-1 w-fit">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+          <span>MISI SOSIAL & EKONOMI</span>
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black text-black tracking-tight">
+          Mengapa LeadMaps BI Dibuat?
+        </h2>
+        <p class="text-slate-800 text-sm sm:text-base font-semibold mt-3">
+          Platform ini dirancang sebagai jembatan dua arah untuk memecahkan dua masalah besar sekaligus di era digital Indonesia:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        <!-- Pillar 1: Membantu UMKM Lokal -->
+        <div class="neo-card bg-[#FFFDF5] p-6 sm:p-8 neo-shadow flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-[#34D399] neo-border neo-shadow flex items-center justify-center font-black mb-4">
+              <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+              </svg>
+            </div>
+            <h3 class="font-black text-xl text-black mb-3">
+              1. Membantu UMKM & Usaha Lokal Go-Digital
+            </h3>
+            <p class="text-sm font-semibold text-slate-800 leading-relaxed space-y-2">
+              Banyak pemilik klinik, bengkel, restoran, dan toko kelontong sangat sibuk menjalankan operasional harian. Mereka tidak punya waktu atau pengetahuan teknis untuk membangun website, sehingga kehilangan pelanggan potensial yang mencari layanan mereka di internet.
+            </p>
+            <div class="mt-4 p-3.5 bg-emerald-50 neo-border rounded-xl text-xs font-bold text-emerald-950 flex items-center space-x-2">
+              <svg class="w-4 h-4 text-emerald-800 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Memberikan kesempatan bagi usaha lokal memiliki website profesional yang mendongkrak omset dan kepercayaan pelanggan.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 2: Membantu Freelancer & Agency -->
+        <div class="neo-card bg-[#FFFDF5] p-6 sm:p-8 neo-shadow flex flex-col justify-between">
+          <div>
+            <div class="w-12 h-12 rounded-xl bg-[#2563EB] neo-border neo-shadow flex items-center justify-center font-black text-white mb-4">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path>
+              </svg>
+            </div>
+            <h3 class="font-black text-xl text-black mb-3">
+              2. Membantu Freelancer & Agency Meraih Klien
+            </h3>
+            <p class="text-sm font-semibold text-slate-800 leading-relaxed space-y-2">
+              Di sisi lain, ribuan web developer muda dan agensi digital kesulitan mendapatkan klien pertama mereka karena prospecting manual memakan waktu berhari-hari dan seringkali menawarkan ke bisnis yang sudah punya website canggih.
+            </p>
+            <div class="mt-4 p-3.5 bg-blue-50 neo-border rounded-xl text-xs font-bold text-blue-950 flex items-center space-x-2">
+              <svg class="w-4 h-4 text-blue-800 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <span>Menyediakan database prospek terarah dan siap kontak secara instan, sehingga closing rate penawaran meningkat hingga 3x lipat!</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 6 FITUR UTAMA NEO-BRUTALISM ==================== -->
+  <section id="fitur" class="py-16 sm:py-24 px-4 sm:px-8">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <span class="neo-badge neo-badge-blue mb-3 flex items-center mx-auto space-x-1 w-fit">
+          <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          <span>FITUR LENGKAP</span>
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black text-black tracking-tight">
+          Kekuatan Penuh Lead Generation & Outreach
+        </h2>
+        <p class="text-slate-800 text-sm sm:text-base font-semibold mt-2">
+          Semua alat yang Anda butuhkan untuk menemukan, memfilter, dan menutup penjualan web development.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Card 1: Live Maps Ingestor -->
+        <div class="neo-card p-6 bg-white neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#2563EB] neo-border neo-shadow flex items-center justify-center font-black text-white mb-4">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">Live Google Maps Scraper</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Pencarian real-time via SerpApi & Google Places. Ekstrak nama usaha, alamat, rating, ulasan, jam buka, hingga koordinat GPS.
+          </p>
+        </div>
+
+        <!-- Card 2: No-Website Hunter -->
+        <div class="neo-card p-6 bg-[#ECFDF5] neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#34D399] neo-border neo-shadow flex items-center justify-center font-black mb-4">
+            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="2" x2="12" y2="6"></line>
+              <line x1="12" y1="18" x2="12" y2="22"></line>
+              <line x1="2" y1="12" x2="6" y2="12"></line>
+              <line x1="18" y1="12" x2="22" y2="12"></line>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">No-Website Hunter</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Algoritma otomatis menyaring usaha tanpa website (<code class="bg-white px-1 border border-black rounded">has_website == False</code>) dengan rating tinggi sebagai target prioritas utama.
+          </p>
+        </div>
+
+        <!-- Card 3: Demo Matcher -->
+        <div class="neo-card p-6 bg-[#F5F3FF] neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#C4B5FD] neo-border neo-shadow flex items-center justify-center font-black mb-4">
+            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 011.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.562C22 6.5 17.5 2 12 2z"></path>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">Portfolio Demo Matcher</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Sistem otomatis mencocokkan kategori usaha prospek dengan link demo web spesifik (Klinik &rarr; Demo Dental, Kafe &rarr; Demo QR Menu).
+          </p>
+        </div>
+
+        <!-- Card 4: WhatsApp Speed-Dial -->
+        <div class="neo-card p-6 bg-[#FFF1F2] neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#FF6B6B] neo-border neo-shadow flex items-center justify-center font-black mb-4">
+            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">WhatsApp Outreach Studio</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Editor pesan persuasif dengan preview real-time. Tombol 1-klik buka WhatsApp Web langsung dengan nomor dan pesan terisi rapi.
+          </p>
+        </div>
+
+        <!-- Card 5: CRM Funnel Tracker -->
+        <div class="neo-card p-6 bg-[#F0F9FF] neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#38BDF8] neo-border neo-shadow flex items-center justify-center font-black mb-4">
+            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">Sales Funnel CRM</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Lacak status follow-up: Belum Kontak, Sudah Di-WA, Follow Up, hingga Deal Client dengan catatan negosiasi sales terintegrasi.
+          </p>
+        </div>
+
+        <!-- Card 6: Spreadsheet Export -->
+        <div class="neo-card p-6 bg-white neo-card-interactive">
+          <div class="w-10 h-10 rounded-lg bg-[#000000] text-white neo-border neo-shadow flex items-center justify-center font-black mb-4">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6m-4 5H8m8 4H8m2-8H8"></path>
+            </svg>
+          </div>
+          <h3 class="font-black text-lg text-black mb-2">Export CSV & Excel</h3>
+          <p class="text-xs font-semibold text-slate-700 leading-relaxed">
+            Unduh data lengkap prospek ke format CSV (UTF-8 BOM) atau spreadsheet Excel (.xlsx) rapi siap bagikan ke tim sales.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== 3 LANGKAH CARA KERJA ==================== -->
+  <section id="cara-kerja" class="py-16 sm:py-20 px-4 sm:px-8 bg-[#2563EB] text-white border-y-[2.5px] border-black">
+    <div class="max-w-5xl mx-auto">
+      
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="neo-badge neo-badge-white mb-3">
+          3 LANGKAH SEDERHANA
+        </span>
+        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+          Cara Kerja LeadMaps BI
+        </h2>
+        <p class="text-blue-100 font-bold text-sm sm:text-base mt-2">
+          Hanya butuh 3 menit untuk mendapatkan daftar calon klien siap hubungi.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Step 1 -->
+        <div class="neo-card bg-white p-6 neo-shadow">
+          <div class="neo-badge neo-badge-blue mb-3 font-black">
+            LANGKAH 01
+          </div>
+          <h3 class="font-black text-lg text-black mb-2 flex items-center space-x-1.5">
+            <svg class="w-4 h-4 text-black mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Tentukan Kota & Kategori</span>
+          </h3>
+          <p class="text-xs font-semibold text-slate-800">
+            Pilih provinsi, kota sasaran (misal: Bandung, Surabaya), dan kata kunci kategori usaha (misal: "Klinik Gigi", "Kafe").
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="neo-card bg-white p-6 neo-shadow">
+          <div class="neo-badge neo-badge-mint mb-3 font-black">
+            LANGKAH 02
+          </div>
+          <h3 class="font-black text-lg text-black mb-2 flex items-center space-x-1.5">
+            <svg class="w-4 h-4 text-black mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span>Analisis Otomatis</span>
+          </h3>
+          <p class="text-xs font-semibold text-slate-800">
+            Sistem mengidentifikasi bisnis yang belum punya website dan memberikan skor prioritas HIGH untuk prospek berulasan banyak.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="neo-card bg-white p-6 neo-shadow">
+          <div class="neo-badge neo-badge-coral mb-3 font-black">
+            LANGKAH 03
+          </div>
+          <h3 class="font-black text-lg text-black mb-2 flex items-center space-x-1.5">
+            <svg class="w-4 h-4 text-black mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Kirim Penawaran WA</span>
+          </h3>
+          <p class="text-xs font-semibold text-slate-800">
+            Buka Outreach Studio, pilih template pesan + demo web yang cocok, dan klik kirim ke WhatsApp Web langsung!
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FINAL CTA BANNER ==================== -->
+  <section class="py-16 sm:py-24 px-4 sm:px-8 bg-[#FFFDF5]">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="neo-card bg-white p-8 sm:p-12 neo-shadow-lg text-center relative overflow-hidden">
+        
+        <div class="inline-flex items-center space-x-2 mb-4">
+          <span class="neo-badge neo-badge-mint text-xs font-black flex items-center space-x-1">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>COBA SEKARANG TANPA BIAYA</span>
+          </span>
+        </div>
+
+        <h2 class="text-3xl sm:text-5xl font-black text-black tracking-tight mb-4">
+          Siap Membantu Bisnis Lokal & Mendapatkan Klien Baru?
+        </h2>
+
+        <p class="text-sm sm:text-base font-semibold text-slate-800 max-w-2xl mx-auto mb-8">
+          Akses sekarang dan manfaatkan akun demo gratis atau login dengan akun administrator untuk mulai mencari prospek usaha Google Maps Anda.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="/login" class="neo-btn neo-btn-primary px-8 py-4 text-base font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
+            <span>Masuk ke Dashboard Sekarang</span>
+            <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </a>
+          <a href="/login" class="neo-btn neo-btn-white px-6 py-4 text-sm font-black w-full sm:w-auto">
+            Gunakan Akun Demo (3 Token)
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-black text-white pt-10 pb-24 sm:pb-10 px-4 sm:px-8 border-t-[3px] border-black">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold">
+      <div class="flex items-center space-x-3">
+        <span class="w-7 h-7 rounded-lg bg-[#2563EB] text-white neo-border flex items-center justify-center font-black">
+          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+          </svg>
+        </span>
+        <span>&copy; 2026 <strong>LeadMaps BI</strong> &mdash; Business Lead Intelligence & Outreach System</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-300">
+        <a href="/login" class="hover:text-[#60A5FA] transition">Login</a>
+        <span>&bull;</span>
+        <a href="/guide" class="hover:text-[#60A5FA] transition">Panduan Metodologi</a>
+        <span>&bull;</span>
+        <span class="text-slate-400">FastAPI &bull; MySQL &bull; Neo Brutalism</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Mobile Bottom Navigation Bar on Landing (md:hidden) -->
+  <nav class="neo-floating-nav md:hidden" aria-label="Navigasi Mobile Landing">
+    <!-- 1. Beranda -->
+    <a href="#beranda" class="neo-floating-nav-item active" title="Beranda">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+      </svg>
+    </a>
+
+    <!-- 2. Simulator Demo -->
+    <a href="#simulator" class="neo-floating-nav-item" title="Demo Simulator">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+    </a>
+
+    <!-- 3. Fitur Keunggulan -->
+    <a href="#fitur" class="neo-floating-nav-item" title="Fitur Unggulan">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+    </a>
+
+    <!-- 4. Cara Kerja -->
+    <a href="#cara-kerja" class="neo-floating-nav-item" title="Cara Kerja">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+      </svg>
+    </a>
+
+    <!-- 5. Masuk / Akun -->
+    <a href="/login" class="neo-floating-nav-item" title="Masuk ke Dashboard">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+      </svg>
+    </a>
+  </nav>
+
+  <script>
+    function switchSimulatorTab(tabNumber) {
+      for (let i = 1; i <= 3; i++) {
+        const content = document.getElementById('sim-tab-' + i);
+        const btn = document.getElementById('tab-btn-' + i);
+        if (content) {
+          if (i === tabNumber) {
+            content.classList.remove('hidden');
+          } else {
+            content.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (i === tabNumber) {
+            btn.classList.add('tab-active');
+            btn.classList.remove('bg-white');
+          } else {
+            btn.classList.remove('tab-active');
+            btn.classList.add('bg-white');
+          }
+        }
+      }
+    }
+
+    function switchTab(index) {
+      switchSimulatorTab(index);
+    }
+  </script>
+</body>
+</html>

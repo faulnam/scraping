@@ -1,0 +1,448 @@
+/* ==========================================================================
+   NEO BRUTALISM COMPREHENSIVE DESIGN SYSTEM FOR LEADMAPS BI
+   Featuring chunky 2.5px black borders, hard non-blurred shadows,
+   vibrant saturated pastel accents, and bold quirky typography.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap');
+
+:root {
+  --neo-canvas: #FFFDF5;
+  --neo-black: #000000;
+  --neo-white: #FFFFFF;
+  --neo-blue: #2563EB;
+  --neo-blue-accent: #3B82F6;
+  --neo-blue-light: #DBEAFE;
+  --neo-yellow: #FFE600;
+  --neo-yellow-light: #FFF59D;
+  --neo-mint: #34D399;
+  --neo-mint-light: #A7F3D0;
+  --neo-coral: #FF6B6B;
+  --neo-coral-light: #FECDD3;
+  --neo-purple: #C4B5FD;
+  --neo-purple-light: #DDD6FE;
+  --neo-cyan: #38BDF8;
+  --neo-cyan-light: #BAE6FD;
+  --neo-orange: #FB923C;
+}
+
+body {
+  background-color: var(--neo-canvas) !important;
+  color: #000000 !important;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  letter-spacing: -0.025em;
+  font-weight: 800;
+  color: #000000;
+}
+
+/* ==========================================================================
+   CARDS & CONTAINERS
+   ========================================================================== */
+.card, .neo-card {
+  background-color: #ffffff !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.card h1, .card h2, .card h3, .card h4, .card h5, .card h6 {
+  color: #000000 !important;
+}
+
+.neo-card-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000 !important;
+}
+
+/* Dark Card Variant */
+.neo-card-dark, .card.bg-slate-900, .card.bg-black {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+.card.bg-slate-900 h1, .card.bg-slate-900 h2, .card.bg-slate-900 h3, .card.bg-slate-900 h4,
+.card.bg-black h1, .card.bg-black h2, .card.bg-black h3, .card.bg-black h4,
+.neo-card-dark h1, .neo-card-dark h2, .neo-card-dark h3, .neo-card-dark h4 {
+  color: #ffffff !important;
+}
+
+.card.bg-slate-900 p, .card.bg-black p, .neo-card-dark p {
+  color: #f1f5f9 !important;
+}
+
+/* Color Accent Cards */
+.neo-card-blue, .neo-card-yellow {
+  background-color: var(--neo-blue-accent, #3B82F6) !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #FFFFFF !important;
+}
+
+.neo-card-blue *, .neo-card-yellow * {
+  color: #FFFFFF;
+}
+
+.neo-card-mint {
+  background-color: var(--neo-mint) !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+}
+
+.neo-card-coral {
+  background-color: var(--neo-coral) !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+}
+
+.neo-card-purple {
+  background-color: var(--neo-purple) !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+}
+
+.neo-card-cyan {
+  background-color: var(--neo-cyan) !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  color: #000000 !important;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.neo-btn, .btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border: 2.5px solid #000000 !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  transition: all 0.12s ease-in-out !important;
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  color: #000000;
+}
+
+.neo-btn:hover, .btn-primary:hover {
+  transform: translate(-2px, -2px) !important;
+  box-shadow: 5px 5px 0px #000000 !important;
+}
+
+.neo-btn:active, .btn-primary:active {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0px #000000 !important;
+}
+
+.btn-primary, .neo-btn-primary {
+  background-color: var(--neo-blue, #2563EB) !important;
+  color: #FFFFFF !important;
+}
+
+.neo-btn-blue {
+  background-color: var(--neo-blue-accent, #3B82F6) !important;
+  color: #FFFFFF !important;
+}
+
+.neo-btn-accent {
+  background-color: var(--neo-mint) !important;
+  color: #000000 !important;
+}
+
+.neo-btn-coral {
+  background-color: var(--neo-coral) !important;
+  color: #000000 !important;
+}
+
+.neo-btn-purple {
+  background-color: var(--neo-purple) !important;
+  color: #000000 !important;
+}
+
+.neo-btn-cyan {
+  background-color: var(--neo-cyan) !important;
+  color: #000000 !important;
+}
+
+.neo-btn-dark {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+.neo-btn-white {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* ==========================================================================
+   BADGES & PILLS
+   ========================================================================== */
+.neo-badge {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  padding: 0.2rem 0.65rem;
+  border: 2px solid #000000 !important;
+  border-radius: 9999px !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  color: #000000 !important;
+  white-space: nowrap;
+}
+
+.neo-badge-blue, .neo-badge-yellow { 
+  background-color: var(--neo-blue, #2563EB) !important; 
+  color: #FFFFFF !important;
+}
+.neo-badge-blue-light {
+  background-color: var(--neo-blue-light, #DBEAFE) !important;
+  color: #1E3A8A !important;
+}
+.neo-badge-mint { background-color: var(--neo-mint) !important; }
+.neo-badge-coral { background-color: var(--neo-coral) !important; }
+.neo-badge-purple { background-color: var(--neo-purple) !important; }
+.neo-badge-cyan { background-color: var(--neo-cyan) !important; }
+.neo-badge-white { background-color: #ffffff !important; }
+
+/* ==========================================================================
+   INPUTS, SELECTS & TEXTAREAS
+   ========================================================================== */
+.neo-input, 
+input[type="text"], 
+input[type="password"], 
+input[type="email"], 
+input[type="search"],
+select, 
+textarea {
+  border: 2.5px solid #000000 !important;
+  border-radius: 10px !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+  outline: none !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  transition: all 0.12s ease;
+}
+
+.neo-input:focus, 
+input[type="text"]:focus, 
+input[type="password"]:focus, 
+input[type="email"]:focus, 
+input[type="search"]:focus,
+select:focus, 
+textarea:focus {
+  background-color: #FFFDF0 !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  transform: translate(-1px, -1px);
+}
+
+/* ==========================================================================
+   TABLES & LISTINGS
+   ========================================================================== */
+.neo-table, table {
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+  background-color: #ffffff !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+th {
+  background-color: #2563EB !important;
+  color: #FFFFFF !important;
+  font-weight: 900 !important;
+  border-bottom: 2.5px solid #000000 !important;
+  border-right: 1.5px solid #000000 !important;
+  text-transform: uppercase !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.75rem 1rem !important;
+}
+
+th:last-child {
+  border-right: none !important;
+}
+
+td {
+  border-bottom: 1.5px solid #000000 !important;
+  border-right: 1.5px solid #000000 !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1rem !important;
+}
+
+td:last-child {
+  border-right: none !important;
+}
+
+tr:last-child td {
+  border-bottom: none !important;
+}
+
+tr:hover td {
+  background-color: #FFFDF0 !important;
+}
+
+/* Lead Row Highlight (Tanpa Website) */
+.lead-highlight, tr.lead-highlight td {
+  background-color: #ECFDF5 !important;
+}
+
+/* ==========================================================================
+   LEAFLET MAP & EXTERNAL CONTAINERS
+   ========================================================================== */
+#map, .leaflet-container {
+  border: 2.5px solid #000000 !important;
+  border-radius: 14px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  overflow: hidden;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFDF5;
+  border-left: 2px solid #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--neo-blue, #2563EB);
+  border: 2px solid #000000;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
+/* Utility Shadow Classes */
+.neo-shadow {
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+.neo-shadow-lg {
+  box-shadow: 7px 7px 0px #000000 !important;
+}
+
+/* ==========================================================================
+   FLOATING BOTTOM NAVIGATION (MOBILE APPS FEEL)
+   ========================================================================== */
+.neo-floating-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 380px;
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border: 2.5px solid #000000 !important;
+  border-radius: 9999px !important;
+  box-shadow: 4px 4px 0px #000000 !important;
+  padding: 6px 10px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Sembunyikan Floating Nav saat Mobile Drawer Sidebar Terbuka agar tidak menutupi footer profil */
+body.sidebar-open .neo-floating-nav {
+  display: none !important;
+}
+
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .neo-floating-nav {
+    bottom: calc(10px + env(safe-area-inset-bottom));
+  }
+}
+
+.neo-floating-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+  color: #000000 !important;
+  background-color: transparent;
+  border: 2px solid transparent;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+  position: relative;
+}
+
+.neo-floating-nav-item svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  transition: all 0.15s ease;
+}
+
+/* Hover Style: Biru Neo-Brutalism dengan Icon Putih */
+.neo-floating-nav-item:hover {
+  background-color: #2563EB !important;
+  color: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  transform: translateY(-2px);
+}
+
+.neo-floating-nav-item:hover svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+/* Active Style: Biru Neo-Brutalism dengan Icon Putih */
+.neo-floating-nav-item.active {
+  background-color: #2563EB !important;
+  color: #FFFFFF !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+  transform: translateY(-2px);
+}
+
+.neo-floating-nav-item.active svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+/* Pastikan Floating Nav HILANG TOTAL di Layar Desktop (>= 1024px) */
+@media (min-width: 1024px) {
+  .neo-floating-nav {
+    display: none !important;
+  }
+}
+
+/* Khusus Floating Nav Landing Page juga hilang di layar tablet/desktop (>= 768px) */
+@media (min-width: 768px) {
+  .neo-floating-nav.md\:hidden,
+  .neo-floating-nav.sm\:hidden {
+    display: none !important;
+  }
+}
+
+.neo-border {
+  border: 2.5px solid #000000 !important;
+}

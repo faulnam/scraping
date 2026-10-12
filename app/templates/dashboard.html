@@ -5,8 +5,8 @@
 {% block page_subtitle %}Ikhtisar Data & Analisis Leads Pasar{% endblock %}
 
 {% block header_actions %}
-<span class="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-  <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+<span class="neo-badge neo-badge-mint">
+  <span class="w-2 h-2 rounded-full bg-black mr-1.5 animate-ping"></span>
   Live Database: MySQL
 </span>
 {% endblock %}
@@ -18,34 +18,45 @@
   {% if followup_due_count > 0 or new_high_count > 0 %}
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     {% if followup_due_count > 0 %}
-    <div class="bg-white border border-amber-200 shadow-sm rounded-xl p-4 flex items-center justify-between">
+    <div class="neo-card bg-[#2563EB] text-white p-4 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
-          <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <div class="w-10 h-10 rounded-xl bg-white neo-border flex items-center justify-center shadow-[2px_2px_0px_#000]">
+          <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
         </div>
         <div>
-          <p class="text-sm font-bold text-slate-900">{{ followup_due_count }} Lead</p>
-          <p class="text-[11px] text-slate-500">Perlu di-follow up hari ini</p>
+          <p class="text-base font-black text-white">{{ followup_due_count }} Lead Prioritas</p>
+          <p class="text-xs font-bold text-blue-100">Jadwal follow-up jatuh tempo hari ini</p>
         </div>
       </div>
-      <a href="/outreach?filter_mode=followup_today" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
-        Mulai Follow-Up
+      <a href="/outreach?filter_mode=followup_today" class="neo-btn neo-btn-white px-3.5 py-2 text-xs font-black flex items-center space-x-1.5">
+        <span>Mulai Follow-Up</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
       </a>
     </div>
     {% endif %}
     {% if new_high_count > 0 %}
-    <div class="bg-white border border-emerald-200 shadow-sm rounded-xl p-4 flex items-center justify-between">
+    <div class="neo-card bg-[#34D399] p-4 flex items-center justify-between">
       <div class="flex items-center space-x-3">
-        <div class="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-          <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+        <div class="w-10 h-10 rounded-xl bg-white neo-border flex items-center justify-center shadow-[2px_2px_0px_#000]">
+          <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
         </div>
         <div>
-          <p class="text-sm font-bold text-slate-900">{{ new_high_count }} Lead Baru</p>
-          <p class="text-[11px] text-slate-500">Prioritas tinggi, siap di-outreach</p>
+          <p class="text-base font-black text-black">{{ new_high_count }} Lead Baru (HIGH)</p>
+          <p class="text-xs font-bold text-slate-800">Tanpa website, siap di-outreach WA</p>
         </div>
       </div>
-      <a href="/outreach?filter_mode=new_high" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
-        Mulai Outreach
+      <a href="/outreach?filter_mode=new_high" class="neo-btn neo-btn-white px-3.5 py-2 text-xs font-black flex items-center space-x-1.5">
+        <span>Mulai Outreach</span>
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+        </svg>
       </a>
     </div>
     {% endif %}
@@ -53,26 +64,29 @@
   {% endif %}
 
   <!-- 1. Card: Mulai Crawling Leads Baru -->
-  <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5 sm:p-6">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2 mb-4">
+  <div class="neo-card bg-white p-5 sm:p-7 neo-shadow">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b-[2.5px] border-black gap-2 mb-5">
       <div>
-        <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center space-x-2">
-          <svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
+        <h2 class="text-base sm:text-lg font-black text-black flex items-center space-x-2">
+          <span class="w-7 h-7 rounded-lg bg-[#2563EB] border-2 border-black flex items-center justify-center text-white shadow-[2px_2px_0px_#000]">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
           <span>Pencarian & Ingesti Leads Usaha Baru</span>
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5">
-          Eksplorasi prospek bisnis lokal per wilayah dan kategori secara real-time.
+        <p class="text-xs font-bold text-slate-700 mt-1">
+          Eksplorasi prospek bisnis lokal per wilayah dan kategori usaha Google Maps secara real-time.
         </p>
       </div>
       <div class="flex items-center space-x-2">
         {% if token_info and token_info.is_demo %}
-        <span class="text-[11px] font-semibold px-2.5 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200">
+        <span class="neo-badge neo-badge-coral text-[10px]">
           Sisa Token: {{ token_info.tokens_remaining }}/{{ token_info.max_tokens }}
         </span>
         {% endif %}
-        <span class="text-[11px] font-semibold px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">
+        <span class="neo-badge neo-badge-blue text-[10px]">
           Google Maps Live Search
         </span>
       </div>
@@ -86,11 +100,11 @@
           hx-swap="innerHTML"
           class="space-y-4">
       
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Input Kategori Usaha -->
         <div>
-          <label for="category_query" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-            Kategori Usaha <span class="text-rose-500">*</span>
+          <label for="category_query" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5">
+            Kategori Usaha <span class="text-rose-600">*</span>
           </label>
           <input type="text"
                  id="category_query"
@@ -98,19 +112,19 @@
                  placeholder="Misal: Bengkel Motor, Klinik Gigi, Restoran"
                  value="Klinik Gigi & Dental"
                  required
-                 class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition">
+                 class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black">
         </div>
 
         <!-- Dropdown Provinsi -->
         <div>
-          <label for="province" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-            Provinsi <span class="text-rose-500">*</span>
+          <label for="province" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5">
+            Provinsi <span class="text-rose-600">*</span>
           </label>
           <select id="province"
                   name="province"
                   onchange="updateCityDropdown('province', 'city')"
                   required
-                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+                  class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black cursor-pointer">
             <option value="Jawa Barat" selected>Jawa Barat</option>
             <option value="DKI Jakarta">DKI Jakarta</option>
             <option value="Jawa Timur">Jawa Timur</option>
@@ -136,52 +150,52 @@
 
         <!-- Dropdown Kota / Kabupaten -->
         <div>
-          <label for="city" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-            Kota / Kabupaten <span class="text-rose-500">*</span>
+          <label for="city" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5">
+            Kota / Kabupaten <span class="text-rose-600">*</span>
           </label>
           <select id="city"
                   name="city"
                   required
-                  class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
+                  class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black cursor-pointer">
             <!-- Populated dynamically by JavaScript -->
           </select>
         </div>
+      </div>
 
-        <!-- Mode Scraping / Target Kedalaman -->
-        <div>
-          <label for="crawl_mode" class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-            <span>Target Pengambilan Data</span>
-            <span class="text-[10px] text-blue-600 font-semibold lowercase">auto-paging</span>
-          </label>
-          <select id="crawl_mode"
-                  name="crawl_mode"
-                  class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg px-3 py-2.5 text-slate-900 focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition cursor-pointer">
-            <option value="unlimited" selected>♾️ Ambil Semua Hingga Habis (Auto-Pagination)</option>
-            <option value="20">⚡ Cepat: 1 Halaman (~20 Leads / Hemat 1 Kuota)</option>
-            <option value="40">🎯 2 Halaman (~40 Leads)</option>
-            <option value="60">🎯 3 Halaman (~60 Leads)</option>
-            <option value="100">🎯 5 Halaman (~100 Leads)</option>
-            <option value="200">🎯 10 Halaman (~200 Leads)</option>
-          </select>
-        </div>
+      <!-- Mode Scraping -->
+      <div class="pt-1">
+        <label for="crawl_mode" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5 flex items-center justify-between">
+          <span>Target Kedalaman Pengambilan Data</span>
+          <span class="neo-badge neo-badge-blue text-[9px] py-0 px-2">Auto-Pagination</span>
+        </label>
+        <select id="crawl_mode"
+                name="crawl_mode"
+                class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black cursor-pointer">
+          <option value="unlimited" selected>Ambil Semua Hingga Habis (Auto-Pagination Semua Listing)</option>
+          <option value="20">Cepat: 1 Halaman (~20 Leads / Hemat Kuota)</option>
+          <option value="40">2 Halaman (~40 Leads)</option>
+          <option value="60">3 Halaman (~60 Leads)</option>
+          <option value="100">5 Halaman (~100 Leads)</option>
+          <option value="200">10 Halaman (~200 Leads)</option>
+        </select>
       </div>
 
       <!-- Quick Suggestion Badges -->
-      <div class="flex flex-wrap items-center gap-1.5 text-xs text-slate-500 pt-0.5">
-        <span class="text-[11px] font-semibold text-slate-400">Pilihan Cepat:</span>
-        <button type="button" onclick="document.getElementById('category_query').value='Sekolah & Pendidikan'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Sekolah</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Klinik Gigi & Dental'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Klinik Gigi</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Bengkel Motor'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Bengkel Motor</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Restoran & Kuliner'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Restoran</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Barbershop & Salon'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Barbershop</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Pet Shop & Dokter Hewan'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Pet Shop</button>
-        <button type="button" onclick="document.getElementById('category_query').value='Laundry Express'" class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] transition">Laundry</button>
+      <div class="flex flex-wrap items-center gap-1.5 text-xs text-black pt-1">
+        <span class="text-[11px] font-black uppercase text-black">Pilihan Cepat:</span>
+        <button type="button" onclick="document.getElementById('category_query').value='Sekolah & Pendidikan'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Sekolah</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Klinik Gigi & Dental'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Klinik Gigi</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Bengkel Motor'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Bengkel Motor</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Restoran & Kuliner'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Restoran</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Barbershop & Salon'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Barbershop</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Pet Shop & Dokter Hewan'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Pet Shop</button>
+        <button type="button" onclick="document.getElementById('category_query').value='Laundry Express'" class="neo-badge neo-badge-white hover:bg-[#2563EB] hover:text-white transition cursor-pointer">Laundry</button>
       </div>
 
       <!-- Action Button & Loading Indicator -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100">
-        <div id="crawl-spinner" class="htmx-indicator flex items-center space-x-2 text-xs font-medium text-slate-700">
-          <svg class="animate-spin h-4 w-4 text-slate-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t-[2.5px] border-black">
+        <div id="crawl-spinner" class="htmx-indicator flex items-center space-x-2 text-xs font-bold text-black">
+          <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -189,18 +203,18 @@
         </div>
         
         <div class="sm:ml-auto">
-          <button type="submit" class="btn-primary w-full sm:w-auto flex items-center justify-center space-x-2 text-xs font-semibold py-2.5 px-6 shadow-sm">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          <button type="submit" class="neo-btn neo-btn-primary w-full sm:w-auto flex items-center justify-center space-x-2 text-xs sm:text-sm font-black py-3 px-7 neo-shadow">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
-            <span>Mulai Crawling Leads</span>
+            <span>Mulai Crawling Leads Baru</span>
           </button>
         </div>
       </div>
     </form>
 
     <!-- Feedback Container for HTMX Crawl Response -->
-    <div id="crawl-feedback" class="mt-3"></div>
+    <div id="crawl-feedback" class="mt-4"></div>
   </div>
 
 
@@ -221,13 +235,13 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     
     <!-- Chart 1: Sebaran Kategori Usaha -->
-    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+    <div class="neo-card bg-white p-5 neo-shadow">
+      <div class="flex items-center justify-between pb-3.5 border-b-[2.5px] border-black mb-4">
         <div>
-          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Sebaran Kategori Usaha Terdata</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Top industri usaha hasil crawling di wilayah aktif</p>
+          <h3 class="text-sm font-black text-black">Sebaran Kategori Usaha Terdata</h3>
+          <p class="text-[11px] font-bold text-slate-700 mt-0.5">Top industri usaha hasil crawling di wilayah aktif</p>
         </div>
-        <span class="text-[11px] px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-medium">Distribusi</span>
+        <span class="neo-badge neo-badge-blue text-[10px]">Distribusi</span>
       </div>
       <div class="relative h-64 sm:h-72">
         <canvas id="categoryChart"></canvas>
@@ -235,13 +249,13 @@
     </div>
 
     <!-- Chart 2: Status Website vs Rating Pasar -->
-    <div class="card bg-white border border-slate-200 shadow-sm rounded-xl p-5">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+    <div class="neo-card bg-white p-5 neo-shadow">
+      <div class="flex items-center justify-between pb-3.5 border-b-[2.5px] border-black mb-4">
         <div>
-          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Status Website vs. Rating Pasar</h3>
-          <p class="text-[11px] text-slate-500 mt-0.5">Analisis prospek prioritas (Rating tinggi tanpa website)</p>
+          <h3 class="text-sm font-black text-black">Status Website vs. Rating Pasar</h3>
+          <p class="text-[11px] font-bold text-slate-700 mt-0.5">Analisis prospek prioritas (Rating tinggi tanpa website)</p>
         </div>
-        <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 font-medium border border-emerald-200">
+        <span class="neo-badge neo-badge-mint text-[10px]">
           Target Prioritas
         </span>
       </div>
@@ -333,9 +347,11 @@
           datasets: [{
             label: 'Jumlah Usaha Terdata',
             data: data.categories.counts.length > 0 ? data.categories.counts : [0],
-            backgroundColor: '#1E293B',
-            borderRadius: 4,
-            hoverBackgroundColor: '#0F172A',
+            backgroundColor: '#2563EB',
+            borderColor: '#000000',
+            borderWidth: 2,
+            borderRadius: 6,
+            hoverBackgroundColor: '#1D4ED8',
           }]
         },
         options: {
@@ -344,22 +360,22 @@
           plugins: {
             legend: { display: false },
             tooltip: {
-              backgroundColor: '#0F172A',
-              padding: 8,
-              titleFont: { size: 11, weight: 'bold' },
+              backgroundColor: '#000000',
+              padding: 10,
+              titleFont: { size: 12, weight: 'bold' },
               bodyFont: { size: 11 },
-              cornerRadius: 4
+              cornerRadius: 6
             }
           },
           scales: {
             x: {
               grid: { display: false },
-              ticks: { font: { size: 10 } }
+              ticks: { font: { size: 11, weight: 'bold' }, color: '#000000' }
             },
             y: {
               beginAtZero: true,
-              ticks: { precision: 0, font: { size: 10 } },
-              grid: { color: '#F1F5F9' }
+              ticks: { precision: 0, font: { size: 11, weight: 'bold' }, color: '#000000' },
+              grid: { color: 'rgba(0,0,0,0.06)' }
             }
           }
         }
@@ -379,16 +395,20 @@
             {
               label: 'Belum Punya Website (Target)',
               data: data.website_vs_rating.without_website,
-              backgroundColor: '#10B981', // Emerald 500
-              borderRadius: 4,
-              hoverBackgroundColor: '#059669',
+              backgroundColor: '#34D399',
+              borderColor: '#000000',
+              borderWidth: 2,
+              borderRadius: 6,
+              hoverBackgroundColor: '#00F0B5',
             },
             {
               label: 'Sudah Punya Website',
               data: data.website_vs_rating.with_website,
-              backgroundColor: '#94A3B8', // Slate 400
-              borderRadius: 4,
-              hoverBackgroundColor: '#64748B',
+              backgroundColor: '#C4B5FD',
+              borderColor: '#000000',
+              borderWidth: 2,
+              borderRadius: 6,
+              hoverBackgroundColor: '#A78BFA',
             }
           ]
         },
@@ -398,25 +418,29 @@
           plugins: {
             legend: {
               position: 'top',
-              labels: { boxWidth: 10, font: { size: 10, weight: '600' } }
+              labels: { 
+                boxWidth: 12, 
+                font: { size: 11, weight: 'bold' },
+                color: '#000000'
+              }
             },
             tooltip: {
-              backgroundColor: '#0F172A',
-              padding: 8,
-              titleFont: { size: 11, weight: 'bold' },
+              backgroundColor: '#000000',
+              padding: 10,
+              titleFont: { size: 12, weight: 'bold' },
               bodyFont: { size: 11 },
-              cornerRadius: 4
+              cornerRadius: 6
             }
           },
           scales: {
             x: {
               grid: { display: false },
-              ticks: { font: { size: 10 } }
+              ticks: { font: { size: 11, weight: 'bold' }, color: '#000000' }
             },
             y: {
               beginAtZero: true,
-              ticks: { precision: 0, font: { size: 10 } },
-              grid: { color: '#F1F5F9' }
+              ticks: { precision: 0, font: { size: 11, weight: 'bold' }, color: '#000000' },
+              grid: { color: 'rgba(0,0,0,0.06)' }
             }
           }
         }
