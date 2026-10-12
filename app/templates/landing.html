@@ -10,14 +10,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   
+  <!-- Favicon (Doodle Art) -->
+  <link rel="icon" type="image/jpeg" href="/static/img/favicon.jpg">
+  <link rel="apple-touch-icon" href="/static/img/favicon.jpg">
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- Neo Brutalism Core Stylesheet (Relative Path to prevent HTTPS Mixed Content) -->
-  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.2">
+  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.3">
 
   <style>
     /* Neo Brutalism Utility Inlines */
+    html {
+      scroll-behavior: smooth;
+    }
+    #beranda, #simulator, #fitur, #cara-kerja {
+      scroll-margin-top: 5rem;
+    }
     .neo-shadow {
       box-shadow: 4px 4px 0px #000000;
     }
@@ -43,12 +53,10 @@
   <header class="hidden md:block sticky top-0 z-50 bg-[#FFFDF5] border-b-[2.5px] border-black px-4 sm:px-8 py-3.5 backdrop-blur-md bg-opacity-95">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       
-      <!-- Brand Logo -->
+      <!-- Brand Logo (Doodle Art Mascot) -->
       <a href="/" class="flex items-center space-x-3 text-decoration-none group">
-        <div class="w-10 h-10 rounded-xl bg-[#2563EB] neo-border neo-shadow flex items-center justify-center font-black text-white group-hover:rotate-6 transition-transform">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-          </svg>
+        <div class="w-11 h-11 rounded-2xl bg-[#FFFDF5] neo-border neo-shadow overflow-hidden flex items-center justify-center p-0.5 group-hover:rotate-6 transition-transform shrink-0">
+          <img src="/static/img/logo_doodle.jpg" alt="LeadMaps BI Doodle Logo" class="w-full h-full object-cover rounded-xl">
         </div>
         <div>
           <div class="font-black text-xl tracking-tight leading-none text-black">LeadMaps BI</div>
@@ -57,21 +65,21 @@
       </a>
 
 
-      <!-- Desktop Navigation Links with Blue Hover Neo-Brutalism -->
-      <nav class="hidden md:flex items-center space-x-1 lg:space-x-2">
-        <a href="#beranda" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+      <!-- Desktop Navigation Links with Blue Hover & Active State Neo-Brutalism -->
+      <nav id="landing-desktop-nav" class="hidden md:flex items-center space-x-1 lg:space-x-2">
+        <a href="#beranda" class="landing-nav-link active">
           Beranda
         </a>
-        <a href="#simulator" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+        <a href="#simulator" class="landing-nav-link">
           Simulator Demo
         </a>
-        <a href="#fitur" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+        <a href="#fitur" class="landing-nav-link">
           Fitur Unggulan
         </a>
-        <a href="#cara-kerja" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+        <a href="#cara-kerja" class="landing-nav-link">
           Cara Kerja
         </a>
-        <a href="/guide" class="px-3 py-1.5 text-xs font-black rounded-xl text-black hover:bg-[#2563EB] hover:text-white border-2 border-transparent hover:border-black hover:shadow-[2px_2px_0px_#000] transition-all">
+        <a href="/guide" class="landing-nav-link">
           Panduan
         </a>
       </nav>
@@ -934,10 +942,8 @@
   <footer class="bg-black text-white pt-10 pb-24 sm:pb-10 px-4 sm:px-8 border-t-[3px] border-black">
     <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-bold">
       <div class="flex items-center space-x-3">
-        <span class="w-7 h-7 rounded-lg bg-[#2563EB] text-white neo-border flex items-center justify-center font-black">
-          <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-          </svg>
+        <span class="w-8 h-8 rounded-xl bg-[#FFFDF5] neo-border flex items-center justify-center overflow-hidden shrink-0 shadow-[2px_2px_0px_#000] p-0.5">
+          <img src="/static/img/logo_doodle.jpg" alt="LeadMaps BI Doodle Logo" class="w-full h-full object-cover rounded-lg">
         </span>
         <span>&copy; 2026 <strong>LeadMaps BI</strong> &mdash; Business Lead Intelligence & Outreach System</span>
       </div>
@@ -952,7 +958,7 @@
   </footer>
 
   <!-- Floating Mobile Bottom Navigation Bar on Landing (md:hidden) -->
-  <nav class="neo-floating-nav md:hidden" aria-label="Navigasi Mobile Landing">
+  <nav id="landing-mobile-nav" class="neo-floating-nav md:hidden" aria-label="Navigasi Mobile Landing">
     <!-- 1. Beranda -->
     <a href="#beranda" class="neo-floating-nav-item active" title="Beranda">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -991,6 +997,7 @@
   </nav>
 
   <script>
+    // Tab switcher logic
     function switchSimulatorTab(tabNumber) {
       for (let i = 1; i <= 3; i++) {
         const content = document.getElementById('sim-tab-' + i);
@@ -1017,6 +1024,144 @@
     function switchTab(index) {
       switchSimulatorTab(index);
     }
+
+    // ==================== SCROLLSPY & ACTIVE NAV MANAGER ====================
+    (function initLandingScrollspy() {
+      const sectionIds = ['beranda', 'simulator', 'fitur', 'cara-kerja'];
+      const desktopLinks = document.querySelectorAll('#landing-desktop-nav .landing-nav-link');
+      const mobileLinks = document.querySelectorAll('#landing-mobile-nav .neo-floating-nav-item');
+
+      let currentActiveId = 'beranda';
+      let isManualClick = false;
+      let manualTimeout = null;
+
+      function setActiveNav(targetId) {
+        if (!targetId) return;
+        currentActiveId = targetId;
+
+        // Update Desktop Navigation
+        desktopLinks.forEach(link => {
+          const href = link.getAttribute('href') || '';
+          if (href === '#' + targetId) {
+            link.classList.add('active');
+          } else if (href.startsWith('#')) {
+            link.classList.remove('active');
+          }
+        });
+
+        // Update Mobile Floating Navigation
+        mobileLinks.forEach(link => {
+          const href = link.getAttribute('href') || '';
+          if (href === '#' + targetId) {
+            link.classList.add('active');
+          } else if (href.startsWith('#')) {
+            link.classList.remove('active');
+          }
+        });
+      }
+
+      function calculateActiveSection() {
+        if (isManualClick) return;
+
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+        const windowHeight = window.innerHeight;
+        const docHeight = document.documentElement.scrollHeight;
+        const headerOffset = 150; // Offset cushion for sticky navbar header
+
+        // 1. Jika berada paling atas halaman (hero section)
+        if (scrollY < 120) {
+          setActiveNav('beranda');
+          return;
+        }
+
+        // 2. Jika scroll mendekati bagian paling bawah dokumen (footer / CTA)
+        if (scrollY + windowHeight >= docHeight - 40) {
+          setActiveNav('cara-kerja');
+          return;
+        }
+
+        // 3. Evaluasi posisi section
+        let activeFound = 'beranda';
+        for (let i = 0; i < sectionIds.length; i++) {
+          const sec = document.getElementById(sectionIds[i]);
+          if (sec) {
+            const top = sec.offsetTop - headerOffset;
+            if (scrollY >= top) {
+              activeFound = sectionIds[i];
+            }
+          }
+        }
+        setActiveNav(activeFound);
+      }
+
+      // Smooth scroll & immediate active highlight on link click
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const href = this.getAttribute('href');
+          if (!href || href === '#') return;
+          const targetId = href.substring(1);
+          const targetEl = document.getElementById(targetId);
+
+          if (targetEl) {
+            e.preventDefault();
+            setActiveNav(targetId);
+
+            isManualClick = true;
+            clearTimeout(manualTimeout);
+
+            targetEl.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+
+            // Update URL hash without jumping
+            if (history.pushState) {
+              history.pushState(null, null, '#' + targetId);
+            } else {
+              window.location.hash = '#' + targetId;
+            }
+
+            manualTimeout = setTimeout(() => {
+              isManualClick = false;
+              calculateActiveSection();
+            }, 800);
+          }
+        });
+      });
+
+      // Throttled scroll listener using requestAnimationFrame
+      let ticking = false;
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            calculateActiveSection();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      // Run on DOM load and when page finishes loading
+      document.addEventListener('DOMContentLoaded', function() {
+        const hash = (window.location.hash || '').replace('#', '');
+        if (hash && sectionIds.includes(hash)) {
+          setActiveNav(hash);
+        } else {
+          calculateActiveSection();
+        }
+      });
+
+      window.addEventListener('load', function() {
+        calculateActiveSection();
+      });
+
+      window.addEventListener('hashchange', function() {
+        const hash = (window.location.hash || '').replace('#', '');
+        if (hash && sectionIds.includes(hash)) {
+          setActiveNav(hash);
+        }
+      });
+    })();
   </script>
 </body>
 </html>

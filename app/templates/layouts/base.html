@@ -25,8 +25,12 @@
     }
   </script>
 
+  <!-- Favicon (Doodle Art) -->
+  <link rel="icon" type="image/jpeg" href="/static/img/favicon.jpg">
+  <link rel="apple-touch-icon" href="/static/img/favicon.jpg">
+
   <!-- Neo Brutalism Stylesheet (Relative Path to prevent HTTPS Mixed Content) -->
-  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.2">
+  <link rel="stylesheet" href="/static/css/neo_brutalism.css?v=2.0.3">
   
   <!-- htmx CDN -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
@@ -90,10 +94,8 @@
     <!-- App Footer -->
     <footer class="px-6 py-4 pb-24 lg:pb-4 text-xs font-bold text-black border-t-[2.5px] border-black bg-white flex flex-col sm:flex-row justify-between items-center gap-2">
       <div class="flex items-center space-x-2">
-        <span class="w-5 h-5 rounded bg-[#2563EB] text-white border-2 border-black flex items-center justify-center font-black">
-          <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-          </svg>
+        <span class="w-6 h-6 rounded-lg bg-[#FFFDF5] border-2 border-black flex items-center justify-center overflow-hidden shrink-0 shadow-[1px_1px_0px_#000] p-0.5">
+          <img src="/static/img/logo_doodle.jpg" alt="Logo" class="w-full h-full object-cover rounded-md">
         </span>
         <span>&copy; 2026 <strong>LeadMaps BI</strong> &mdash; Business Lead Intelligence</span>
       </div>

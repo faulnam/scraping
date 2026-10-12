@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from contextlib import asynccontextmanager
 import os
@@ -92,6 +92,13 @@ async def auth_middleware(request: Request, call_next):
 # Mount static files directory
 os.makedirs("app/static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon_route():
+    favicon_path = "app/static/img/favicon.jpg"
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path, media_type="image/jpeg")
+    return HTMLResponse(status_code=404)
 
 # Include main routers
 app.include_router(auth.router)
