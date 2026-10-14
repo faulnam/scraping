@@ -30,20 +30,20 @@ def test_auth_flow():
     assert resp.status_code == 401
     assert "Username atau kata sandi tidak valid" in resp.text
 
-    # 3. Login with correct admin credentials -> should redirect and set cookie
+    # 3. Login with correct admin credentials -> should redirect to /dashboard and set cookie
     resp = client.post("/login", data={"username": "admin", "password": "qwertyu111", "next": "/"})
     print(f"3. Login with 'admin'/'qwertyu111' -> Status: {resp.status_code}, Location: {resp.headers.get('location')}")
     assert resp.status_code == 303
-    assert resp.headers.get("location") == "/"
+    assert resp.headers.get("location") == "/dashboard"
     assert SESSION_COOKIE_NAME in resp.cookies
 
     session_cookie = resp.cookies.get(SESSION_COOKIE_NAME)
     print(f"   Session Cookie Token: {session_cookie[:25]}...")
 
-    # 4. Access protected route with session cookie -> should return 200 OK
+    # 4. Access protected route with session cookie -> should return 200 OK on /dashboard
     client.cookies.set(SESSION_COOKIE_NAME, session_cookie)
-    resp = client.get("/")
-    print(f"4. Authenticated GET / -> Status: {resp.status_code}")
+    resp = client.get("/dashboard")
+    print(f"4. Authenticated GET /dashboard -> Status: {resp.status_code}")
     assert resp.status_code == 200
     assert "LeadMaps BI" in resp.text
 

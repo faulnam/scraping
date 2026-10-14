@@ -67,7 +67,7 @@
       <!-- Right Action / Login Button -->
       <div class="flex items-center space-x-3">
         {% if current_user %}
-        <a href="/" class="neo-btn neo-btn-primary px-4 sm:px-5 py-2 text-xs sm:text-sm font-black flex items-center space-x-1.5">
+        <a href="/dashboard" class="neo-btn neo-btn-primary px-4 sm:px-5 py-2 text-xs sm:text-sm font-black flex items-center space-x-1.5">
           <span>Buka Dashboard</span>
           <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -77,10 +77,10 @@
           Keluar
         </a>
         {% else %}
-        <a href="/login" class="neo-btn neo-btn-white px-3.5 py-2 text-xs sm:text-sm font-extrabold hidden sm:inline-flex">
+        <a href="/login?next=/dashboard" class="neo-btn neo-btn-white px-3.5 py-2 text-xs sm:text-sm font-extrabold hidden sm:inline-flex">
           Akun Demo
         </a>
-        <a href="/login" class="neo-btn neo-btn-primary px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black tracking-tight flex items-center space-x-1.5">
+        <a href="/login?next=/dashboard" class="neo-btn neo-btn-primary px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black tracking-tight flex items-center space-x-1.5">
           <span>Masuk ke Dashboard</span>
           <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -138,7 +138,7 @@
 
       <!-- CTA Buttons Stack -->
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 mb-10">
-        <a href="/login" class="neo-btn neo-btn-primary px-8 py-3.5 text-base sm:text-lg font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
+        <a href="/login?next=/dashboard" class="neo-btn neo-btn-primary px-8 py-3.5 text-base sm:text-lg font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
           <span>Mulai Cari Prospek Sekarang &mdash; Gratis</span>
           <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
@@ -902,13 +902,13 @@
         </p>
 
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="/login" class="neo-btn neo-btn-primary px-8 py-4 text-base font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
+          <a href="/login?next=/dashboard" class="neo-btn neo-btn-primary px-8 py-4 text-base font-black neo-shadow-lg w-full sm:w-auto flex items-center justify-center space-x-2">
             <span>Masuk ke Dashboard Sekarang</span>
             <svg class="w-5 h-5 ml-1" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
             </svg>
           </a>
-          <a href="/login" class="neo-btn neo-btn-white px-6 py-4 text-sm font-black w-full sm:w-auto">
+          <a href="/login?next=/dashboard" class="neo-btn neo-btn-white px-6 py-4 text-sm font-black w-full sm:w-auto">
             Gunakan Akun Demo (3 Token)
           </a>
         </div>
@@ -950,7 +950,7 @@
     </a>
 
     <!-- 5. Masuk / Akun -->
-    <a href="/login" class="neo-floating-nav-item" title="Masuk ke Dashboard">
+    <a href="/login?next=/dashboard" class="neo-floating-nav-item" title="Masuk ke Dashboard">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
       </svg>

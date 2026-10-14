@@ -8,12 +8,12 @@ from typing import Optional, Dict, Any, List
 import time
 import asyncio
 from fastapi import APIRouter, Depends, Request, Form, Response
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import func, case, and_, or_
 
-from app.deps import get_db, check_demo_crawl_token, get_demo_token_info
+from app.deps import get_db, check_demo_crawl_token, get_demo_token_info, get_current_user_optional
 from app import models
 from app.ingest.pipeline import run_ingest_pipeline
 
@@ -159,17 +159,46 @@ def _get_agenda_stats(db: Session, user_id: Optional[int] = None) -> Dict[str, i
 
 
 @router.get("/landing", response_class=HTMLResponse)
-async def landing_view(request: Request):
+async def landing_view(request: Request, db: Session = Depends(get_db)):
     """Render the public Neo-Brutalism landing page."""
-    user = getattr(request.state, "current_user", None)
-    return templates.TemplateResponse(
+    user = getattr(request.state, "current_user", None) or get_current_user_optional(request, db)
+    resp = templates.TemplateResponse(
         request=request,
         name="landing.html",
         context={"current_user": user}
     )
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Vary"] = "Cookie"
+    return resp
 
 
 @router.get("/", response_class=HTMLResponse)
+async def root_view(request: Request, db: Session = Depends(get_db)):
+    """
+    Root endpoint:
+    - If user is authenticated, redirect directly to /dashboard so URL and browser cache stay clean.
+    - If user is a guest, render the landing page.
+    """
+    user = getattr(request.state, "current_user", None) or get_current_user_optional(request, db)
+    if user:
+        resp = RedirectResponse(url="/dashboard", status_code=303)
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+        resp.headers["Vary"] = "Cookie"
+        return resp
+
+    resp = templates.TemplateResponse(
+        request=request,
+        name="landing.html",
+        context={"current_user": None}
+    )
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Vary"] = "Cookie"
+    return resp
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_view(
     request: Request,
@@ -179,16 +208,15 @@ async def dashboard_view(
     time_range: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
-    """Render the landing page for guests or main business intelligence dashboard for authenticated users."""
-    user = getattr(request.state, "current_user", None)
+    """Render the main business intelligence dashboard for authenticated users."""
+    user = getattr(request.state, "current_user", None) or get_current_user_optional(request, db)
     
-    # If visitor is not authenticated, display the Neo-Brutalism landing page
+    # If visitor is not authenticated, redirect to login page with next target
     if not user:
-        return templates.TemplateResponse(
-            request=request,
-            name="landing.html",
-            context={"current_user": None}
-        )
+        resp = RedirectResponse(url="/login?next=/dashboard", status_code=303)
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+        return resp
 
     user_id = user.id
     stats = _get_dashboard_stats(db, user_id=user_id, province=province, city=city, category=category, time_range=time_range)
@@ -196,7 +224,7 @@ async def dashboard_view(
 
     token_info = get_demo_token_info(user, db) if user else {"is_demo": False}
 
-    return templates.TemplateResponse(
+    resp = templates.TemplateResponse(
         request=request,
         name="dashboard.html",
         context={
@@ -206,6 +234,10 @@ async def dashboard_view(
             **agenda
         }
     )
+    resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Vary"] = "Cookie"
+    return resp
 
 
 @router.get("/api/dashboard/metrics", response_class=HTMLResponse)

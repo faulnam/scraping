@@ -71,11 +71,23 @@ async def auth_middleware(request: Request, call_next):
 
     # Allow public endpoints
     if any(path.startswith(prefix) for prefix in PUBLIC_PREFIXES):
-        return await call_next(request)
+        response = await call_next(request)
+        content_type = response.headers.get("content-type", "")
+        if "text/html" in content_type:
+            response.headers.setdefault("Cache-Control", "no-cache, no-store, must-revalidate")
+            response.headers.setdefault("Pragma", "no-cache")
+            response.headers.setdefault("Vary", "Cookie")
+        return response
 
-    # Allow root endpoint "/" (renders landing page if unauthenticated, dashboard if authenticated)
+    # Allow root endpoint "/" (handles redirection or landing rendering)
     if path == "/":
-        return await call_next(request)
+        response = await call_next(request)
+        content_type = response.headers.get("content-type", "")
+        if "text/html" in content_type:
+            response.headers.setdefault("Cache-Control", "no-cache, no-store, must-revalidate")
+            response.headers.setdefault("Pragma", "no-cache")
+            response.headers.setdefault("Vary", "Cookie")
+        return response
     
     # Protected endpoints require authentication
     if not user:
@@ -86,6 +98,11 @@ async def auth_middleware(request: Request, call_next):
         return RedirectResponse(url=f"/login?next={path}", status_code=303)
 
     response = await call_next(request)
+    content_type = response.headers.get("content-type", "")
+    if "text/html" in content_type:
+        response.headers.setdefault("Cache-Control", "no-cache, no-store, must-revalidate")
+        response.headers.setdefault("Pragma", "no-cache")
+        response.headers.setdefault("Vary", "Cookie")
     return response
 
 
