@@ -155,28 +155,30 @@
           </label>
           <select id="city"
                   name="city"
+                  onchange="updateDistrictDropdown('city', 'district')"
                   required
                   class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black cursor-pointer">
             <!-- Populated dynamically by JavaScript -->
           </select>
         </div>
 
-        <!-- Input / Pilihan Kecamatan (Opsional) -->
+        <!-- Dropdown Kecamatan / Area (Cascading) -->
         <div>
           <label for="district" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5 flex items-center justify-between">
-            <span>Kecamatan / Area</span>
+            <span>Kecamatan</span>
             <span class="text-[9px] font-bold text-slate-500 bg-slate-100 border border-black/20 px-1.5 py-0.2 rounded">Opsional</span>
           </label>
-          <input type="text"
-                 id="district"
-                 name="district"
-                 placeholder="Misal: Coblong, Sukajadi, Cicendo..."
-                 class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black">
+          <select id="district"
+                  name="district"
+                  class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black cursor-pointer">
+            <!-- Populated dynamically based on selected city -->
+          </select>
           <span class="text-[9px] font-bold text-slate-500 mt-1 block">
-            Isi untuk target kecamatan spesifik, atau kosongkan untuk se-kota.
+            Pilih spesifik kecamatan, atau "Semua Kecamatan" se-kota.
           </span>
         </div>
       </div>
+
 
 
       <!-- Mode Scraping -->
@@ -312,6 +314,139 @@
     "Nusa Tenggara Timur": ["Kota Kupang"]
   };
 
+  // District (Kecamatan) mapping per City in Indonesia
+  const INDONESIA_DISTRICTS = {
+    // Jawa Barat
+    "Kota Bandung": [
+      "Andir", "Antapani", "Arcamanik", "Astana Anyar", "Babakan Ciparay", "Bandung Kidul", "Bandung Kulon", 
+      "Bandung Wetan", "Batununggal", "Bojongloa Kaler", "Bojongloa Kidul", "Buahbatu", "Cibeunying Kaler", 
+      "Cibeunying Kidul", "Cibiru", "Cicendo", "Cidadap", "Cinambo", "Coblong", "Gedebage", "Kiaracondong", 
+      "Lengkong", "Mandalajati", "Panyileukan", "Rancasari", "Regol", "Sukajadi", "Sukasari", "Sumur Bandung", "Ujungberung"
+    ],
+    "Kota Bogor": ["Bogor Barat", "Bogor Selatan", "Bogor Tengah", "Bogor Timur", "Bogor Utara", "Tanah Sareal"],
+    "Kota Bekasi": [
+      "Bantar Gebang", "Bekasi Barat", "Bekasi Selatan", "Bekasi Timur", "Bekasi Utara", 
+      "Jatiasih", "Jatisampurna", "Medan Satria", "Mustika Jaya", "Pondok Gede", "Pondok Melati", "Rawalumbu"
+    ],
+    "Kota Depok": [
+      "Beji", "Bojongsari", "Cilodong", "Cimanggis", "Cinere", "Cipayung", 
+      "Limo", "Pancoran Mas", "Sawangan", "Sukmajaya", "Tapos"
+    ],
+    "Kota Cimahi": ["Cimahi Selatan", "Cimahi Tengah", "Cimahi Utara"],
+    "Kota Cirebon": ["Harjamukti", "Kejaksan", "Kesambi", "Lemahwungkuk", "Pekalipan"],
+    "Kota Sukabumi": ["Baros", "Cibeureum", "Cikole", "Citamiang", "Gunungpuyuh", "Lembursitu", "Warudoyong"],
+    "Kota Tasikmalaya": ["Bungursari", "Cibeureum", "Cihideung", "Cipedes", "Indihiang", "Kawalu", "Mangkubumi", "Purbaratu", "Tamansari", "Tawang"],
+    "Kab. Bandung": [
+      "Baleendah", "Banjaran", "Bojongsoang", "Cangkuang", "Cicalengka", "Cikancung", "Cilengkrang", 
+      "Cileunyi", "Cimaung", "Cimenyan", "Ciparay", "Ciwidey", "Dayeuhkolot", "Ibun", "Katapang", 
+      "Kertasari", "Kutawaringin", "Majalaya", "Margaasih", "Margahayu", "Nagreg", "Pacet", "Pameungpeuk", 
+      "Pangalengan", "Paseh", "Pasirjambu", "Rancabali", "Rancaekek", "Solokanjeruk", "Soreang"
+    ],
+    "Kab. Bandung Barat": [
+      "Batujajar", "Cikalongwetan", "Cihampelas", "Cililin", "Cipatat", "Cipeundeuy", "Cipongkor", 
+      "Cisarua", "Gununghalu", "Lembang", "Ngamprah", "Padalarang", "Parongpong", "Rongga", "Sindangkerta", "Saguling"
+    ],
+    "Kab. Bekasi": ["Cikarang Barat", "Cikarang Pusat", "Cikarang Selatan", "Cikarang Timur", "Cikarang Utara", "Tambun Selatan", "Tambun Utara", "Babelan", "Tarumajaya", "Cibitung", "Setu"],
+    "Kab. Bogor": ["Cibinong", "Cileungsi", "Citeureup", "Gunung Putri", "Bojonggede", "Babakan Madang", "Ciawi", "Cisarua", "Megamendung", "Parung", "Kemang"],
+    "Kab. Garut": ["Garut Kota", "Tarogong Kidul", "Tarogong Kaler", "Samarang", "Bayongbong", "Karangpawitan", "Wanaraja", "Leles", "Kadungora"],
+    "Kab. Karawang": ["Karawang Barat", "Karawang Timur", "Telukjambe Timur", "Telukjambe Barat", "Klari", "Cikampek", "Rengasdengklok"],
+    "Kab. Sumedang": ["Sumedang Utara", "Sumedang Selatan", "Jatinangor", "Cimanggung", "Tanjungsari", "Rancakalong", "Conggeang"],
+
+    // DKI Jakarta
+    "Jakarta Selatan": [
+      "Cilandak", "Jagakarsa", "Kebayoran Baru", "Kebayoran Lama", "Mampang Prapatan", 
+      "Pancoran", "Pasar Minggu", "Pesanggrahan", "Setiabudi", "Tebet"
+    ],
+    "Jakarta Pusat": [
+      "Cempaka Putih", "Gambir", "Johar Baru", "Kemayoran", "Menteng", "Sawah Besar", "Senen", "Tanah Abang"
+    ],
+    "Jakarta Barat": [
+      "Cengkareng", "Grogol Petamburan", "Kalideres", "Kebon Jeruk", "Kembangan", "Palmerah", "Taman Sari", "Tambora"
+    ],
+    "Jakarta Timur": [
+      "Cakung", "Cipayung", "Ciracas", "Duren Sawit", "Jatinegara", "Kramat Jati", "Makasar", "Matraman", "Pasar Rebo", "Pulo Gadung"
+    ],
+    "Jakarta Utara": [
+      "Cilincing", "Kelapa Gading", "Koja", "Pademangan", "Penjaringan", "Tanjung Priok"
+    ],
+
+    // Jawa Timur
+    "Kota Surabaya": [
+      "Asemrowo", "Benowo", "Bubutan", "Bulak", "Dukuh Pakis", "Gayungan", "Genteng", "Gubeng", "Gunung Anyar", 
+      "Jambangan", "Karangpilang", "Kenjeran", "Krembangan", "Lakarsantri", "Mulyorejo", "Pabean Cantikan", 
+      "Pakal", "Rungkut", "Sambikerep", "Sawahan", "Semampir", "Simokerto", "Sukolilo", "Sukomanunggal", 
+      "Tambaksari", "Tandes", "Tegalsari", "Tenggilis Mejoyo", "Wiyung", "Wonocolo", "Wonokromo"
+    ],
+    "Kota Malang": ["Blimbing", "Kedungkandang", "Klojen", "Lowokwaru", "Sukun"],
+    "Kota Sidoarjo": ["Sidoarjo", "Waru", "Candi", "Gedangan", "Sedati", "Taman", "Buduran", "Sukodono", "Krian", "Porong"],
+    "Kota Batu": ["Batu", "Bumiaji", "Junrejo"],
+    "Kota Kediri": ["Kota", "Mojoroto", "Pesantren"],
+
+    // Jawa Tengah
+    "Kota Semarang": [
+      "Banyumanik", "Candisari", "Gajahmungkur", "Gayamsari", "Genuk", "Gunungpati", "Mijen", 
+      "Ngaliyan", "Pedurungan", "Semarang Barat", "Semarang Selatan", "Semarang Tengah", "Semarang Timur", "Semarang Utara", "Tembalang", "Tugu"
+    ],
+    "Kota Surakarta (Solo)": ["Banjarsari", "Jebres", "Laweyan", "Pasar Kliwon", "Serengan"],
+    "Kota Magelang": ["Magelang Selatan", "Magelang Tengah", "Magelang Utara"],
+    "Kota Salatiga": ["Argomulyo", "Sidomukti", "Sidorejo", "Tingkir"],
+    "Kota Tegal": ["Margadana", "Tegal Barat", "Tegal Selatan", "Tegal Timur"],
+
+    // Banten
+    "Kota Tangerang": [
+      "Batuceper", "Benda", "Cibodas", "Ciledug", "Cipondoh", "Jatiuwung", "Karangtengah", 
+      "Karawaci", "Larangan", "Neglasari", "Periuk", "Pinang", "Tangerang"
+    ],
+    "Kota Tangerang Selatan": [
+      "Ciputat", "Ciputat Timur", "Pamulang", "Pondok Aren", "Serpong", "Serpong Utara", "Setu"
+    ],
+    "Kota Serang": ["Cipocok Jaya", "Curug", "Kasemen", "Serang", "Taktakan", "Walantaka"],
+    "Kota Cilegon": ["Cibeber", "Cilegon", "Citangkil", "Ciwandan", "Gerogol", "Jombang", "Pulomerak", "Purwakarta"],
+
+    // DI Yogyakarta
+    "Kota Yogyakarta": [
+      "Danurejan", "Gedongtengen", "Gondokusuman", "Gondomanan", "Jetis", "Kotagede", 
+      "Kraton", "Mantrijeron", "Mergangsan", "Ngampilan", "Pakualaman", "Tegalrejo", "Umbulharjo", "Wirobrajan"
+    ],
+    "Kab. Sleman": ["Depok", "Mlati", "Gamping", "Ngaglik", "Kalasan", "Sleman", "Berbah", "Prambanan", "Godean", "Seyegan", "Tempel", "Pakem"],
+    "Kab. Bantul": ["Banguntapan", "Sewon", "Kasihan", "Bantul", "Piyungan", "Imogiri", "Pundong", "Sedayu"],
+
+    // Bali
+    "Kota Denpasar": ["Denpasar Barat", "Denpasar Selatan", "Denpasar Timur", "Denpasar Utara"],
+    "Kab. Badung (Kuta/Canggu)": ["Abiansemal", "Kuta", "Kuta Selatan", "Kuta Utara", "Mengwi", "Petang"],
+    "Kab. Gianyar (Ubud)": ["Gianyar", "Blahbatuh", "Sukawati", "Ubud", "Payangan", "Tegallalang", "Tampaksiring"],
+
+    // Sumatera Utara
+    "Kota Medan": [
+      "Medan Amplas", "Medan Area", "Medan Barat", "Medan Baru", "Medan Belawan", "Medan Deli", 
+      "Medan Denai", "Medan Helvetia", "Medan Johor", "Medan Kota", "Medan Labuhan", "Medan Maimun", 
+      "Medan Marelan", "Medan Perjuangan", "Medan Petisah", "Medan Polonia", "Medan Selayang", 
+      "Medan Sunggal", "Medan Tembung", "Medan Timur", "Medan Tuntungan"
+    ],
+
+    // Sumatera Barat
+    "Kota Padang": ["Bungus Teluk Kabung", "Koto Tangah", "Kuranji", "Lubuk Begalung", "Lubuk Kilangan", "Nanggalo", "Padang Barat", "Padang Selatan", "Padang Timur", "Padang Utara", "Pauh"],
+
+    // Riau
+    "Kota Pekanbaru": ["Bukit Raya", "Lima Puluh", "Marpoyan Damai", "Payung Sekaki", "Pekanbaru Kota", "Rumbai", "Rumbai Barat", "Rumbai Timur", "Sail", "Senapelan", "Sukajadi", "Tenayan Raya", "Tuah Madani", "Kulim", "Binawidya"],
+
+    // Kepulauan Riau
+    "Kota Batam": ["Batam Kota", "Batu Aji", "Batu Ampar", "Belakang Padang", "Bengkong", "Bulang", "Galang", "Lubuk Baja", "Nongsa", "Sagulung", "Sei Beduk", "Sekupang"],
+
+    // Sumatera Selatan
+    "Kota Palembang": ["Alang-Alang Lebar", "Bukit Kecil", "Gandus", "Ilir Barat I", "Ilir Barat II", "Ilir Timur I", "Ilir Timur II", "Ilir Timur III", "Jakabaring", "Kalidoni", "Kemuning", "Kertapati", "Plaju", "Sako", "Seberang Ulu I", "Seberang Ulu II", "Sukarami"],
+
+    // Kalimantan Timur
+    "Kota Balikpapan": ["Balikpapan Barat", "Balikpapan Kota", "Balikpapan Selatan", "Balikpapan Tengah", "Balikpapan Timur", "Balikpapan Utara"],
+    "Kota Samarinda": ["Loa Janan Ilir", "Palaran", "Samarinda Ilir", "Samarinda Kota", "Samarinda Seberang", "Samarinda Ulu", "Samarinda Utara", "Sambutan", "Sungai Kunjang", "Sungai Pinang"],
+
+    // Sulawesi Selatan
+    "Kota Makassar": [
+      "Biringkanaya", "Bontoala", "Kepulauan Sangkarrang", "Makassar", "Mamajang", "Manggala", 
+      "Mariso", "Panakkukang", "Rappocini", "Tallo", "Tamalanrea", "Tamalate", "Ujung Pandang", "Ujung Tanah", "Wajo"
+    ]
+  };
+
   function updateCityDropdown(provinceSelectId, citySelectId, defaultCity = "Kota Bandung") {
     const provinceSelect = document.getElementById(provinceSelectId);
     const citySelect = document.getElementById(citySelectId);
@@ -328,13 +463,45 @@
       if (city === defaultCity) opt.selected = true;
       citySelect.appendChild(opt);
     });
+
+    // Automatically cascade to district dropdown if exists
+    if (citySelectId === 'city') {
+      updateDistrictDropdown('city', 'district');
+    }
   }
 
-  // Initialize city dropdown
+  function updateDistrictDropdown(citySelectId, districtSelectId, defaultDistrict = "") {
+    const citySelect = document.getElementById(citySelectId);
+    const districtSelect = document.getElementById(districtSelectId);
+    if (!citySelect || !districtSelect) return;
+
+    const selectedCity = citySelect.value;
+    const districts = INDONESIA_DISTRICTS[selectedCity] || [];
+
+    districtSelect.innerHTML = "";
+    
+    // First option: Semua Kecamatan
+    const allOpt = document.createElement("option");
+    allOpt.value = "";
+    allOpt.textContent = "Semua Kecamatan (Se-Kota)";
+    districtSelect.appendChild(allOpt);
+
+    districts.forEach(dist => {
+      const opt = document.createElement("option");
+      opt.value = dist;
+      opt.textContent = "Kecamatan " + dist;
+      if (dist === defaultDistrict) opt.selected = true;
+      districtSelect.appendChild(opt);
+    });
+  }
+
+  // Initialize city and district dropdowns
   document.addEventListener('DOMContentLoaded', () => {
     updateCityDropdown('province', 'city', 'Kota Bandung');
+    updateDistrictDropdown('city', 'district');
     loadDashboardCharts();
   });
+
 
   let categoryChartInstance = null;
   let websiteRatingChartInstance = null;
