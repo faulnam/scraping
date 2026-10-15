@@ -100,7 +100,7 @@
           hx-swap="innerHTML"
           class="space-y-4">
       
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Input Kategori Usaha -->
         <div>
           <label for="category_query" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5">
@@ -160,7 +160,24 @@
             <!-- Populated dynamically by JavaScript -->
           </select>
         </div>
+
+        <!-- Input / Pilihan Kecamatan (Opsional) -->
+        <div>
+          <label for="district" class="block text-[11px] font-black text-black uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Kecamatan / Area</span>
+            <span class="text-[9px] font-bold text-slate-500 bg-slate-100 border border-black/20 px-1.5 py-0.2 rounded">Opsional</span>
+          </label>
+          <input type="text"
+                 id="district"
+                 name="district"
+                 placeholder="Misal: Coblong, Sukajadi, Cicendo..."
+                 class="neo-input w-full text-xs font-bold px-3 py-2.5 text-black">
+          <span class="text-[9px] font-bold text-slate-500 mt-1 block">
+            Isi untuk target kecamatan spesifik, atau kosongkan untuk se-kota.
+          </span>
+        </div>
       </div>
+
 
       <!-- Mode Scraping -->
       <div class="pt-1">

@@ -267,9 +267,11 @@ async def trigger_crawl(
     category_query: str = Form(...),
     province: Optional[str] = Form("Jawa Barat"),
     city: Optional[str] = Form("Kota Bandung"),
+    district: Optional[str] = Form(None),
     crawl_mode: Optional[str] = Form("unlimited"),
     db: Session = Depends(get_db)
 ):
+
     """
     Trigger Places API crawling pipeline via HTMX POST.
     Crawled data is assigned specifically to current_user.id.
@@ -310,8 +312,17 @@ async def trigger_crawl(
 
     async with _crawl_lock:
         _last_crawl_timestamp = time.time()
-        location_query = f"{city}, {province}".strip(", ")
+        
+        # Build location query with district (kecamatan) if provided
+        if district and district.strip():
+            clean_district = district.strip()
+            # E.g. "Coblong, Kota Bandung, Jawa Barat"
+            location_query = f"{clean_district}, {city}, {province}".strip(", ")
+        else:
+            location_query = f"{city}, {province}".strip(", ")
+
         try:
+
             crawl_run = await run_ingest_pipeline(
                 category_query=category_query,
                 location_query=location_query,
