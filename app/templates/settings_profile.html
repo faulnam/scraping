@@ -182,13 +182,31 @@
           </div>
         </div>
 
+        <!-- Quick Preset Template Switcher -->
+        <div class="flex items-center gap-1.5 flex-wrap pt-1">
+          <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Terapkan Contoh Gaya Pesan:</span>
+          <button type="button" onclick="applyPresetTemplate('formal')" class="px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 border border-blue-300 font-bold text-[11px] text-blue-800 transition">
+            📋 Resmi & Formal (Yth.)
+          </button>
+          <button type="button" onclick="applyPresetTemplate('direct_demo')" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 border border-slate-300 font-bold text-[11px] text-slate-800 transition">
+            🔗 Demo Link
+          </button>
+          <button type="button" onclick="applyPresetTemplate('sales_growth')" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 border border-slate-300 font-bold text-[11px] text-slate-800 transition">
+            📈 Omset & Solusi
+          </button>
+          <button type="button" onclick="applyPresetTemplate('casual')" class="px-2.5 py-1 rounded-md bg-slate-100 hover:bg-slate-200 border border-slate-300 font-bold text-[11px] text-slate-800 transition">
+            ☕ Santai
+          </button>
+        </div>
+
         <textarea id="default_wa_template"
                   name="default_wa_template"
-                  rows="6"
+                  rows="7"
                   required
                   oninput="updatePreview()"
                   class="w-full text-xs bg-slate-50 border border-slate-300 rounded-lg p-3 text-slate-900 font-sans focus:ring-2 focus:ring-slate-900 focus:bg-white focus:outline-none transition leading-relaxed">{{ wa_template }}</textarea>
       </div>
+
 
       <!-- Live Preview Card -->
       <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
@@ -666,6 +684,20 @@
 
 {% block scripts %}
 <script>
+  const PRESET_TEMPLATES = {
+    "formal": "Kepada Yth.\nPimpinan / Manajemen {business_name}\ndi Tempat\n\nDengan hormat,\nPerkenalkan, saya {contact_person} dari {company_name}.\n\nMelalui pesan ini, kami ingin menyampaikan apresiasi atas reputasi dan kredibilitas usaha {business_name} yang sangat baik. Sehubungan dengan kebutuhan pengembangan bisnis di era digital saat ini, kami bermaksud menawarkan solusi peningkatan kehadiran digital dan sistem profil profesional untuk usaha Anda.\n\n{pitch_snippet}\n\nSebagai referensi dan bahan pertimbangan Bapak/Ibu, berikut tautan portofolio dan dokumen proposal resmi kami:\n• Portofolio & Referensi Demo: {portfolio_url}\n• Dokumen Proposal Kerjasama: {file_url}\n• Profil & Website Resmi Perusahaan: {website_url}\n\nBesar harapan kami untuk dapat berdiskusi lebih lanjut atau mempresentasikan gambaran preview sistem untuk {business_name} pada waktu luang Bapak/Ibu.\n\nAtas perhatian dan kesempatan yang diberikan, kami ucapkan terima kasih banyak.\n\nHormat kami,\n{contact_person}\n{company_name}",
+    "direct_demo": "Halo {business_name}, perkenalkan saya {contact_person} dari {company_name}.\n\nKami melihat profil bisnis Anda di Google Maps memiliki reputasi yang sangat baik. {pitch_snippet}\n\nBerikut contoh referensi website yang kami rancang khusus untuk industri Anda:\n• Portofolio: {portfolio_url}\n• Dokumen Proposal: {file_url}\n• Website Resmi Kami: {website_url}\n\nApakah boleh kami presentasikan preview singkat untuk {business_name}?",
+    "sales_growth": "Halo {business_name}, salam sukses dari tim {company_name}.\n\nBanyak calon pelanggan mencari layanan di Google. Untuk meningkatkan kredibilitas & omset {business_name}, kami sudah siapkan sistem website siap pakai.\n\nLihat referensi layanan & portofolio kami:\n• Portofolio: {portfolio_url}\n• Dokumen Proposal: {file_url}\n• Website Resmi & Layanan Lengkap: {website_url}\n\nBoleh kami diskusikan penawaran singkatnya via WhatsApp?",
+    "casual": "Halo kak di {business_name}, salam dari tim {company_name}.\n\nIzin share referensi desain website modern yang pas banget untuk {business_name}:\n• Portofolio: {portfolio_url}\n• Dokumen Proposal: {file_url}\n• Website Resmi Kami: {website_url}\n\nBarangkali sedang ada rencana pembuatan website resmi, boleh kami bantu ya kak!"
+  };
+
+  function applyPresetTemplate(type) {
+    if (PRESET_TEMPLATES[type]) {
+      document.getElementById('default_wa_template').value = PRESET_TEMPLATES[type];
+      updatePreview();
+    }
+  }
+
   function updatePreview() {
     const template = document.getElementById('default_wa_template').value;
     const company = document.getElementById('company_name').value || "JuangDev";

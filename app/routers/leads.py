@@ -46,6 +46,28 @@ PITCH_TEMPLATES = {
             "Apakah boleh kami presentasikan preview singkat untuk {business_name}?"
         )
     },
+    "formal": {
+        "id": "formal",
+        "name": "Resmi & Formal (Yth. Pimpinan/Owner)",
+        "template": (
+            "Kepada Yth.\n"
+            "Pimpinan / Manajemen {business_name}\n"
+            "di Tempat\n\n"
+            "Dengan hormat,\n"
+            "Perkenalkan, saya {contact_person} dari {company_name}.\n\n"
+            "Melalui pesan ini, kami ingin menyampaikan apresiasi atas reputasi dan kredibilitas usaha {business_name} yang sangat baik. Sehubungan dengan kebutuhan pengembangan bisnis di era digital saat ini, kami bermaksud menawarkan solusi peningkatan kehadiran digital dan sistem profil profesional untuk usaha Anda.\n\n"
+            "{pitch_snippet}\n\n"
+            "Sebagai referensi dan bahan pertimbangan Bapak/Ibu, berikut tautan portofolio dan dokumen proposal resmi kami:\n"
+            "• Portofolio & Referensi Demo: {portfolio_url}\n"
+            "• Dokumen Proposal Kerjasama: {file_url}\n"
+            "• Profil & Website Resmi Perusahaan: {website_url}\n\n"
+            "Besar harapan kami untuk dapat berdiskusi lebih lanjut atau mempresentasikan gambaran preview sistem untuk {business_name} pada waktu luang Bapak/Ibu.\n\n"
+            "Atas perhatian dan kesempatan yang diberikan, kami ucapkan terima kasih banyak.\n\n"
+            "Hormat kami,\n"
+            "{contact_person}\n"
+            "{company_name}"
+        )
+    },
     "sales_growth": {
         "id": "sales_growth",
         "name": "Fokus Solusi Omset & Kredibilitas",
@@ -72,6 +94,7 @@ PITCH_TEMPLATES = {
         )
     }
 }
+
 
 
 def get_profile_data(db: Session, user_id: Optional[int] = None):

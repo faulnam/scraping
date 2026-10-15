@@ -304,7 +304,7 @@
           <label for="template_variant" class="block text-[11px] font-bold text-slate-800 uppercase tracking-wider">
             2. Gaya Template Pesan
           </label>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {% for key, t in pitch_templates.items() %}
             <button type="button" 
                     id="btn-template-{{ key }}"
@@ -428,10 +428,11 @@
   const WEBSITE_URL = {{ website_url|tojson }};
 
   const PITCH_TEMPLATES_DATA = {
-    "direct_demo": {{ pitch_templates.direct_demo.template|tojson }},
-    "sales_growth": {{ pitch_templates.sales_growth.template|tojson }},
-    "casual": {{ pitch_templates.casual.template|tojson }}
+    {% for key, t in pitch_templates.items() %}
+    "{{ key }}": {{ t.template|tojson }}{% if not loop.last %},{% endif %}
+    {% endfor %}
   };
+
 
   let currentVariant = "direct_demo";
 
