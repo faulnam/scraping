@@ -233,7 +233,7 @@ async def outreach_view(
         "contact_person": contact_person,
         "website_url": website_url or DEFAULT_OFFICIAL_WEBSITE,
         # Ensure official website link is always included in the pitch text
-        "official_website": DEFAULT_OFFICIAL_WEBSITE,
+        "official_website": website_url or DEFAULT_OFFICIAL_WEBSITE,
         "quick_note_chips": QUICK_NOTE_CHIPS,
     }
 
@@ -276,19 +276,47 @@ async def outreach_view(
     )
 
     # Build pitch text for display
+    effective_website = website_url or DEFAULT_OFFICIAL_WEBSITE
     pitch_text = wa_template
-    # Append official website link if not already present
-    if DEFAULT_OFFICIAL_WEBSITE not in pitch_text:
-        pitch_text += f"\n{DEFAULT_OFFICIAL_WEBSITE}"
+
+    # Resolve short proposal URL
+    target_host = base_url if base_url else "https://scraping.juangdev.my.id"
+    if target_host.startswith("http://"):
+        target_host = "https://" + target_host[7:]
+    
+    portfolio_short_url = ""
+    if matched_portfolio and getattr(matched_portfolio, "id", None) and matched_portfolio.image_url:
+        portfolio_short_url = f"{target_host}/p/{matched_portfolio.id}"
+    elif portfolio_image_url:
+        portfolio_short_url = portfolio_image_url
+
+    # Replace placeholders
     pitch_text = pitch_text.replace("{business_name}", current_lead.business_name or "")
     pitch_text = pitch_text.replace("{portfolio_name}", matched_portfolio.title if matched_portfolio else "Website Profesional")
-    pitch_text = pitch_text.replace("{portfolio_url}", matched_portfolio.demo_url if matched_portfolio else DEFAULT_OFFICIAL_WEBSITE)
+    pitch_text = pitch_text.replace("{portfolio_url}", matched_portfolio.demo_url if matched_portfolio else effective_website)
     pitch_text = pitch_text.replace("{pitch_snippet}", matched_portfolio.pitch_snippet if matched_portfolio and matched_portfolio.pitch_snippet else "")
     pitch_text = pitch_text.replace("{company_name}", company_name)
     pitch_text = pitch_text.replace("{contact_person}", contact_person)
-    pitch_text = pitch_text.replace("{website_url}", website_url or DEFAULT_OFFICIAL_WEBSITE)
-    pitch_text = pitch_text.replace("{image_url}", portfolio_image_url)
-    pitch_text = pitch_text.replace("{mockup_url}", portfolio_image_url)
+    pitch_text = pitch_text.replace("{website_url}", effective_website)
+    pitch_text = pitch_text.replace("{file_url}", portfolio_short_url)
+    pitch_text = pitch_text.replace("{image_url}", portfolio_short_url)
+    pitch_text = pitch_text.replace("{mockup_url}", portfolio_short_url)
+
+    # Dynamic replacement of legacy default website if user specified custom website_url
+    if website_url and "juangdev.my.id" not in website_url.lower():
+        pitch_text = pitch_text.replace("https://juangdev.my.id", website_url)
+        pitch_text = pitch_text.replace("http://juangdev.my.id", website_url)
+
+    # Clean up empty proposal line if no file attached
+    if not portfolio_short_url:
+        pitch_text = pitch_text.replace("• Dokumen Proposal: \r\n", "")
+        pitch_text = pitch_text.replace("• Dokumen Proposal: \n", "")
+        pitch_text = pitch_text.replace("• File Proposal: \r\n", "")
+        pitch_text = pitch_text.replace("• File Proposal: \n", "")
+
+    # Append official website link if not already present
+    if effective_website and effective_website not in pitch_text:
+        pitch_text += f"\n{effective_website}"
 
     # Standardize phone for WA
     clean_digits = "".join([c for c in (current_lead.phone or "") if c.isdigit()])

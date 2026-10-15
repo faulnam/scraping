@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
@@ -8,7 +8,7 @@ import os
 from app.config import get_settings
 from app.database import init_db, SessionLocal
 from app.auth import SESSION_COOKIE_NAME, verify_session_token
-from app.routers import auth, dashboard, leads, history, export, settings as settings_router, outreach
+from app.routers import auth, dashboard, leads, history, export, settings as settings_router, outreach, contacted
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from app import models
 
@@ -38,7 +38,7 @@ app = FastAPI(
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 # Authentication Guard Middleware
-PUBLIC_PREFIXES = ("/landing", "/login", "/logout", "/static", "/favicon.ico")
+PUBLIC_PREFIXES = ("/landing", "/login", "/logout", "/static", "/favicon.ico", "/p")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
@@ -125,3 +125,23 @@ app.include_router(history.router)
 app.include_router(export.router)
 app.include_router(settings_router.router)
 app.include_router(outreach.router)
+app.include_router(contacted.router)
+
+
+@app.api_route("/p/{portfolio_id}", methods=["GET", "HEAD"], include_in_schema=False)
+async def redirect_portfolio_shortlink(portfolio_id: int):
+    """Public shortlink to view/download a portfolio's proposal document or redirect to demo."""
+    db = SessionLocal()
+    try:
+        item = db.query(models.PortfolioItem).filter(models.PortfolioItem.id == portfolio_id).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="File portofolio tidak ditemukan")
+        
+        target_url = item.image_url or item.demo_url
+        if not target_url:
+            raise HTTPException(status_code=404, detail="File portofolio belum tersedia")
+        
+        return RedirectResponse(url=target_url, status_code=302)
+    finally:
+        db.close()
+

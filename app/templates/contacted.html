@@ -1,0 +1,340 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Pembukuan Kontak (Outreach Ledger) — LeadMaps BI{% endblock %}
+{% block page_title %}Pembukuan Kontak{% endblock %}
+{% block page_subtitle %}Rekapitulasi Usaha yang Telah Dihubungi & Riwayat Komunikasi Prospek{% endblock %}
+
+{% block header_actions %}
+<div class="flex items-center space-x-2">
+  <!-- Tombol Export CSV Rekap Pembukuan -->
+  <a id="btn-export-csv"
+     href="/contacted/export/csv?category={{ selected_category or '' }}&contact_status={{ selected_status or '' }}&search={{ search_query or '' }}&date_range={{ selected_date_range or '' }}" 
+     class="neo-btn neo-btn-white flex items-center space-x-1.5 py-1.5 px-3 text-xs font-black shadow-[2px_2px_0px_#000]"
+     title="Unduh Data Pembukuan dalam format CSV (Excel)">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+    <span class="hidden sm:inline">Unduh </span><span>CSV</span>
+  </a>
+
+  <!-- Tombol ke Outreach Mode -->
+  <a href="/outreach" 
+     class="neo-btn neo-btn-primary flex items-center space-x-1.5 py-1.5 px-3 text-xs font-black shadow-[2px_2px_0px_#000]">
+    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+    <span>Outreach Baru</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-7xl mx-auto">
+
+  <!-- ============================================================ -->
+  <!-- 1. SUMMARY KPI CARDS (LEDGER STATS)                          -->
+  <!-- ============================================================ -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+    
+    <!-- Total Kontak Dihubungi -->
+    <div class="bg-white border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_#000]">
+      <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Total Dihubungi</span>
+      <div class="text-xl sm:text-2xl font-black text-black mt-1">{{ stats.total_contacted }}</div>
+      <div class="text-[10px] text-slate-500 font-bold mt-1.5 border-t border-black/10 pt-1.5">
+        Usaha di pembukuan
+      </div>
+    </div>
+
+    <!-- Sudah Di-WA (First Touch) -->
+    <div class="bg-[#EFF6FF] border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_#000]">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-black text-blue-900 uppercase tracking-wider block">Sudah Di-WA</span>
+        <span class="w-2 h-2 rounded-full bg-[#2563EB] border border-black inline-block"></span>
+      </div>
+      <div class="text-xl sm:text-2xl font-black text-blue-950 mt-1">{{ stats.sudah_wa_count }}</div>
+      <div class="text-[10px] text-blue-800 font-bold mt-1.5 border-t border-black/10 pt-1.5">
+        Tahap kontak awal
+      </div>
+    </div>
+
+    <!-- Perlu Follow Up -->
+    <div class="bg-[#FEF3C7] border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_#000]">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-black text-amber-900 uppercase tracking-wider block">Follow Up</span>
+        <span class="w-2 h-2 rounded-full bg-[#F59E0B] border border-black inline-block"></span>
+      </div>
+      <div class="text-xl sm:text-2xl font-black text-amber-950 mt-1">{{ stats.follow_up_count }}</div>
+      <div class="text-[10px] text-amber-800 font-bold mt-1.5 border-t border-black/10 pt-1.5">
+        Perlu tindak lanjut
+      </div>
+    </div>
+
+    <!-- Deal / Closing -->
+    <div class="bg-[#D1FAE5] border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_#000]">
+      <div class="flex items-center justify-between">
+        <span class="text-[10px] font-black text-emerald-900 uppercase tracking-wider block">Closing / Deal</span>
+        <span class="w-2 h-2 rounded-full bg-[#10B981] border border-black inline-block"></span>
+      </div>
+      <div class="text-xl sm:text-2xl font-black text-emerald-950 mt-1">{{ stats.deal_count }}</div>
+      <div class="text-[10px] text-emerald-800 font-bold mt-1.5 border-t border-black/10 pt-1.5">
+        Penjualan berhasil 🎉
+      </div>
+    </div>
+
+    <!-- Rasio Closing -->
+    <div class="bg-white border-2 border-black rounded-xl p-3.5 sm:p-4 shadow-[3px_3px_0px_#000] col-span-2 sm:col-span-1">
+      <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Rasio Closing</span>
+      <div class="text-xl sm:text-2xl font-black text-black mt-1">
+        <span class="text-[#10B981]">{{ stats.deal_rate }}%</span>
+      </div>
+      <div class="text-[10px] text-slate-500 font-bold mt-1.5 border-t border-black/10 pt-1.5">
+        Tingkat konversi deal
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- 2. FILTER TOOLBAR (KATEGORI, STATUS, WAKTU & SEARCH)         -->
+  <!-- ============================================================ -->
+  <div class="bg-white border-2 border-black rounded-xl p-4 sm:p-5 shadow-[4px_4px_0px_#000] space-y-4">
+    
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-black/10 pb-3">
+      <div class="flex items-center space-x-2">
+        <div class="w-7 h-7 rounded-lg bg-[#2563EB] text-white border-2 border-black flex items-center justify-center font-black text-xs shadow-[2px_2px_0px_#000]">
+          #
+        </div>
+        <h2 class="text-sm sm:text-base font-black text-black">
+          Filter & Pencarian Pembukuan
+        </h2>
+      </div>
+      <span class="text-xs font-bold text-slate-500">
+        Menampilkan data kontak khusus akun Anda
+      </span>
+    </div>
+
+    <form id="contacted-filter-form"
+          hx-get="/contacted"
+          hx-target="#contacted-table-container"
+          hx-push-url="true"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      
+      <!-- 1. Search Bar -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Cari Usaha / Telepon
+        </label>
+        <div class="relative">
+          <input type="text" 
+                 name="search" 
+                 id="filter-search"
+                 value="{{ search_query }}"
+                 placeholder="Nama, no telp, kota..."
+                 hx-get="/contacted"
+                 hx-trigger="keyup changed delay:400ms"
+                 hx-target="#contacted-table-container"
+                 hx-include="#contacted-filter-form"
+                 hx-push-url="true"
+                 class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg py-2 pl-8 pr-2.5 font-bold text-black focus:outline-none focus:bg-white transition">
+          <svg class="w-4 h-4 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        </div>
+      </div>
+
+      <!-- 2. FILTER KATEGORI USAHA (Utama) -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1 flex items-center justify-between">
+          <span>Kategori Usaha</span>
+          <span class="text-[9px] font-bold text-slate-500">({{ categories|length }} Kategori)</span>
+        </label>
+        <select name="category" 
+                id="filter-category"
+                hx-get="/contacted"
+                hx-target="#contacted-table-container"
+                hx-include="#contacted-filter-form"
+                hx-push-url="true"
+                class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2 font-bold text-black focus:outline-none focus:bg-white cursor-pointer transition">
+          <option value="all">Semua Kategori ({{ stats.total_contacted }})</option>
+          {% for cat in categories %}
+          <option value="{{ cat.name }}" {% if selected_category == cat.name %}selected{% endif %}>
+            {{ cat.name }} ({{ cat.count }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 3. Filter Status Hubungan -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Status Hubungan
+        </label>
+        <select name="contact_status" 
+                id="filter-status"
+                hx-get="/contacted"
+                hx-target="#contacted-table-container"
+                hx-include="#contacted-filter-form"
+                hx-push-url="true"
+                class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2 font-bold text-black focus:outline-none focus:bg-white cursor-pointer transition">
+          <option value="all">Semua Status Kontak</option>
+          <option value="sudah_dihubungi" {% if selected_status == 'sudah_dihubungi' %}selected{% endif %}>Sudah Di-WA ({{ stats.sudah_wa_count }})</option>
+          <option value="follow_up" {% if selected_status == 'follow_up' %}selected{% endif %}>Follow Up ({{ stats.follow_up_count }})</option>
+          <option value="deal" {% if selected_status == 'deal' %}selected{% endif %}>Deal / Closing ({{ stats.deal_count }})</option>
+          <option value="tidak_tertarik" {% if selected_status == 'tidak_tertarik' %}selected{% endif %}>Tidak Tertarik ({{ stats.tidak_tertarik_count }})</option>
+        </select>
+      </div>
+
+      <!-- 4. Filter Waktu & Tombol Reset -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Waktu Kontak
+        </label>
+        <div class="flex items-center space-x-1.5">
+          <select name="date_range" 
+                  id="filter-date-range"
+                  hx-get="/contacted"
+                  hx-target="#contacted-table-container"
+                  hx-include="#contacted-filter-form"
+                  hx-push-url="true"
+                  class="flex-1 text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2 font-bold text-black focus:outline-none focus:bg-white cursor-pointer transition">
+            <option value="">Semua Waktu</option>
+            <option value="today" {% if selected_date_range == 'today' %}selected{% endif %}>Hari Ini</option>
+            <option value="7d" {% if selected_date_range == '7d' %}selected{% endif %}>7 Hari Terakhir</option>
+            <option value="30d" {% if selected_date_range == '30d' %}selected{% endif %}>30 Hari Terakhir</option>
+          </select>
+
+          <!-- Reset Filter Button -->
+          <a href="/contacted" 
+             class="neo-btn neo-btn-white p-2 text-xs font-black shrink-0" 
+             title="Reset Semua Filter">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          </a>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+
+  <!-- ============================================================ -->
+  <!-- 3. TABLE CONTAINER (HTMX TARGET)                             -->
+  <!-- ============================================================ -->
+  <div id="contacted-table-container" class="space-y-4">
+    {% include "partials/contacted_table.html" %}
+  </div>
+
+</div>
+
+
+<!-- ============================================================ -->
+<!-- 4. QUICK EDIT STATUS & CATATAN MODAL                         -->
+<!-- ============================================================ -->
+<div id="quick-edit-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl border-2 border-black shadow-[6px_6px_0px_#000] max-w-md w-full p-5 space-y-4 animate-fade-in">
+    
+    <div class="flex items-center justify-between pb-3 border-b-2 border-black/10">
+      <div>
+        <h4 class="text-sm font-black text-black">Update Status Pembukuan</h4>
+        <p id="modal-biz-name" class="text-xs font-bold text-[#2563EB] truncate max-w-xs mt-0.5"></p>
+      </div>
+      <button type="button" onclick="closeQuickEditModal()" class="text-black hover:bg-slate-100 p-1.5 rounded-lg border-2 border-black">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+    </div>
+
+    <form id="quick-edit-form" method="POST" action="" class="space-y-3.5 text-xs">
+      
+      <!-- Status Kontak -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Status Hubungan Saat Ini
+        </label>
+        <select id="modal-status-select" 
+                name="contact_status" 
+                class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2.5 font-bold text-black focus:outline-none focus:bg-white cursor-pointer">
+          <option value="sudah_dihubungi">Sudah Di-WA (Tahap Awal)</option>
+          <option value="follow_up">Follow Up (Menunggu Respons / Prospek Aktif)</option>
+          <option value="deal">🎉 Deal / Closing (Berhasil Bekerjasama)</option>
+          <option value="tidak_tertarik">Tidak Tertarik / Batal</option>
+          <option value="tidak_relevan">Tidak Relevan</option>
+        </select>
+      </div>
+
+      <!-- Tambah Catatan Pembukuan -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Tambah Catatan Hasil Pembicaraan
+        </label>
+        <textarea id="modal-notes-input" 
+                  name="notes" 
+                  rows="3" 
+                  placeholder="Tulis hasil komunikasi baru, janji demo, respon prospek..." 
+                  class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2.5 font-medium text-black focus:outline-none focus:bg-white"></textarea>
+      </div>
+
+      <!-- Jadwal Follow-Up Berikutnya (Opsional) -->
+      <div>
+        <label class="block text-[11px] font-black uppercase tracking-wider text-black mb-1">
+          Jadwal Follow-Up Berikutnya (Opsional)
+        </label>
+        <input type="datetime-local" 
+               id="modal-followup-input" 
+               name="next_followup_at" 
+               class="w-full text-xs bg-[#FFFDF5] border-2 border-black rounded-lg p-2 font-bold text-black focus:outline-none focus:bg-white">
+      </div>
+
+      <div class="flex items-center justify-end space-x-2 pt-2 border-t-2 border-black/10">
+        <button type="button" onclick="closeQuickEditModal()" class="neo-btn neo-btn-white py-2 px-3 text-xs font-black">
+          Batal
+        </button>
+        <button type="submit" class="neo-btn neo-btn-primary py-2 px-4 text-xs font-black">
+          Simpan Pembukuan
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</div>
+
+
+<script>
+  function openQuickEditModal(bizId, bizName, currentStatus, currentNotes) {
+    document.getElementById('modal-biz-name').textContent = bizName;
+    document.getElementById('modal-status-select').value = currentStatus || 'sudah_dihubungi';
+    document.getElementById('modal-notes-input').value = '';
+    document.getElementById('quick-edit-form').action = '/contacted/' + bizId + '/update-status';
+    document.getElementById('quick-edit-modal').classList.remove('hidden');
+  }
+
+  function closeQuickEditModal() {
+    document.getElementById('quick-edit-modal').classList.add('hidden');
+  }
+
+  // Update URL tombol export CSV ketika filter berubah
+  function updateExportCsvUrl() {
+    const category = document.getElementById('filter-category').value;
+    const status = document.getElementById('filter-status').value;
+    const search = document.getElementById('filter-search').value;
+    const dateRange = document.getElementById('filter-date-range').value;
+
+    const params = new URLSearchParams();
+    if (category && category !== 'all') params.set('category', category);
+    if (status && status !== 'all') params.set('contact_status', status);
+    if (search && search.trim()) params.set('search', search.trim());
+    if (dateRange) params.set('date_range', dateRange);
+
+    const exportBtn = document.getElementById('btn-export-csv');
+    if (exportBtn) {
+      exportBtn.href = '/contacted/export/csv?' + params.toString();
+    }
+  }
+
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.closest('#contacted-filter-form')) {
+      updateExportCsvUrl();
+    }
+  });
+
+  document.addEventListener('keyup', function(e) {
+    if (e.target && e.target.id === 'filter-search') {
+      updateExportCsvUrl();
+    }
+  });
+</script>
+{% endblock %}

@@ -25,6 +25,12 @@ UPLOAD_DIR = os.path.join("app", "static", "uploads", "portfolio")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
+ALLOWED_PORTFOLIO_EXTENSIONS = [
+    ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx", ".zip",
+    ".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"
+]
+
+
 async def _save_portfolio_image(image_file: Optional[UploadFile]) -> Optional[str]:
     if not image_file or not image_file.filename:
         return None
@@ -34,8 +40,14 @@ async def _save_portfolio_image(image_file: Optional[UploadFile]) -> Optional[st
         return None
     
     ext = os.path.splitext(filename)[1].lower()
-    if ext not in [".jpg", ".jpeg", ".png", ".webp", ".gif", ".svg"]:
-        ext = ".png"
+    if ext not in ALLOWED_PORTFOLIO_EXTENSIONS:
+        ct = getattr(image_file, "content_type", "") or ""
+        if "pdf" in ct.lower():
+            ext = ".pdf"
+        elif "image" in ct.lower():
+            ext = ".png"
+        else:
+            ext = ".pdf"
     
     clean_name = re.sub(r"[^a-zA-Z0-9_\-]", "", os.path.splitext(filename)[0])[:30]
     unique_filename = f"p_{int(datetime.utcnow().timestamp())}_{uuid.uuid4().hex[:6]}_{clean_name}{ext}"
@@ -49,6 +61,9 @@ async def _save_portfolio_image(image_file: Optional[UploadFile]) -> Optional[st
         f.write(contents)
     
     return f"/static/uploads/portfolio/{unique_filename}"
+
+
+_save_portfolio_file = _save_portfolio_image
 
 
 # ==============================================================================

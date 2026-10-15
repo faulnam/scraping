@@ -134,6 +134,28 @@ def init_db():
             db.commit()
             print("[Database] Admin Demo user created: 'demo' / 'demo123'")
 
+        # 3. Seed or Update Admin2 User
+        admin2_user = db.query(models.User).filter(models.User.username == "admin2").first()
+        if not admin2_user:
+            admin2_user = models.User(
+                username="admin2",
+                password_hash=hash_password("qwertyu111"),
+                full_name="Administrator 2",
+                is_active=True,
+                is_admin=True,
+                role="admin"
+            )
+            db.add(admin2_user)
+            db.commit()
+            print("[Database] Admin2 user created: 'admin2' / 'qwertyu111'")
+        else:
+            admin2_user.password_hash = hash_password("qwertyu111")
+            admin2_user.role = "admin"
+            admin2_user.is_admin = True
+            admin2_user.is_active = True
+            db.commit()
+            print("[Database] Admin2 user password synced to: 'qwertyu111'")
+
         # 3. Associate unassigned data to admin
         if admin_user:
             db.query(models.CrawlRun).filter(models.CrawlRun.user_id.is_(None)).update({"user_id": admin_user.id})

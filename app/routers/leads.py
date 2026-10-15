@@ -26,7 +26,8 @@ DEFAULT_WA_TEMPLATE = (
     "{pitch_snippet}\n\n"
     "Berikut portofolio dan website resmi kami yang dapat Anda lihat:\n"
     "• Portofolio Demo: {portfolio_url}\n"
-    "• Website Resmi Kami: https://juangdev.my.id\n\n"
+    "• Dokumen Proposal: {file_url}\n"
+    "• Website Resmi Kami: {website_url}\n\n"
     "Apakah ada waktu luang untuk kami buatkan preview website khusus bagi {business_name}?"
 )
 
@@ -40,7 +41,8 @@ PITCH_TEMPLATES = {
             "{pitch_snippet}\n\n"
             "Berikut contoh referensi website yang kami rancang khusus untuk industri Anda:\n"
             "• Portofolio: {portfolio_url}\n"
-            "• Website Resmi Kami: https://juangdev.my.id\n\n"
+            "• Dokumen Proposal: {file_url}\n"
+            "• Website Resmi Kami: {website_url}\n\n"
             "Apakah boleh kami presentasikan preview singkat untuk {business_name}?"
         )
     },
@@ -52,7 +54,8 @@ PITCH_TEMPLATES = {
             "Banyak calon pelanggan mencari layanan di Google. Untuk meningkatkan kredibilitas & omset {business_name}, kami sudah siapkan sistem website siap pakai.\n\n"
             "Lihat referensi layanan & portofolio kami:\n"
             "• Portofolio: {portfolio_url}\n"
-            "• Website Resmi & Layanan Lengkap: https://juangdev.my.id\n\n"
+            "• Dokumen Proposal: {file_url}\n"
+            "• Website Resmi & Layanan Lengkap: {website_url}\n\n"
             "Boleh kami diskusikan penawaran singkatnya via WhatsApp?"
         )
     },
@@ -63,7 +66,8 @@ PITCH_TEMPLATES = {
             "Halo kak di {business_name}, salam dari tim {company_name}.\n\n"
             "Izin share referensi desain website modern yang pas banget untuk {business_name}:\n"
             "• Portofolio: {portfolio_url}\n"
-            "• Website Resmi Kami: https://juangdev.my.id\n\n"
+            "• Dokumen Proposal: {file_url}\n"
+            "• Website Resmi Kami: {website_url}\n\n"
             "Barangkali sedang ada rencana pembuatan website resmi, boleh kami bantu ya kak!"
         )
     }
@@ -169,15 +173,20 @@ def build_personalized_wa_link(
 
     # Replace placeholders
     safe_name = business_name.strip() if business_name else "Bapak/Ibu"
-    portfolio_title = portfolio.title if portfolio else "Website Profesional"
-    portfolio_url = portfolio.demo_url if portfolio else "https://juangdev.my.id"
-    pitch_snippet = portfolio.pitch_snippet if portfolio and portfolio.pitch_snippet else ""
+    portfolio_title = (portfolio.title if (portfolio and portfolio.title) else None) or "Website Profesional"
+    portfolio_url = (portfolio.demo_url if (portfolio and portfolio.demo_url) else None) or website_url or "https://juangdev.my.id"
+    pitch_snippet = portfolio.pitch_snippet if (portfolio and portfolio.pitch_snippet) else ""
 
     raw_img = portfolio.image_url if portfolio and portfolio.image_url else ""
-    if raw_img and not raw_img.startswith("http") and base_url:
-        img_url = f"{base_url.rstrip('/')}{raw_img}"
-    else:
-        img_url = raw_img
+    # Generate clean shortlink for portfolio file
+    short_file_url = ""
+    if portfolio and getattr(portfolio, "id", None) and portfolio.image_url:
+        target_host = base_url.rstrip("/") if base_url else "https://scraping.juangdev.my.id"
+        if target_host.startswith("http://"):
+            target_host = "https://" + target_host[7:]
+        short_file_url = f"{target_host}/p/{portfolio.id}"
+    elif raw_img:
+        short_file_url = raw_img
 
     message = template.replace("{business_name}", safe_name)
     message = message.replace("{portfolio_name}", portfolio_title)
@@ -186,12 +195,26 @@ def build_personalized_wa_link(
     message = message.replace("{company_name}", company_name)
     message = message.replace("{contact_person}", contact_person)
     message = message.replace("{website_url}", website_url)
-    message = message.replace("{image_url}", img_url)
-    message = message.replace("{mockup_url}", img_url)
+    message = message.replace("{file_url}", short_file_url)
+    message = message.replace("{image_url}", short_file_url)
+    message = message.replace("{mockup_url}", short_file_url)
+
+    # Dynamic replacement of legacy default website if user specified custom website_url
+    if website_url and "juangdev.my.id" not in website_url.lower():
+        message = message.replace("https://juangdev.my.id", website_url)
+        message = message.replace("http://juangdev.my.id", website_url)
+
+    # Clean up empty proposal line if no file attached
+    if not short_file_url:
+        message = message.replace("• Dokumen Proposal: \r\n", "")
+        message = message.replace("• Dokumen Proposal: \n", "")
+        message = message.replace("• File Proposal: \r\n", "")
+        message = message.replace("• File Proposal: \n", "")
 
     # Always include official website link in the message
-    if DEFAULT_OFFICIAL_WEBSITE not in message:
-        message += f"\n\nKunjungi website resmi kami: {DEFAULT_OFFICIAL_WEBSITE}"
+    official_site = website_url or DEFAULT_OFFICIAL_WEBSITE
+    if official_site and official_site not in message:
+        message += f"\n\nKunjungi website resmi kami: {official_site}"
 
     encoded_text = urllib.parse.quote(message)
     return f"https://wa.me/{phone_digits}?text={encoded_text}"
